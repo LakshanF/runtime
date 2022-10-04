@@ -1,3 +1,142 @@
+# These need to happen before the VM and debug-pal includes.
+set(EP_GENERATED_HEADER_PATH "${GENERATED_INCLUDE_DIR}")
+include (${CLR_SRC_NATIVE_DIR}/eventpipe/configure.cmake)
+
+set(str_line_test "--------laks_debug-------")
+
+message(${str_line_test})
+message(${EP_GENERATED_HEADER_PATH})
+message(${str_line_test})
+
+# set (AOT_EVENTPIPE_SHIM_DIR "${CLR_SRC_NATIVE_DIR}/aoteventpipe")
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(AOT_EVENTPIPE_SHIM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/eventpipe")
+
+set (SHARED_EVENTPIPE_SOURCE_DIR "${CLR_SRC_NATIVE_DIR}/eventpipe")
+include_directories(${SHARED_EVENTPIPE_SOURCE_DIR})
+
+set (AOT_EVENTPIPE_SHIM_SOURCES "")
+set (AOT_EVENTPIPE_SHIM_HEADERS "")
+set (SHARED_EVENTPIPE_SOURCES "")
+set (SHARED_EVENTPIPE_HEADERS "")
+set (SHARED_DIAGNOSTIC_SERVER_SOURCES "")
+set (SHARED_DIAGNOSTIC_SERVER_HEADERS "")
+
+list(APPEND SHARED_EVENTPIPE_SOURCES
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-sources.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-block.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-buffer.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-buffer-manager.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-config.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-event.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-event-instance.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-event-payload.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-event-source.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-file.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-json-file.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-metadata-generator.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-provider.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-sample-profiler.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-session.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-session-provider.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-stack-contents.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-stream.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-thread.c
+)
+
+list(APPEND SHARED_EVENTPIPE_HEADERS
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-block.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-buffer.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-buffer-manager.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-config.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-config-internals.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-event.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-event-instance.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-event-payload.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-event-source.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-file.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-getter-setter.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-ipc-pal-types.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-ipc-pal-types-forward.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-ipc-stream.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-json-file.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-metadata-generator.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-provider.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-provider-internals.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-rt.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-rt-config.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-rt-types.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-sample-profiler.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-session.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-session-provider.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-stack-contents.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-stream.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-thread.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-types.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ep-types-forward.h
+)
+
+list(APPEND SHARED_DIAGNOSTIC_SERVER_SOURCES
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-sources.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-dump-protocol.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-eventpipe-protocol.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-process-protocol.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-profiler-protocol.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-protocol.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-server.c
+)
+
+list(APPEND SHARED_DIAGNOSTIC_SERVER_HEADERS
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-dump-protocol.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-eventpipe-protocol.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-getter-setter.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc-pal.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc-pal-types.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-process-protocol.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-profiler-protocol.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-protocol.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-rt.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-rt-config.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-rt-types.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-server.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-types.h
+)
+
+list(APPEND AOT_EVENTPIPE_SHIM_SOURCES
+  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-coreclr.cpp
+)
+
+list(APPEND AOT_EVENTPIPE_SHIM_HEADERS
+  ${AOT_EVENTPIPE_SHIM_DIR}/ds-rt-coreclr.h
+  ${AOT_EVENTPIPE_SHIM_DIR}/ds-rt-types-coreclr.h
+  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-coreclr.h
+  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-config-coreclr.h
+  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-types-coreclr.h
+)
+
+list(APPEND EVENTPIPE_SOURCES
+  ${AOT_EVENTPIPE_SHIM_SOURCES}
+  ${AOT_EVENTPIPE_SHIM_HEADERS}
+  ${SHARED_EVENTPIPE_SOURCES}
+  ${SHARED_EVENTPIPE_HEADERS}
+  ${SHARED_DIAGNOSTIC_SERVER_SOURCES}
+  ${SHARED_DIAGNOSTIC_SERVER_HEADERS}
+  ${SHARED_EVENTPIPE_CONFIG_HEADERS}
+)
+
+set(str_line_all "--------all-------")
+
+message(${str_line_all})
+foreach(var ${EVENTPIPE_SOURCES})
+  message(${var})
+endforeach()
+message(${str_line_all})
+
 set(GC_DIR ../../gc)
 
 set(COMMON_RUNTIME_SOURCES
@@ -36,6 +175,8 @@ set(COMMON_RUNTIME_SOURCES
     threadstore.cpp
     UniversalTransitionHelpers.cpp
     yieldprocessornormalized.cpp
+    
+    eventpipeadapter.h
 
     ${GC_DIR}/gceventstatus.cpp
     ${GC_DIR}/gcload.cpp

@@ -26,6 +26,8 @@
 #include "stressLog.h"
 #include "RestrictedCallouts.h"
 #include "yieldprocessornormalized.h"
+//#include "eventpipeadapter.h"
+#include "diagnosticserveradapter.h"
 
 #ifndef DACCESS_COMPILE
 
@@ -97,6 +99,11 @@ static bool InitDLL(HANDLE hPalInstance)
     if (!InitializeInterfaceDispatch())
         return false;
 #endif
+
+    // Initialize EventPipe
+//    EventPipeAdapter::Initialize();
+    // Initialize EventPipe
+    DiagnosticServerAdapter::Initialize();
 
     //
     // Initialize support for registering GC and HandleTable callouts.

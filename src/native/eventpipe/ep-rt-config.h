@@ -1,9 +1,10 @@
 #ifndef __EVENTPIPE_RT_CONFIG_H__
 #define __EVENTPIPE_RT_CONFIG_H__
 
-#include "ep-shared-config.h"
+// #include "ep-shared-config.h"
 
-#ifndef FEATURE_CORECLR
+#if !defined(FEATURE_CORECLR) && !defined(FEATURE_NATIVEAOT)
+// #ifndef FEATURE_CORECLR 
 
 #include <config.h>
 
@@ -37,7 +38,8 @@
 // EventPipe runtime implementation.
 #define EP_RT_H "ep-rt-coreclr.h"
 #define EP_RT_TYPES_H "ep-rt-types-coreclr.h"
-#define EP_RT_CONFIG_H "ep-rt-config-coreclr.h"
+// #define EP_RT_CONFIG_H "ep-rt-config-coreclr.h"
+#define EP_RT_CONFIG_H <eventpipe/ep-rt-config-coreclr.h>
 
 // DiagnosticServer runtime implementation.
 #define DS_RT_H "ds-rt-coreclr.h"
