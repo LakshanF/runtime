@@ -5,7 +5,7 @@
 
 #include <minipal/utils.h>
 
-//#ifdef ENABLE_PERFTRACING
+#ifdef ENABLE_PERFTRACING
 #include "ep-types.h"
 
 #define EP_INFINITE_WAIT ep_rt_redefine
@@ -1015,5 +1015,5 @@ _ep_on_config_lock_exit_ ##section_name: \
 #include EP_RT_H
 #endif
 
-//#endif /* ENABLE_PERFTRACING */
+#endif /* ENABLE_PERFTRACING */
 #endif /* __EVENTPIPE_RT_H__ */

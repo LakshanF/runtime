@@ -4,7 +4,7 @@
 #ifndef __EVENTPIPE_ADAPTER_H__
 #define __EVENTPIPE_ADAPTER_H__
 
-//#if defined(FEATURE_PERFTRACING)
+#if defined(FEATURE_PERFTRACING)
 
 #include <eventpipe/ep.h>
 #include <eventpipe/ep-provider.h>
@@ -623,5 +623,5 @@ public:
 	}
 };
 
-//#endif // FEATURE_PERFTRACING
+#endif // FEATURE_PERFTRACING
 #endif // __EVENTPIPE_ADAPTER_H__

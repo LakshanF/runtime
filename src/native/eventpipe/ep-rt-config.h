@@ -36,14 +36,16 @@
 #endif
 
 // EventPipe runtime implementation.
-#define EP_RT_H "ep-rt-coreclr.h"
-#define EP_RT_TYPES_H "ep-rt-types-coreclr.h"
+// #define EP_RT_H "ep-rt-coreclr.h"
+// #define EP_RT_TYPES_H "ep-rt-types-coreclr.h"
 // #define EP_RT_CONFIG_H "ep-rt-config-coreclr.h"
-#define EP_RT_CONFIG_H <eventpipe/ep-rt-config-coreclr.h>
+#define EP_RT_H <eventpipe/ep-rt-aot.h>
+#define EP_RT_TYPES_H <eventpipe/ep-rt-types-aot.h>
+#define EP_RT_CONFIG_H <eventpipe/ep-rt-config-aot.h>
 
 // DiagnosticServer runtime implementation.
-#define DS_RT_H "ds-rt-coreclr.h"
-#define DS_RT_TYPES_H "ds-rt-types-coreclr.h"
+#define DS_RT_H <eventpipe/ds-rt-aot.h>
+#define DS_RT_TYPES_H <eventpipe/ds-rt-types-aot.h>
 
 #endif
 

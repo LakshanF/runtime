@@ -1,7 +1,6 @@
 // Implementation of ep-rt.h targeting CoreCLR runtime.
 #ifndef __EVENTPIPE_RT_CORECLR_H__
 #define __EVENTPIPE_RT_CORECLR_H__
-
 #include <eventpipe/ep-rt-config.h>
 
 #ifdef ENABLE_PERFTRACING
@@ -9,9 +8,12 @@
 #include <eventpipe/ep-types.h>
 #include <eventpipe/ep-provider.h>
 #include <eventpipe/ep-session-provider.h>
-#include "fstream.h"
-#include "typestring.h"
-#include "clrversion.h"
+//#include "fstream.h"
+//#include "typestring.h"
+//#include "clrversion.h"
+
+// Contracts
+#define STATIC_CONTRACT_NOTHROW
 
 #undef EP_INFINITE_WAIT
 #define EP_INFINITE_WAIT INFINITE
@@ -110,7 +112,7 @@ template<typename LIST_TYPE, typename LIST_ITEM, typename CONST_LIST_ITEM = LIST
 static
 inline
 void
-_rt_coreclr_list_remove (
+_rt_aot_list_remove (
 	LIST_TYPE *list,
 	CONST_LIST_ITEM item)
 {
@@ -803,7 +805,7 @@ _rt_coreclr_hash_map_iterator_value (CONST_ITERATOR_TYPE *iterator)
 	static inline void EP_RT_BUILD_TYPE_FUNC_NAME(prefix_name, list_name, remove) (list_type *list, const item_type item) \
 	{ \
 		STATIC_CONTRACT_NOTHROW; \
-		_rt_coreclr_list_remove<list_type, item_type>(list, item); \
+		_rt_aot_list_remove<list_type, item_type>(list, item); \
 	} \
 	static inline bool EP_RT_BUILD_TYPE_FUNC_NAME(prefix_name, list_name, find) (const list_type *list, const item_type item_to_find, item_type *found_item) \
 	{ \

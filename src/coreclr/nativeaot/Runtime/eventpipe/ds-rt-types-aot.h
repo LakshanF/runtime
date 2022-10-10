@@ -5,7 +5,7 @@
 #include <eventpipe/ds-rt-config.h>
 
 #ifdef ENABLE_PERFTRACING
-#include "ep-rt-types-coreclr.h"
+#include "ep-rt-types-aot.h"
 
 /*
  * DiagnosticsIpcPollHandle.

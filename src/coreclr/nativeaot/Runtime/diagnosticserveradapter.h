@@ -4,7 +4,7 @@
 #ifndef __DIAGNOSTIC_SERVER_ADAPTER_H__
 #define __DIAGNOSTIC_SERVER_ADAPTER_H__
 
-//#if defined(FEATURE_PERFTRACING)
+#if defined(FEATURE_PERFTRACING)
 
 #include <eventpipe\ds-server.h>
 
@@ -37,6 +37,6 @@ public:
 	}
 };
 
-//#endif // FEATURE_PERFTRACING
+#endif // FEATURE_PERFTRACING
 
 #endif // __DIAGNOSTIC_SERVER_ADAPTER_H__

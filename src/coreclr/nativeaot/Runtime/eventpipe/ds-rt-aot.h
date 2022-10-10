@@ -5,7 +5,7 @@
 #include <eventpipe/ds-rt-config.h>
 
 #ifdef ENABLE_PERFTRACING
-#include "ep-rt-coreclr.h"
+#include "ep-rt-aot.h"
 #include <clrconfignocache.h>
 #include <eventpipe/ds-process-protocol.h>
 #include <eventpipe/ds-profiler-protocol.h>

@@ -108,15 +108,15 @@ list(APPEND SHARED_DIAGNOSTIC_SERVER_HEADERS
 )
 
 list(APPEND AOT_EVENTPIPE_SHIM_SOURCES
-  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-coreclr.cpp
+  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-aot.cpp
 )
 
 list(APPEND AOT_EVENTPIPE_SHIM_HEADERS
-  ${AOT_EVENTPIPE_SHIM_DIR}/ds-rt-coreclr.h
-  ${AOT_EVENTPIPE_SHIM_DIR}/ds-rt-types-coreclr.h
-  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-coreclr.h
-  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-config-coreclr.h
-  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-types-coreclr.h
+  ${AOT_EVENTPIPE_SHIM_DIR}/ds-rt-aot.h
+  ${AOT_EVENTPIPE_SHIM_DIR}/ds-rt-types-aot.h
+  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-aot.h
+  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-config-aot.h
+  ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-types-aot.h
 )
 
 list(APPEND EVENTPIPE_SOURCES
@@ -177,6 +177,7 @@ set(COMMON_RUNTIME_SOURCES
     yieldprocessornormalized.cpp
     
     eventpipeadapter.h
+    diagnosticserveradapter.h
 
     ${GC_DIR}/gceventstatus.cpp
     ${GC_DIR}/gcload.cpp
