@@ -20,10 +20,32 @@ template <class T, bool fHead = false, typename __PTR = T*, SLink T::*LinkPtr = 
 class SList
 {
 public:
+
+    T*	GetHead()
+    {
+//        WRAPPER_NO_CONTRACT;
+        return GetObject(m_pHead->m_pNext);
+    }
+
+    static T *GetNext(T *pObj)
+    {
+//        WRAPPER_NO_CONTRACT;
+
+        _ASSERTE(pObj != NULL);
+        return GetObject(GetLink(pObj)->m_pNext);
+    }
+
+
     class Iterator
     {
         friend class SList;
     };
+    Iterator begin()
+    { return Iterator(GetHead()); }
+
+    Iterator end()
+    { return Iterator(); }
+
 };
 
 template <typename ElemT>
@@ -50,13 +72,11 @@ template <typename TRAITS>
 class SHash : public TRAITS
 {
   public:
-    class Iterator;
+    class Iterator
+    {
+        friend class SHash;
+    };
 };
-
-// template <typename PARENT>
-// class /**EMPTY_BASES_DECL**/ NoRemoveSHashTraits : public PARENT
-// {
-// };
 
 template < typename ELEMENT, typename COUNT_T = uint32_t >
 class DefaultSHashTraits

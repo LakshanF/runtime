@@ -26,7 +26,7 @@
 #include "stressLog.h"
 #include "RestrictedCallouts.h"
 #include "yieldprocessornormalized.h"
-//#include "eventpipeadapter.h"
+#include "eventpipeadapter.h"
 #include "diagnosticserveradapter.h"
 
 #ifndef DACCESS_COMPILE
@@ -101,7 +101,7 @@ static bool InitDLL(HANDLE hPalInstance)
 #endif
 
     // Initialize EventPipe
-//    EventPipeAdapter::Initialize();
+    EventPipeAdapter::Initialize();
     // Initialize EventPipe
     DiagnosticServerAdapter::Initialize();
 
