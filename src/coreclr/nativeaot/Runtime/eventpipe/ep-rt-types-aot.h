@@ -63,18 +63,55 @@ typedef struct _rt_aot_table_callbacks_t {
 	void (*value_free_func)(void *);
 } rt_aot_table_callbacks_t;
 
-// template<typename T1, typename T2>
-// struct _rt_coreclr_table_default_internal_t {
-// 	typedef class SHash<NoRemoveSHashTraits< MapSHashTraits <T1, T2> > > table_type_t;
-// 	rt_coreclr_table_callbacks_t callbacks;
-// 	table_type_t *table;
-// };
+template<typename T1, typename T2>
+struct _rt_aot_table_default_internal_t {
+	typedef class SHash<NoRemoveSHashTraits< MapSHashTraits <T1, T2> > > table_type_t;
+	rt_aot_table_callbacks_t callbacks;
+	table_type_t *table;
+};
 
 template<typename T1, typename T2>
 struct _rt_aot_table_remove_internal_t {
 	typedef class SHash< MapSHashTraits <T1, T2> > table_type_t;
 	rt_aot_table_callbacks_t callbacks;
 	table_type_t *table;
+};
+
+class EventPipeCoreCLRStackHashTraits : public NoRemoveSHashTraits< MapSHashTraits<StackHashKey *, StackHashEntry *> >
+{
+public:
+	typedef typename MapSHashTraits<StackHashKey *, StackHashEntry *>::element_t element_t;
+	typedef typename MapSHashTraits<StackHashKey *, StackHashEntry *>::count_t count_t;
+
+	typedef StackHashKey * key_t;
+
+	static key_t GetKey (element_t e)
+	{
+		extern StackHashKey * ep_stack_hash_entry_get_key (StackHashEntry *);
+		return ep_stack_hash_entry_get_key (e.Value ());
+	}
+
+	static BOOL Equals (key_t k1, key_t k2)
+	{
+		extern bool ep_stack_hash_key_equal (const void *, const void *);
+		return ep_stack_hash_key_equal (k1, k2);
+	}
+
+	static count_t Hash (key_t k)
+	{
+		extern uint32_t ep_stack_hash_key_hash (const void *);
+		return (count_t)ep_stack_hash_key_hash (k);
+	}
+
+	static element_t Null ()
+	{
+		return element_t (NULL, NULL);
+	}
+
+	static bool IsNull (const element_t &e)
+	{
+		return (e.Key () == NULL|| e.Value () == NULL);
+	}
 };
 
 template<typename T1>
@@ -84,8 +121,14 @@ struct _rt_aot_table_custom_internal_t {
 	table_type_t *table;
 };
 
-class EventPipeCoreCLRStackHashTraits// : public NoRemoveSHashTraits< MapSHashTraits<StackHashKey *, StackHashEntry *> >
-{
+class CLREventStatic;
+struct _rt_aot_event_internal_t {
+	CLREventStatic *event;
+};
+
+class CrstStatic;
+struct _rt_aot_lock_internal_t {
+	CrstStatic *lock;
 };
 
 class SpinLock;
@@ -139,9 +182,9 @@ typedef struct _rt_aot_table_custom_internal_t<EventPipeCoreCLRStackHashTraits> 
 #undef ep_rt_stack_hash_map_iterator_t
 typedef class _rt_aot_table_custom_internal_t<EventPipeCoreCLRStackHashTraits>::table_type_t::Iterator ep_rt_stack_hash_map_iterator_t;
 
-// /*
-//  * EventPipeProvider.
-//  */
+/*
+ * EventPipeProvider.
+ */
 
 #undef ep_rt_provider_list_t
 typedef struct _rt_aot_list_internal_t<EventPipeProvider *> ep_rt_provider_list_t;
