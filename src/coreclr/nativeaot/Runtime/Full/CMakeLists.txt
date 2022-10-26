@@ -69,7 +69,10 @@ add_custom_command(
 )
 
 set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/AsmOffsets.inc" PROPERTIES GENERATED TRUE)
-set_source_files_properties(${EVENTPIPE_SOURCES} PROPERTIES LANGUAGE CXX)
+set_source_files_properties(${SHARED_EVENTPIPE_SOURCES} PROPERTIES LANGUAGE CXX)
+set_source_files_properties(${SHARED_DIAGNOSTIC_SERVER_SOURCES} PROPERTIES LANGUAGE CXX)
+
+# set_source_files_properties(${EVENTPIPE_SOURCES} PROPERTIES LANGUAGE CXX)
 add_definitions(-DFEATURE_PERFTRACING)
 
 # Runtime.WorkstationGC and Runtime.ServerGC share AsmOffsets.inc and assembler helpers (for Windows ARM/ARM64).

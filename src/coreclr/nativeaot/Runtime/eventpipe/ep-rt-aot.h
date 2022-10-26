@@ -19,7 +19,7 @@
 #define EP_INFINITE_WAIT INFINITE
 
 #undef EP_GCX_PREEMP_ENTER
-#define EP_GCX_PREEMP_ENTER { GCX_PREEMP();
+#define EP_GCX_PREEMP_ENTER { //GCX_PREEMP();
 
 #undef EP_GCX_PREEMP_EXIT
 #define EP_GCX_PREEMP_EXIT }
@@ -2900,7 +2900,7 @@ ep_rt_thread_set_activity_id (
 }
 
 #undef EP_YIELD_WHILE
-#define EP_YIELD_WHILE(condition) YIELD_WHILE(condition)
+#define EP_YIELD_WHILE(condition) {}//YIELD_WHILE(condition)
 
 /*
  * ThreadSequenceNumberMap.
