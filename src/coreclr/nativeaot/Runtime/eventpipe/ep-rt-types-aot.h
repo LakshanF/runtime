@@ -2,13 +2,13 @@
 #ifndef __EVENTPIPE_RT_TYPES_AOT_H__
 #define __EVENTPIPE_RT_TYPES_AOT_H__
 
-#include <windows.h>
 #include <eventpipe/ep-rt-config.h>
 
 #ifdef ENABLE_PERFTRACING
 #include "CommonMacros.h"
 #include "daccess.h"
 #include "EmptyContainers.h"
+//#include <windows.h>
 
 #ifdef DEBUG
 #define EP_CHECKED_BUILD

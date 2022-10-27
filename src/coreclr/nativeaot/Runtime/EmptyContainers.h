@@ -4,6 +4,7 @@
 #ifndef __slist_h__
 #define __slist_h__
 
+#include <windows.h>
 #include "forward_declarations.h"
 
 MSVC_SAVE_WARNING_STATE()

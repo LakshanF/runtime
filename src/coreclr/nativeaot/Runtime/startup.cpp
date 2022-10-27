@@ -4,6 +4,8 @@
 #include "CommonTypes.h"
 #include "CommonMacros.h"
 #include "daccess.h"
+#include "eventpipeadapter.h"
+#include "diagnosticserveradapter.h"
 #include "PalRedhawkCommon.h"
 #include "PalRedhawk.h"
 #include "rhassert.h"
@@ -26,8 +28,6 @@
 #include "stressLog.h"
 #include "RestrictedCallouts.h"
 #include "yieldprocessornormalized.h"
-#include "eventpipeadapter.h"
-#include "diagnosticserveradapter.h"
 
 #ifndef DACCESS_COMPILE
 
