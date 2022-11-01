@@ -20,7 +20,7 @@ if (CLR_CMAKE_TARGET_WIN32)
   endif()
 endif (CLR_CMAKE_TARGET_WIN32)
 
-add_library(Runtime.WorkstationGC STATIC ${COMMON_RUNTIME_SOURCES} ${FULL_RUNTIME_SOURCES} ${RUNTIME_SOURCES_ARCH_ASM} ${RUNTIME_ARCH_ASM_OBJECTS})
+add_library(Runtime.WorkstationGC STATIC ${COMMON_RUNTIME_SOURCES} ${FULL_RUNTIME_SOURCES} ${RUNTIME_SOURCES_ARCH_ASM} ${RUNTIME_ARCH_ASM_OBJECTS} ${EVENTPIPE_SOURCES})
 
 add_library(Runtime.ServerGC STATIC ${COMMON_RUNTIME_SOURCES} ${FULL_RUNTIME_SOURCES} ${RUNTIME_SOURCES_ARCH_ASM} ${SERVER_GC_SOURCES} ${RUNTIME_ARCH_ASM_OBJECTS})
 
@@ -62,6 +62,12 @@ add_custom_command(
 )
 
 set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/AsmOffsets.inc" PROPERTIES GENERATED TRUE)
+
+set_source_files_properties(${SHARED_EVENTPIPE_SOURCES} PROPERTIES LANGUAGE CXX)
+set_source_files_properties(${SHARED_DIAGNOSTIC_SERVER_SOURCES} PROPERTIES LANGUAGE CXX)
+
+# set_source_files_properties(${EVENTPIPE_SOURCES} PROPERTIES LANGUAGE CXX)
+add_definitions(-DFEATURE_PERFTRACING)
 
 # Runtime.WorkstationGC and Runtime.ServerGC share AsmOffsets.inc and assembler helpers (for Windows ARM/ARM64).
 # Avoid a race condition by adding this target as a dependency for both libraries.
