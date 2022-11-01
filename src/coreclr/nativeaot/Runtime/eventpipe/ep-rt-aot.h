@@ -1,55 +1,30 @@
 // Implementation of ep-rt.h targeting CoreCLR runtime.
-#ifndef __EVENTPIPE_RT_aot_H__
-#define __EVENTPIPE_RT_aot_H__
+#ifndef __EVENTPIPE_RT_AOT_H__
+#define __EVENTPIPE_RT_AOT_H__
 #include <eventpipe/ep-rt-config.h>
-#include <windows.h>
 #ifdef ENABLE_PERFTRACING
 #include <eventpipe/ep-thread.h>
 #include <eventpipe/ep-types.h>
 #include <eventpipe/ep-provider.h>
 #include <eventpipe/ep-session-provider.h>
-// //#include "fstream.h"
-// //#include "typestring.h"
-// //#include "clrversion.h"
-
-#define INFINITE            0xFFFFFFFF  // Infinite timeout
-
-// Contracts
-#define STATIC_CONTRACT_NOTHROW
+//#include "fstream.h"
+//#include "typestring.h"
+//#include "clrversion.h"
 
 #undef EP_INFINITE_WAIT
 #define EP_INFINITE_WAIT INFINITE
 
 #undef EP_GCX_PREEMP_ENTER
-#define EP_GCX_PREEMP_ENTER { //GCX_PREEMP();
+#define EP_GCX_PREEMP_ENTER { GCX_PREEMP();
 
 #undef EP_GCX_PREEMP_EXIT
 #define EP_GCX_PREEMP_EXIT }
 
 #undef EP_ALWAYS_INLINE
-// #define EP_ALWAYS_INLINE FORCEINLINE
-#define EP_ALWAYS_INLINE
+#define EP_ALWAYS_INLINE FORCEINLINE
 
 #undef EP_NEVER_INLINE
-#define EP_NEVER_INLINE// NOINLINE
-
-inline size_t ALIGN_UP( size_t val, size_t alignment )
-{
-    { { }; }; ;
-
-    
-    ((void)0);
-    size_t result = (val + (alignment - 1)) & ~(alignment - 1);
-    ((void)0);      
-    return result;
-}
-
-template <typename T> inline T ALIGN_UP(T val, size_t alignment)
-{
-    { { }; };
-    return (T)ALIGN_UP((size_t)val, alignment);
-}
-
+#define EP_NEVER_INLINE NOINLINE
 
 #undef EP_ALIGN_UP
 #define EP_ALIGN_UP(val,align) ALIGN_UP(val,align)
@@ -3125,4 +3100,4 @@ ep_rt_volatile_store_ptr_without_barrier (
 }
 
 #endif /* ENABLE_PERFTRACING */
-#endif /* __EVENTPIPE_RT_aot_H__ */
+#endif /* __EVENTPIPE_RT_AOT_H__ */

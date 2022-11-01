@@ -1,79 +1,60 @@
 // Implementation of ds-rt.h targeting Mono runtime.
-#ifndef __DIAGNOSTICS_RT_MONO_H__
-#define __DIAGNOSTICS_RT_MONO_H__
+#ifndef __DIAGNOSTICS_RT_AOT_H__
+#define __DIAGNOSTICS_RT_AOT_H__
 
 #include <eventpipe/ds-rt-config.h>
 
 #ifdef ENABLE_PERFTRACING
 #include "ep-rt-aot.h"
-// //#include <clrconfignocache.h>
+//#include <clrconfignocache.h>
 #include <eventpipe/ds-process-protocol.h>
 #include <eventpipe/ds-profiler-protocol.h>
 #include <eventpipe/ds-dump-protocol.h>
 
-#undef DS_UNREACHABLE_MSG
-#define DS_UNREACHABLE_MSG(msg) do { } while (0)
-
-
 #undef DS_LOG_ALWAYS_0
-//#define DS_LOG_ALWAYS_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_ALWAYS, msg "\n")
-#define DS_LOG_ALWAYS_0(msg) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_ALWAYS_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_ALWAYS, msg "\n")
 
 #undef DS_LOG_ALWAYS_1
-//#define DS_LOG_ALWAYS_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_ALWAYS, msg "\n", data1)
-#define DS_LOG_ALWAYS_1(msg, data1) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_ALWAYS_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_ALWAYS, msg "\n", data1)
 
 #undef DS_LOG_ALWAYS_2
-//#define DS_LOG_ALWAYS_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_ALWAYS, msg "\n", data1, data2)
-#define DS_LOG_ALWAYS_2(msg, data1, data2) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_ALWAYS_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_ALWAYS, msg "\n", data1, data2)
 
 #undef DS_LOG_INFO_0
-//#define DS_LOG_INFO_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_INFO10, msg "\n")
-#define DS_LOG_INFO_0(msg) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_INFO_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_INFO10, msg "\n")
 
 #undef DS_LOG_INFO_1
-//#define DS_LOG_INFO_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_INFO10, msg "\n", data1)
-#define DS_LOG_INFO_1(msg, data1) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_INFO_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_INFO10, msg "\n", data1)
 
 #undef DS_LOG_INFO_2
-//#define DS_LOG_INFO_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_INFO10, msg "\n", data1, data2)
-#define DS_LOG_INFO_2(msg, data1, data2) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_INFO_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_INFO10, msg "\n", data1, data2)
 
 #undef DS_LOG_ERROR_0
-//#define DS_LOG_ERROR_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_ERROR, msg "\n")
-#define DS_LOG_ERROR_0(msg) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_ERROR_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_ERROR, msg "\n")
 
 #undef DS_LOG_ERROR_1
-//#define DS_LOG_ERROR_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_ERROR, msg "\n", data1)
-#define DS_LOG_ERROR_1(msg, data1) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_ERROR_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_ERROR, msg "\n", data1)
 
 #undef DS_LOG_ERROR_2
-//#define DS_LOG_ERROR_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_ERROR, msg "\n", data1, data2)
-#define DS_LOG_ERROR_2(msg, data1, data2) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_ERROR_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_ERROR, msg "\n", data1, data2)
 
 #undef DS_LOG_WARNING_0
-//#define DS_LOG_WARNING_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_WARNING, msg "\n")
-#define DS_LOG_WARNING_0(msg) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_WARNING_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_WARNING, msg "\n")
 
 #undef DS_LOG_WARNING_1
-//#define DS_LOG_WARNING_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_WARNING, msg "\n", data1)
-#define DS_LOG_WARNING_1(msg, data1) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_WARNING_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_WARNING, msg "\n", data1)
 
 #undef DS_LOG_WARNING_2
-//#define DS_LOG_WARNING_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_WARNING, msg "\n", data1, data2)
-#define DS_LOG_WARNING_2(msg, data1, data2) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_WARNING_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_WARNING, msg "\n", data1, data2)
 
 #undef DS_LOG_DEBUG_0
-//#define DS_LOG_DEBUG_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_INFO1000, msg "\n")
-#define DS_LOG_DEBUG_0(msg) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_DEBUG_0(msg) STRESS_LOG0(LF_DIAGNOSTICS_PORT, LL_INFO1000, msg "\n")
 
 #undef DS_LOG_DEBUG_1
-//#define DS_LOG_DEBUG_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_INFO1000, msg "\n", data1)
-#define DS_LOG_DEBUG_1(msg, data1) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_DEBUG_1(msg, data1) STRESS_LOG1(LF_DIAGNOSTICS_PORT, LL_INFO1000, msg "\n", data1)
 
 #undef DS_LOG_DEBUG_2
-//#define DS_LOG_DEBUG_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_INFO1000, msg "\n", data1, data2)
-#define DS_LOG_DEBUG_2(msg, data1, data2) do { DS_UNREACHABLE_MSG(msg); } while (0)
+#define DS_LOG_DEBUG_2(msg, data1, data2) STRESS_LOG2(LF_DIAGNOSTICS_PORT, LL_INFO1000, msg "\n", data1, data2)
 
 #undef DS_ENTER_BLOCKING_PAL_SECTION
 #define DS_ENTER_BLOCKING_PAL_SECTION
@@ -386,4 +367,4 @@ ds_rt_server_log_pause_message (void)
 }
 
 #endif /* ENABLE_PERFTRACING */
-#endif /* __DIAGNOSTICS_RT_MONO_H__ */
+#endif /* __DIAGNOSTICS_RT_AOT_H__ */

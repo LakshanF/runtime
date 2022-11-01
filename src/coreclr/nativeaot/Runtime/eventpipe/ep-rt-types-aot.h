@@ -5,10 +5,9 @@
 #include <eventpipe/ep-rt-config.h>
 
 #ifdef ENABLE_PERFTRACING
-// #include "CommonMacros.h"
-// #include "daccess.h"
+#include "CommonMacros.h"
+#include "daccess.h"
 #include "EmptyContainers.h"
-// //#include <windows.h>
 
 #ifdef DEBUG
 #define EP_CHECKED_BUILD
@@ -22,7 +21,7 @@
 #endif
 
 #undef EP_UNREACHABLE
-#define EP_UNREACHABLE(msg) do { } while (0)
+#define EP_UNREACHABLE(msg) do { UNREACHABLE_MSG(msg); } while (0)
 
 #undef EP_LIKELY
 #define EP_LIKELY(expr) expr
@@ -308,7 +307,7 @@ typedef class Thread * ep_rt_thread_handle_t;
 #undef ep_rt_thread_activity_id_handle_t
 typedef class Thread * ep_rt_thread_activity_id_handle_t;
 
-#undef ep_rt_thread_id_t
+// #undef ep_rt_thread_id_t
 // #ifndef TARGET_UNIX
 // typedef DWORD ep_rt_thread_id_t;
 // #else
@@ -316,7 +315,6 @@ typedef size_t ep_rt_thread_id_t;
 //#endif
 
 #undef ep_rt_thread_start_func
-//typedef DWORD (WINAPI *ep_rt_thread_start_func)(LPVOID lpThreadParameter);
 typedef size_t (__stdcall *ep_rt_thread_start_func)(void *lpThreadParameter);
 
 #undef ep_rt_thread_start_func_return_t
