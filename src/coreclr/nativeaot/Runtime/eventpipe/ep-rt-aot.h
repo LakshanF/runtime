@@ -1,21 +1,29 @@
 // Implementation of ep-rt.h targeting CoreCLR runtime.
 #ifndef __EVENTPIPE_RT_AOT_H__
 #define __EVENTPIPE_RT_AOT_H__
+#include "NativeaotEventPipeSupport.h"
 #include <eventpipe/ep-rt-config.h>
 #ifdef ENABLE_PERFTRACING
 #include <eventpipe/ep-thread.h>
 #include <eventpipe/ep-types.h>
 #include <eventpipe/ep-provider.h>
 #include <eventpipe/ep-session-provider.h>
+#include <PalRedhawkCommon.h>
+#include <PalRedhawk.h>
+#include <stresslog.h>
+
 //#include "fstream.h"
 //#include "typestring.h"
 //#include "clrversion.h"
+
+// @TODO - temp, lakshanf. This is not used in NativeAOT
+#define STATIC_CONTRACT_NOTHROW
 
 #undef EP_INFINITE_WAIT
 #define EP_INFINITE_WAIT INFINITE
 
 #undef EP_GCX_PREEMP_ENTER
-#define EP_GCX_PREEMP_ENTER { GCX_PREEMP();
+#define EP_GCX_PREEMP_ENTER { //GCX_PREEMP();
 
 #undef EP_GCX_PREEMP_EXIT
 #define EP_GCX_PREEMP_EXIT }

@@ -307,7 +307,7 @@ typedef class Thread * ep_rt_thread_handle_t;
 #undef ep_rt_thread_activity_id_handle_t
 typedef class Thread * ep_rt_thread_activity_id_handle_t;
 
-// #undef ep_rt_thread_id_t
+#undef ep_rt_thread_id_t
 // #ifndef TARGET_UNIX
 // typedef DWORD ep_rt_thread_id_t;
 // #else

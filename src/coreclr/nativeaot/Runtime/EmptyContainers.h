@@ -1,8 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#ifndef __slist_h__
-#define __slist_h__
+#ifndef __EmptyContainers_h__
+#define __EmptyContainers_h__
 
 //#include <windows.h>
 #include "forward_declarations.h"
@@ -10,12 +10,12 @@
 // MSVC_SAVE_WARNING_STATE()
 // MSVC_DISABLE_WARNING(4127)  // conditional expression is constant -- it's intentionally constant
 
-// struct SLink_EP;
-// typedef DPTR(struct SLink_EP) PTR_SLink;
+struct SLink_EP;
+typedef DPTR(struct SLink_EP) PTR_SLink_EP;
 
 struct SLink_EP
 {
-    SLink_EP* m_pNext;
+    PTR_SLink_EP m_pNext;
 };
 
 template <class T, bool fHead = false, typename __PTR = T*, SLink_EP T::*LinkPtr = &T::m_Link>
@@ -24,15 +24,15 @@ class SList_EP
 protected:
     // used as sentinel
     SLink_EP  m_link; // slink.m_pNext == Null
-    SLink_EP* m_pHead;
-    SLink_EP* m_pTail;
+    PTR_SLink_EP m_pHead;
+    PTR_SLink_EP m_pTail;
     // get the list node within the object
-    static SLink_EP* GetLink (T* pLink)
+    static PTR_SLink_EP GetLink (T* pLink)
     {
         return nullptr;
     }
 
-    static T* GetObject (SLink_EP* pLink)
+    static T* GetObject (PTR_SLink_EP pLink)
     {
         return nullptr;
     }
@@ -261,8 +261,7 @@ class DefaultSHashTraits_EP
 public:
     typedef unsigned int count_t;
     typedef ELEMENT element_t;
-//    typedef DPTR(element_t) PTR_element_t;   // by default SHash_EP is DAC-aware. For RS
-    typedef element_t* PTR_element_t;   // by default SHash_EP is DAC-aware. For RS
+    typedef DPTR(element_t) PTR_element_t;   // by default SHash_EP is DAC-aware. For RS
 };
 
 template <typename KEY, typename VALUE>
@@ -310,4 +309,4 @@ public:
 
 // MSVC_RESTORE_WARNING_STATE()
 
-#endif // __slist_h__
+#endif // __EmptyContainers_h__

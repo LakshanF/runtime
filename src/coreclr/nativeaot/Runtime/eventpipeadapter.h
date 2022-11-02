@@ -20,7 +20,7 @@
 class EventPipeProviderConfigurationAdapter final
 {
 public:
-	EventPipeProviderConfigurationAdapter(const COR_PRF_EVENTPIPE_PROVIDER_CONFIG *providerConfigs, uint32_t providerConfigsLen)
+	EventPipeProviderConfigurationAdapter()//const COR_PRF_EVENTPIPE_PROVIDER_CONFIG *providerConfigs, uint32_t providerConfigsLen)
 	{
 		// STATIC_CONTRACT_NOTHROW;
 
@@ -83,7 +83,7 @@ private:
 class EventPipeParameterDescAdapter final
 {
 public:
-	EventPipeParameterDescAdapter(COR_PRF_EVENTPIPE_PARAM_DESC *params, uint32_t paramsLen)
+	EventPipeParameterDescAdapter()//COR_PRF_EVENTPIPE_PARAM_DESC *params, uint32_t paramsLen)
 	{
 // 		STATIC_CONTRACT_NOTHROW;
 
@@ -120,7 +120,7 @@ private:
 class EventDataAdapter final
 {
 public:
-	EventDataAdapter(COR_PRF_EVENT_DATA *data, uint32_t dataLen)
+	EventDataAdapter()//COR_PRF_EVENT_DATA *data, uint32_t dataLen)
 	{
 // 		STATIC_CONTRACT_NOTHROW;
 
@@ -293,22 +293,22 @@ public:
 		return false;
 	}
 
-	static inline FILETIME GetSessionStartTime(EventPipeSession *session)
-	{
-		// STATIC_CONTRACT_NOTHROW;
+	// static inline FILETIME GetSessionStartTime(EventPipeSession *session)
+	// {
+	// 	// STATIC_CONTRACT_NOTHROW;
 
-		FILETIME fileTime;
-		// LARGE_INTEGER largeValue;
+	// 	FILETIME fileTime;
+	// 	// LARGE_INTEGER largeValue;
 
-		// _ASSERTE(session != NULL);
-		// largeValue.QuadPart = ep_session_get_session_start_time(session);
-		// fileTime.dwLowDateTime = largeValue.u.LowPart;
-		// fileTime.dwHighDateTime = largeValue.u.HighPart;
-		// return fileTime;
-		fileTime.dwLowDateTime = 0;
-		fileTime.dwHighDateTime = 0;
-		return fileTime;
-	}
+	// 	// _ASSERTE(session != NULL);
+	// 	// largeValue.QuadPart = ep_session_get_session_start_time(session);
+	// 	// fileTime.dwLowDateTime = largeValue.u.LowPart;
+	// 	// fileTime.dwHighDateTime = largeValue.u.HighPart;
+	// 	// return fileTime;
+	// 	fileTime.dwLowDateTime = 0;
+	// 	fileTime.dwHighDateTime = 0;
+	// 	return fileTime;
+	// }
 
 	static inline __int64 GetSessionStartTimestamp(EventPipeSession *session)
 	{
@@ -332,22 +332,22 @@ public:
 		// ep_add_provider_to_session (provider, session);
 	}
 
-	static inline EventPipeProvider * CreateProvider(const SString &providerName, EventPipeCallback callback)
-	{
-		// CONTRACTL
-		// {
-		// 	NOTHROW;
-		// 	GC_TRIGGERS;
-		// 	MODE_ANY;
-		// }
-		// CONTRACTL_END;
+	// static inline EventPipeProvider * CreateProvider(const SString &providerName, EventPipeCallback callback)
+	// {
+	// 	// CONTRACTL
+	// 	// {
+	// 	// 	NOTHROW;
+	// 	// 	GC_TRIGGERS;
+	// 	// 	MODE_ANY;
+	// 	// }
+	// 	// CONTRACTL_END;
 
-		// ep_char8_t *providerNameUTF8 = ep_rt_utf16_to_utf8_string(reinterpret_cast<const ep_char16_t *>(providerName.GetUnicode ()), -1);
-		// EventPipeProvider * provider = ep_create_provider (providerNameUTF8, callback, NULL, NULL);
-		// ep_rt_utf8_string_free (providerNameUTF8);
-		// return provider;
-		return 0;
-	}
+	// 	// ep_char8_t *providerNameUTF8 = ep_rt_utf16_to_utf8_string(reinterpret_cast<const ep_char16_t *>(providerName.GetUnicode ()), -1);
+	// 	// EventPipeProvider * provider = ep_create_provider (providerNameUTF8, callback, NULL, NULL);
+	// 	// ep_rt_utf8_string_free (providerNameUTF8);
+	// 	// return provider;
+	// 	return 0;
+	// }
 
 	static inline void DeleteProvider (EventPipeProvider * provider)
 	{
@@ -501,65 +501,65 @@ public:
 		return 0;
 	}
 
-	static inline void WriteEvent(
-		EventPipeEvent *ep_event,
-		unsigned char *data,
-		uint32_t dataLen,
-		LPCGUID activityId,
-		LPCGUID relatedActivityId)
-	{
-		// CONTRACTL
-		// {
-		// 	NOTHROW;
-		// 	GC_NOTRIGGER;
-		// 	MODE_ANY;
-		// }
-		// CONTRACTL_END;
+	// static inline void WriteEvent(
+	// 	EventPipeEvent *ep_event,
+	// 	unsigned char *data,
+	// 	uint32_t dataLen,
+	// 	LPCGUID activityId,
+	// 	LPCGUID relatedActivityId)
+	// {
+	// 	// CONTRACTL
+	// 	// {
+	// 	// 	NOTHROW;
+	// 	// 	GC_NOTRIGGER;
+	// 	// 	MODE_ANY;
+	// 	// }
+	// 	// CONTRACTL_END;
 
-		// ep_write_event(
-		// 	ep_event,
-		// 	data,
-		// 	dataLen,
-		// 	reinterpret_cast<const uint8_t*>(activityId),
-		// 	reinterpret_cast<const uint8_t*>(relatedActivityId));
-	}
+	// 	// ep_write_event(
+	// 	// 	ep_event,
+	// 	// 	data,
+	// 	// 	dataLen,
+	// 	// 	reinterpret_cast<const uint8_t*>(activityId),
+	// 	// 	reinterpret_cast<const uint8_t*>(relatedActivityId));
+	// }
 
-	static inline void WriteEvent(
-		EventPipeEvent *ep_event,
-		EventData *data,
-		uint32_t dataLen,
-		LPCGUID activityId,
-		LPCGUID relatedActivityId)
-	{
-		// CONTRACTL
-		// {
-		// 	NOTHROW;
-		// 	GC_NOTRIGGER;
-		// 	MODE_ANY;
-		// }
-		// CONTRACTL_END;
+	// static inline void WriteEvent(
+	// 	EventPipeEvent *ep_event,
+	// 	EventData *data,
+	// 	uint32_t dataLen,
+	// 	LPCGUID activityId,
+	// 	LPCGUID relatedActivityId)
+	// {
+	// 	// CONTRACTL
+	// 	// {
+	// 	// 	NOTHROW;
+	// 	// 	GC_NOTRIGGER;
+	// 	// 	MODE_ANY;
+	// 	// }
+	// 	// CONTRACTL_END;
 
-		// ep_write_event_2(
-		// 	ep_event,
-		// 	data,
-		// 	dataLen,
-		// 	reinterpret_cast<const uint8_t*>(activityId),
-		// 	reinterpret_cast<const uint8_t*>(relatedActivityId));
-	}
+	// 	// ep_write_event_2(
+	// 	// 	ep_event,
+	// 	// 	data,
+	// 	// 	dataLen,
+	// 	// 	reinterpret_cast<const uint8_t*>(activityId),
+	// 	// 	reinterpret_cast<const uint8_t*>(relatedActivityId));
+	// }
 
-	static inline void WriteEvent(
-		EventPipeEvent *ep_event,
-		EventDataAdapter &data,
-		LPCGUID activityId,
-		LPCGUID relatedActivityId)
-	{
-		// WriteEvent(
-		// 	ep_event,
-		// 	(EventData*)data.GetData(),
-		// 	data.GetDataLen(),
-		// 	activityId,
-		// 	relatedActivityId);
-	}
+	// static inline void WriteEvent(
+	// 	EventPipeEvent *ep_event,
+	// 	EventDataAdapter &data,
+	// 	LPCGUID activityId,
+	// 	LPCGUID relatedActivityId)
+	// {
+	// 	// WriteEvent(
+	// 	// 	ep_event,
+	// 	// 	(EventData*)data.GetData(),
+	// 	// 	data.GetDataLen(),
+	// 	// 	activityId,
+	// 	// 	relatedActivityId);
+	// }
 
 	static inline bool EventIsEnabled (const EventPipeEvent *epEvent)
 	{
