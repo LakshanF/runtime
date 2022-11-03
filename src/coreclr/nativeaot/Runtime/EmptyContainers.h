@@ -4,11 +4,10 @@
 #ifndef __EmptyContainers_h__
 #define __EmptyContainers_h__
 
-//#include <windows.h>
-#include "forward_declarations.h"
+// This header file will contains minimal containers that are needed for EventPipe library implementation
+// @TODO - this will likely be replaced by the common container classes to be added to the EventPipe library
 
-// MSVC_SAVE_WARNING_STATE()
-// MSVC_DISABLE_WARNING(4127)  // conditional expression is constant -- it's intentionally constant
+#include "forward_declarations.h"
 
 struct SLink_EP;
 typedef DPTR(struct SLink_EP) PTR_SLink_EP;
@@ -23,7 +22,7 @@ class SList_EP
 {
 protected:
     // used as sentinel
-    SLink_EP  m_link; // slink.m_pNext == Null
+    SLink_EP  m_link;
     PTR_SLink_EP m_pHead;
     PTR_SLink_EP m_pTail;
     // get the list node within the object
@@ -133,7 +132,7 @@ struct SListElem_EP
 };
 
 template <class T>
-class CQuickArrayList_EP //: protected CQuickArray<T>
+class CQuickArrayList_EP
 {
     T _t;
 public:
@@ -230,10 +229,6 @@ class SHash_EP : public TRAITS
         }
         TRAITS & operator*() {return *_t;}
         TRAITS * operator->() const {return _t;}
-        // TRAITS const & Value() const
-        // {
-        //     return _t;
-        // }
     };
 
     Iterator Begin() const{return {}; }
@@ -247,21 +242,18 @@ class SHash_EP : public TRAITS
     void Remove(key_t key){}
 
     // Remove the specific element.
-
     void Remove(Iterator& i){}
-    //void Remove(KeyIterator& i){}
     void RemoveAll(){}
 
 };
 
-//template < typename ELEMENT, typename COUNT_T = uint32_t >
 template < typename ELEMENT >
 class DefaultSHashTraits_EP
 {
 public:
     typedef unsigned int count_t;
     typedef ELEMENT element_t;
-    typedef DPTR(element_t) PTR_element_t;   // by default SHash_EP is DAC-aware. For RS
+    typedef DPTR(element_t) PTR_element_t;
 };
 
 template <typename KEY, typename VALUE>
@@ -296,17 +288,8 @@ template <typename PARENT>
 class NoRemoveSHashTraits_EP : public PARENT
 {
 public:
-    // explicitly declare local typedefs for these traits types, otherwise
-    // the compiler may get confused
     typedef typename PARENT::element_t element_t;
     typedef typename PARENT::count_t count_t;
-
-    // static const bool s_supports_remove = false;
-    // static element_t Deleted() { UNREACHABLE(); }
-    // static bool IsDeleted(const element_t &e) { LIMITED_METHOD_DAC_CONTRACT; return false; }
 };
-
-
-// MSVC_RESTORE_WARNING_STATE()
 
 #endif // __EmptyContainers_h__
