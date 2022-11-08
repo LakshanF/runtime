@@ -267,7 +267,8 @@ namespace Microsoft.WebAssembly.Diagnostics
                     if (pauseOnException != PauseOnExceptionsKind.Unset)
                         _defaultPauseOnExceptions = pauseOnException;
                 }
-                return false;
+                // for Dotnetdebugger.* messages, treat them as handled, thus not passing them on to the browser
+                return method.StartsWith("DotnetDebugger.", StringComparison.OrdinalIgnoreCase);
             }
 
             switch (method)
@@ -566,8 +567,8 @@ namespace Microsoft.WebAssembly.Diagnostics
                         }
                     }
             }
-
-            return false;
+            // for Dotnetdebugger.* messages, treat them as handled, thus not passing them on to the browser
+            return method.StartsWith("DotnetDebugger.", StringComparison.OrdinalIgnoreCase);
         }
 
         private async Task<bool> ApplyUpdates(MessageId id, JObject args, CancellationToken token)
@@ -1271,7 +1272,7 @@ namespace Microsoft.WebAssembly.Diagnostics
                 var pdb_data = string.IsNullOrEmpty(pdb_b64) ? null : Convert.FromBase64String(pdb_b64);
 
                 var context = GetContext(sessionId);
-                foreach (var source in store.Add(sessionId, assembly_name, assembly_data, pdb_data, token))
+                foreach (var source in store.Add(sessionId, assembly_data, pdb_data, token))
                 {
                     await OnSourceFileAdded(sessionId, source, context, token);
                 }
