@@ -7,6 +7,7 @@
 #include "PalRedhawkCommon.h"
 #include "slist.h"
 #include "eventpipeadapter.h"
+#include "diagnosticserveradapter.h"
 #include "PalRedhawk.h"
 #include "rhassert.h"
 #include "gcrhinterface.h"
@@ -27,7 +28,6 @@
 #include "stressLog.h"
 #include "RestrictedCallouts.h"
 #include "yieldprocessornormalized.h"
-// #include "diagnosticserveradapter.h"
 
 #ifndef DACCESS_COMPILE
 
@@ -102,8 +102,8 @@ static bool InitDLL(HANDLE hPalInstance)
 
     // Initialize EventPipe
     EventPipeAdapter::Initialize();
-    // // Initialize EventPipe
-    // DiagnosticServerAdapter::Initialize();
+    // Initialize DS
+    DiagnosticServerAdapter::Initialize();
 
     //
     // Initialize support for registering GC and HandleTable callouts.

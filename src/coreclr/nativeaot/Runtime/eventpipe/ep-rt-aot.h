@@ -576,13 +576,13 @@ _rt_aot_hash_map_alloc (
 	void (*key_free_callback)(void *),
 	void (*value_free_callback)(void *))
 {
-	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL && key_free_callback == NULL);
+	// STATIC_CONTRACT_NOTHROW;
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL && key_free_callback == NULL);
 
-	hash_map->table = new (nothrow) typename HASH_MAP_TYPE::table_type_t ();
-	hash_map->callbacks.key_free_func = key_free_callback;
-	hash_map->callbacks.value_free_func = value_free_callback;
+	// hash_map->table = new (nothrow) typename HASH_MAP_TYPE::table_type_t ();
+	// hash_map->callbacks.key_free_func = key_free_callback;
+	// hash_map->callbacks.value_free_func = value_free_callback;
 }
 
 template<typename HASH_MAP_TYPE>
@@ -592,8 +592,8 @@ void
 _rt_aot_hash_map_free (HASH_MAP_TYPE *hash_map)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL);
 
 	//@TODO - LakshanF: 10/21/22 - Need to understand more on value_free_func, specifically how iterator->Value () gets called 
 	// if (hash_map->table) {
@@ -615,10 +615,11 @@ _rt_aot_hash_map_add (
 	VALUE_TYPE value)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
 
-	return hash_map->table->AddNoThrow (typename HASH_MAP_TYPE::table_type_t::element_t (key, value));
+	// return hash_map->table->AddNoThrow (typename HASH_MAP_TYPE::table_type_t::element_t (key, value));
+	return false;
 }
 
 template<typename HASH_MAP_TYPE, typename KEY_TYPE, typename VALUE_TYPE>
@@ -631,10 +632,11 @@ _rt_aot_hash_map_add_or_replace (
 	VALUE_TYPE value)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
 
-	return hash_map->table->AddOrReplaceNoThrow (typename HASH_MAP_TYPE::table_type_t::element_t (key, value));
+	// return hash_map->table->AddOrReplaceNoThrow (typename HASH_MAP_TYPE::table_type_t::element_t (key, value));
+	return false;
 }
 
 template<typename HASH_MAP_TYPE>
@@ -644,8 +646,8 @@ void
 _rt_aot_hash_map_remove_all (HASH_MAP_TYPE *hash_map)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
 
 	//@TODO - LakshanF: 10/21/22 - Need to understand more on value_free_func, specifically how iterator->Value () gets called 
 	// if (hash_map->callbacks.value_free_func) {
@@ -665,8 +667,8 @@ _rt_aot_hash_map_lookup (
 	VALUE_TYPE *value)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
 
 	const typename HASH_MAP_TYPE::table_type_t::element_t *ret = hash_map->table->LookupPtr ((KEY_TYPE)key);
 	if (ret == NULL)
@@ -682,8 +684,8 @@ uint32_t
 _rt_aot_hash_map_count (CONST_HASH_MAP_TYPE *hash_map)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
 
 	return hash_map->table->GetCount ();
 }
@@ -695,7 +697,7 @@ bool
 _rt_aot_hash_map_is_valid (CONST_HASH_MAP_TYPE *hash_map)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 
 	return (hash_map != NULL && hash_map->table != NULL);
 }
@@ -709,8 +711,8 @@ _rt_aot_hash_map_remove (
 	CONST_KEY_TYPE key)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
 
 	const typename HASH_MAP_TYPE::table_type_t::element_t *ret = NULL;
 	if (hash_map->callbacks.value_free_func)
@@ -727,8 +729,8 @@ ITERATOR_TYPE
 _rt_aot_hash_map_iterator_begin (CONST_HASH_MAP_TYPE *hash_map)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
 
 	return hash_map->table->Begin ();
 }
@@ -742,8 +744,8 @@ _rt_aot_hash_map_iterator_end (
 	CONST_ITERATOR_TYPE *iterator)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (hash_map != NULL && hash_map->table != NULL && iterator != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL && iterator != NULL);
 
 	return (hash_map->table->End () == *iterator);
 }
@@ -755,8 +757,8 @@ void
 _rt_aot_hash_map_iterator_next (ITERATOR_TYPE *iterator)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (iterator != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (iterator != NULL);
 
 	(*iterator)++;
 }
@@ -768,8 +770,8 @@ KEY_TYPE
 _rt_aot_hash_map_iterator_key (CONST_ITERATOR_TYPE *iterator)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (iterator != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (iterator != NULL);
 
 	// return (*iterator)->Key ();
 	//@TODO - LakshanF: 10/21/22 - Need to understand more on value_free_func, specifically how iterator->Value () gets called 
@@ -783,8 +785,8 @@ VALUE_TYPE
 _rt_aot_hash_map_iterator_value (CONST_ITERATOR_TYPE *iterator)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
-	EP_ASSERT (iterator != NULL);
+	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
+	// EP_ASSERT (iterator != NULL);
 
 	// return (*iterator)->Value ();
 	//@TODO - LakshanF: 10/21/22 - Need to understand more on value_free_func, specifically how iterator->Value () gets called 
@@ -2317,7 +2319,7 @@ void
 ep_rt_lock_requires_lock_held (const ep_rt_lock_handle_t *lock)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (((ep_rt_lock_handle_t *)lock)->lock->OwnedByCurrentThread ());
+//	EP_ASSERT (((ep_rt_lock_handle_t *)lock)->lock->OwnedByCurrentThread ());
 }
 
 static
@@ -2326,7 +2328,7 @@ void
 ep_rt_lock_requires_lock_not_held (const ep_rt_lock_handle_t *lock)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (lock->lock == NULL || !((ep_rt_lock_handle_t *)lock)->lock->OwnedByCurrentThread ());
+//	EP_ASSERT (lock->lock == NULL || !((ep_rt_lock_handle_t *)lock)->lock->OwnedByCurrentThread ());
 }
 #endif
 
@@ -2396,7 +2398,7 @@ ep_rt_spin_lock_requires_lock_held (const ep_rt_spin_lock_handle_t *spin_lock)
 {
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_rt_spin_lock_is_valid (spin_lock));
-	EP_ASSERT (spin_lock->lock->OwnedByCurrentThread ());
+//	EP_ASSERT (spin_lock->lock->OwnedByCurrentThread ());
 }
 
 static
@@ -2405,7 +2407,7 @@ void
 ep_rt_spin_lock_requires_lock_not_held (const ep_rt_spin_lock_handle_t *spin_lock)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (spin_lock->lock == NULL || !spin_lock->lock->OwnedByCurrentThread ());
+//	EP_ASSERT (spin_lock->lock == NULL || !spin_lock->lock->OwnedByCurrentThread ());
 }
 #endif
 
