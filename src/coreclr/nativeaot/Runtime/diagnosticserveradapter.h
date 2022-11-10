@@ -13,8 +13,8 @@ class DiagnosticServerAdapter final
 public:
 	static inline bool Initialize()
 	{
-		// return ds_server_init();
-		return false;
+		return ds_server_init();
+		//return false;
 	}
 
 	static inline bool Shutdown()

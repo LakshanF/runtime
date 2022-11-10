@@ -161,7 +161,8 @@ set(COMMON_RUNTIME_SOURCES
     yieldprocessornormalized.cpp
 
     # @TODO adding the EP header file here for now
-    # eventpipeadapter.h
+    eventpipeadapter.h
+    diagnosticserveradapter.h
 
     ${GC_DIR}/gceventstatus.cpp
     ${GC_DIR}/gcload.cpp

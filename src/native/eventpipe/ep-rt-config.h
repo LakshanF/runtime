@@ -2,6 +2,7 @@
 #define __EVENTPIPE_RT_CONFIG_H__
 
 #include <../../../inc/ep-shared-config.h>
+//#include <ep-shared-config.h>
 
 #if !defined(FEATURE_CORECLR) && !defined(FEATURE_NATIVEAOT)
 //#ifndef FEATURE_CORECLR 
