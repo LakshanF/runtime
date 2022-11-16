@@ -149,20 +149,22 @@ sample_profiler_load_dependencies (void)
 	if (_ref_count > 0)
 		return true; // Already loaded.
 
-#ifdef WszLoadLibrary
-	_multimedia_library_handle = WszLoadLibrary (L"winmm.dll");
-#else
-	_multimedia_library_handle = LoadLibraryW (L"winmm.dll");
-#endif
+	__debugbreak();
+	return false;
+// #ifdef WszLoadLibrary
+// 	_multimedia_library_handle = WszLoadLibrary (L"winmm.dll");
+// #else
+// 	_multimedia_library_handle = LoadLibraryW (L"winmm.dll");
+// #endif
 
-	if (_multimedia_library_handle != NULL) {
-		_time_begin_period_func = (PVOID)GetProcAddress (_multimedia_library_handle, "timeBeginPeriod");
-		_time_end_period_func = (PVOID)GetProcAddress (_multimedia_library_handle, "timeEndPeriod");
-	}
+// 	if (_multimedia_library_handle != NULL) {
+// 		_time_begin_period_func = (PVOID)GetProcAddress (_multimedia_library_handle, "timeBeginPeriod");
+// 		_time_end_period_func = (PVOID)GetProcAddress (_multimedia_library_handle, "timeEndPeriod");
+// 	}
 
-	return _multimedia_library_handle != NULL && _time_begin_period_func != NULL && _time_end_period_func != NULL;
-#else
-	return true;
+// 	return _multimedia_library_handle != NULL && _time_begin_period_func != NULL && _time_end_period_func != NULL;
+// #else
+// 	return true;
 #endif //HOST_WIN32
 }
 
@@ -170,14 +172,15 @@ static
 void
 sample_profiler_unload_dependencies (void)
 {
-#ifdef HOST_WIN32
-	if (_multimedia_library_handle != NULL) {
-		FreeLibrary (_multimedia_library_handle);
-		_multimedia_library_handle = NULL;
-		_time_begin_period_func = NULL;
-		_time_end_period_func = NULL;
-	}
-#endif //HOST_WIN32
+	__debugbreak();
+// #ifdef HOST_WIN32
+// 	if (_multimedia_library_handle != NULL) {
+// 		FreeLibrary (_multimedia_library_handle);
+// 		_multimedia_library_handle = NULL;
+// 		_time_begin_period_func = NULL;
+// 		_time_end_period_func = NULL;
+// 	}
+// #endif //HOST_WIN32
 }
 
 static

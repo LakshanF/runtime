@@ -164,7 +164,9 @@ public:
 		// }
 		// CONTRACTL_END;
 
-		// ep_init();
+		ep_init();
+	    __debugbreak();
+
 	}
 
 	static inline void FinishInitialize()
@@ -175,7 +177,8 @@ public:
 		// }
 		// CONTRACTL_END;
 
-		// ep_finish_init();
+		ep_finish_init();
+	    __debugbreak();
 	}
 
 	static inline void Shutdown()
@@ -188,14 +191,15 @@ public:
 		// }
 		// CONTRACTL_END;
 
-		// ep_shutdown();
+		ep_shutdown();
+	    __debugbreak();
 	}
 
 	static inline bool Enabled()
 	{
 		// STATIC_CONTRACT_NOTHROW;
-		// return ep_enabled();
-		return false;
+	    __debugbreak();
+		return ep_enabled();
 	}
 
 	static inline EventPipeSessionID Enable(

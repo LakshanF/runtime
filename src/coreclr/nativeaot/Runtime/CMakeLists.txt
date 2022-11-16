@@ -75,6 +75,7 @@ list(APPEND SHARED_DIAGNOSTIC_SERVER_SOURCES
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-sources.c
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-dump-protocol.c
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-eventpipe-protocol.c
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc-pal-namedpipe.c
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc.c
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-process-protocol.c
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-profiler-protocol.c
@@ -89,6 +90,7 @@ list(APPEND SHARED_DIAGNOSTIC_SERVER_HEADERS
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc.h
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc-pal.h
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc-pal-types.h
+    ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-ipc-pal-namedpipe.h
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-process-protocol.h
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-profiler-protocol.h
     ${SHARED_EVENTPIPE_SOURCE_DIR}/ds-protocol.h

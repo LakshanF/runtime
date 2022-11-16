@@ -7,15 +7,15 @@
 #include <eventpipe/ep-rt.h>
 // //#include "threadsuspend.h"
 
-// // ep_rt_lock_handle_t _ep_rt_coreclr_config_lock_handle;
-// // CrstStatic _ep_rt_coreclr_config_lock;
+// // ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
+// // CrstStatic _ep_rt_aot_config_lock;
 
-// // thread_local EventPipeCoreCLRThreadHolderTLS EventPipeCoreCLRThreadHolderTLS::g_threadHolderTLS;
+// // thread_local EventPipeAotThreadHolderTLS EventPipeAotThreadHolderTLS::g_threadHolderTLS;
 
-// // ep_char8_t *volatile _ep_rt_coreclr_diagnostics_cmd_line;
+// // ep_char8_t *volatile _ep_rt_aot_diagnostics_cmd_line;
 
 // // #ifndef TARGET_UNIX
-// // uint32_t *_ep_rt_coreclr_proc_group_offsets;
+// // uint32_t *_ep_rt_aot_proc_group_offsets;
 // // #endif
 
 // /*
@@ -64,7 +64,7 @@
 // }
 
 // bool
-// ep_rt_coreclr_walk_managed_stack_for_thread (
+// ep_rt_aot_walk_managed_stack_for_thread (
 // 	ep_rt_thread_handle_t thread,
 // 	EventPipeStackContents *stack_contents)
 // {
@@ -116,7 +116,7 @@
 // 	// 	ep_stack_contents_reset (current_stack_contents);
 
 // 	// 	// Walk the stack and write it out as an event.
-// 	// 	if (ep_rt_coreclr_walk_managed_stack_for_thread (target_thread, current_stack_contents) && !ep_stack_contents_is_empty (current_stack_contents)) {
+// 	// 	if (ep_rt_aot_walk_managed_stack_for_thread (target_thread, current_stack_contents) && !ep_stack_contents_is_empty (current_stack_contents)) {
 // 	// 		// Set the payload.  If the GC mode on suspension > 0, then the thread was in cooperative mode.
 // 	// 		// Even though there are some cases where this is not managed code, we assume it is managed code here.
 // 	// 		// If the GC mode on suspension == 0 then the thread was in preemptive mode, which we qualify as external here.
@@ -140,7 +140,7 @@
 // }
 
 // void
-// ep_rt_coreclr_sample_profiler_write_sampling_event_for_threads (
+// ep_rt_aot_sample_profiler_write_sampling_event_for_threads (
 // 	ep_rt_thread_handle_t sampling_thread,
 // 	EventPipeEvent *sampling_event)
 // {

@@ -13,30 +13,32 @@ class DiagnosticServerAdapter final
 public:
 	static inline bool Initialize()
 	{
+	    __debugbreak();
 		return ds_server_init();
-		//return false;
 	}
 
 	static inline bool Shutdown()
 	{
-		// return ds_server_shutdown();
-		return false;
+	    __debugbreak();
+		return ds_server_shutdown();
 	}
 
 	NOINLINE static void PauseForDiagnosticsMonitor()
 	{
-		// return ds_server_pause_for_diagnostics_monitor();
+	    __debugbreak();
+		return ds_server_pause_for_diagnostics_monitor();
 	}
 
 	static void ResumeRuntimeStartup()
 	{
-		// return ds_server_resume_runtime_startup();
+	    __debugbreak();
+		return ds_server_resume_runtime_startup();
 	}
 
 	static bool IsPausedInRuntimeStartup()
 	{
-		// return ds_server_is_paused_in_startup();
-		return false;
+	    __debugbreak();
+		return ds_server_is_paused_in_startup();
 	}
 };
 

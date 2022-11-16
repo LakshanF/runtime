@@ -1124,8 +1124,9 @@ ep_rt_aot_config_lock_get (void)
 {
 	STATIC_CONTRACT_NOTHROW;
 
-	extern ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
-	return &_ep_rt_aot_config_lock_handle;
+	// extern ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
+	// return &_ep_rt_aot_config_lock_handle;
+	return nullptr;
 }
 
 static
@@ -1278,7 +1279,33 @@ EP_RT_DEFINE_ARRAY_ITERATOR (execution_checkpoint_array, ep_rt_execution_checkpo
 
 static
 void
-ep_rt_init (void) {}
+ep_rt_init (void) 
+{
+    __debugbreak();
+// 	STATIC_CONTRACT_NOTHROW;
+
+// 	extern ep_rt_lock_handle_t _ep_rt_coreclr_config_lock_handle;
+// 	extern CrstStatic _ep_rt_coreclr_config_lock;
+
+// 	_ep_rt_coreclr_config_lock_handle.lock = &_ep_rt_coreclr_config_lock;
+// 	_ep_rt_coreclr_config_lock_handle.lock->InitNoThrow (CrstEventPipe, (CrstFlags)(CRST_REENTRANCY | CRST_TAKEN_DURING_SHUTDOWN | CRST_HOST_BREAKABLE));
+
+// 	if (CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeProcNumbers) != 0) {
+// #ifndef TARGET_UNIX
+// 		// setup the windows processor group offset table
+// 		uint16_t groups = ::GetActiveProcessorGroupCount ();
+// 		extern uint32_t *_ep_rt_coreclr_proc_group_offsets;
+// 		_ep_rt_coreclr_proc_group_offsets = new (nothrow) uint32_t [groups];
+// 		if (_ep_rt_coreclr_proc_group_offsets) {
+// 			uint32_t procs = 0;
+// 			for (uint16_t i = 0; i < procs; ++i) {
+// 				_ep_rt_coreclr_proc_group_offsets [i] = procs;
+// 				procs += GetActiveProcessorCount (i);
+// 			}
+// 		}
+// #endif
+// 	}
+}
 
 static
 inline
@@ -1342,8 +1369,9 @@ ep_rt_walk_managed_stack_for_thread (
 	EventPipeStackContents *stack_contents)
 {
 	STATIC_CONTRACT_NOTHROW;
-	extern bool ep_rt_aot_walk_managed_stack_for_thread (ep_rt_thread_handle_t thread, EventPipeStackContents *stack_contents);
-	return ep_rt_aot_walk_managed_stack_for_thread (thread, stack_contents);
+	// extern bool ep_rt_aot_walk_managed_stack_for_thread (ep_rt_thread_handle_t thread, EventPipeStackContents *stack_contents);
+	// return ep_rt_aot_walk_managed_stack_for_thread (thread, stack_contents);
+	return false;
 }
 
 static
@@ -1638,8 +1666,8 @@ ep_rt_sample_profiler_write_sampling_event_for_threads (
 {
 	STATIC_CONTRACT_NOTHROW;
 
-	extern void ep_rt_aot_sample_profiler_write_sampling_event_for_threads (ep_rt_thread_handle_t sampling_thread, EventPipeEvent *sampling_event);
-	ep_rt_aot_sample_profiler_write_sampling_event_for_threads (sampling_thread, sampling_event);
+	// extern void ep_rt_aot_sample_profiler_write_sampling_event_for_threads (ep_rt_thread_handle_t sampling_thread, EventPipeEvent *sampling_event);
+	// ep_rt_aot_sample_profiler_write_sampling_event_for_threads (sampling_thread, sampling_event);
 }
 
 static
@@ -2750,14 +2778,14 @@ thread_holder_free_func (EventPipeThreadHolder * thread_holder)
 	}
 }
 
-class EventPipeCoreCLRThreadHolderTLS {
+class EventPipeAotThreadHolderTLS {
 public:
-	EventPipeCoreCLRThreadHolderTLS ()
+	EventPipeAotThreadHolderTLS ()
 	{
 		STATIC_CONTRACT_NOTHROW;
 	}
 
-	~EventPipeCoreCLRThreadHolderTLS ()
+	~EventPipeAotThreadHolderTLS ()
 	{
 		STATIC_CONTRACT_NOTHROW;
 
@@ -2787,7 +2815,7 @@ public:
 
 private:
 	EventPipeThreadHolder *m_threadHolder;
-	static thread_local EventPipeCoreCLRThreadHolderTLS g_threadHolderTLS;
+	static thread_local EventPipeAotThreadHolderTLS g_threadHolderTLS;
 };
 
 static
@@ -2807,8 +2835,9 @@ ep_rt_thread_get (void)
 {
 	STATIC_CONTRACT_NOTHROW;
 
-	EventPipeThreadHolder *thread_holder = EventPipeCoreCLRThreadHolderTLS::getThreadHolder ();
-	return thread_holder ? ep_thread_holder_get_thread (thread_holder) : NULL;
+	// EventPipeThreadHolder *thread_holder = EventPipeAotThreadHolderTLS::getThreadHolder ();
+	// return thread_holder ? ep_thread_holder_get_thread (thread_holder) : NULL;
+	return nullptr;
 }
 
 static
@@ -2818,11 +2847,12 @@ ep_rt_thread_get_or_create (void)
 {
 	STATIC_CONTRACT_NOTHROW;
 
-	EventPipeThreadHolder *thread_holder = EventPipeCoreCLRThreadHolderTLS::getThreadHolder ();
-	if (!thread_holder)
-		thread_holder = EventPipeCoreCLRThreadHolderTLS::createThreadHolder ();
+	// EventPipeThreadHolder *thread_holder = EventPipeAotThreadHolderTLS::getThreadHolder ();
+	// if (!thread_holder)
+	// 	thread_holder = EventPipeAotThreadHolderTLS::createThreadHolder ();
 
-	return ep_thread_holder_get_thread (thread_holder);
+	// return ep_thread_holder_get_thread (thread_holder);
+	return nullptr;
 }
 
 static
