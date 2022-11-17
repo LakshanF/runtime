@@ -69,6 +69,11 @@ set_source_files_properties(${SHARED_DIAGNOSTIC_SERVER_SOURCES} PROPERTIES LANGU
 # set_source_files_properties(${EVENTPIPE_SOURCES} PROPERTIES LANGUAGE CXX)
 add_definitions(-DFEATURE_PERFTRACING)
 
+if (WIN32)
+    set_source_files_properties(${SHARED_EVENTPIPE_SOURCES} PROPERTIES COMPILE_FLAGS "/FI\"${RUNTIME_DIR}/eventpipe/NativeaotEventPipeSupport.h\"")
+    set_source_files_properties(${SHARED_DIAGNOSTIC_SERVER_SOURCES} PROPERTIES COMPILE_FLAGS "/FI\"${RUNTIME_DIR}/eventpipe/NativeaotEventPipeSupport.h\"")
+endif()
+
 # Runtime.WorkstationGC and Runtime.ServerGC share AsmOffsets.inc and assembler helpers (for Windows ARM/ARM64).
 # Avoid a race condition by adding this target as a dependency for both libraries.
 add_custom_target(

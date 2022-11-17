@@ -90,6 +90,7 @@ static
 void
 ds_rt_auto_trace_init (void)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 
 // #ifdef FEATURE_AUTO_TRACE
@@ -106,6 +107,7 @@ static
 void
 ds_rt_auto_trace_launch (void)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 
 // #ifdef FEATURE_AUTO_TRACE
@@ -122,6 +124,7 @@ static
 void
 ds_rt_auto_trace_signal (void)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 
 // #ifdef FEATURE_AUTO_TRACE
@@ -138,6 +141,7 @@ static
 void
 ds_rt_auto_trace_wait (void)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 
 // #ifdef FEATURE_AUTO_TRACE
@@ -159,6 +163,7 @@ inline
 bool
 ds_rt_config_value_get_enable (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return CLRConfig::GetConfigValue (CLRConfig::EXTERNAL_EnableDiagnostics) != 0;
 	return false;
@@ -169,6 +174,7 @@ inline
 ep_char8_t *
 ds_rt_config_value_get_ports (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// CLRConfigStringHolder value(CLRConfig::GetConfigValue (CLRConfig::EXTERNAL_DOTNET_DiagnosticPorts));
@@ -181,6 +187,7 @@ inline
 uint32_t
 ds_rt_config_value_get_default_port_suspend (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return static_cast<uint32_t>(CLRConfig::GetConfigValue (CLRConfig::EXTERNAL_DOTNET_DefaultDiagnosticPortSuspend));
 	return 0;
@@ -198,6 +205,7 @@ ds_rt_generate_core_dump (
 	ep_char8_t *errorMessageBuffer,
 	int32_t cbErrorMessageBuffer)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	ds_ipc_result_t result = DS_IPC_E_FAIL;
@@ -236,6 +244,7 @@ ds_rt_transport_get_default_name (
 	const ep_char8_t *group_id,
 	const ep_char8_t *suffix)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 
 // #ifdef TARGET_UNIX
@@ -285,6 +294,7 @@ static
 uint32_t
 ds_rt_profiler_attach (DiagnosticsAttachProfilerCommandPayload *payload)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// if (!g_profControlBlock.fProfControlBlockInitialized)
@@ -315,6 +325,7 @@ static
 uint32_t
 ds_rt_profiler_startup (DiagnosticsStartupProfilerCommandPayload *payload)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// HRESULT hr = S_OK;
@@ -336,6 +347,7 @@ static
 uint32_t
 ds_rt_set_environment_variable (const ep_char16_t *name, const ep_char16_t *value)
 {
+   __debugbreak();
 	// return SetEnvironmentVariableW(reinterpret_cast<LPCWSTR>(name), reinterpret_cast<LPCWSTR>(value)) ? S_OK : HRESULT_FROM_WIN32(GetLastError());
 	return 0;
 }
@@ -348,6 +360,7 @@ static
 void
 ds_rt_server_log_pause_message (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// const char diagPortsName[] = "DOTNET_DiagnosticPorts";

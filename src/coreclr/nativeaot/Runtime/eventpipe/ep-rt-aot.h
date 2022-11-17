@@ -1,7 +1,7 @@
 // Implementation of ep-rt.h targeting CoreCLR runtime.
 #ifndef __EVENTPIPE_RT_AOT_H__
 #define __EVENTPIPE_RT_AOT_H__
-#include "NativeaotEventPipeSupport.h"
+// #include "NativeaotEventPipeSupport.h"
 #include <eventpipe/ep-rt-config.h>
 #ifdef ENABLE_PERFTRACING
 #include <eventpipe/ep-thread.h>
@@ -50,6 +50,7 @@ _rt_aot_list_alloc (LIST_TYPE *list) {
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (list != NULL);
 
+    __debugbreak();
 	list->list = new (nothrow) typename LIST_TYPE::list_type_t ();
 }
 
@@ -61,6 +62,7 @@ _rt_aot_list_free (
 	LIST_TYPE *list,
 	void (*callback)(void *))
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (list != NULL);
 
@@ -84,6 +86,7 @@ _rt_aot_list_clear (
 	LIST_TYPE *list,
 	void (*callback)(void *))
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (list != NULL && list->list != NULL);
 
@@ -103,6 +106,7 @@ _rt_aot_list_append (
 	LIST_TYPE *list,
 	LIST_ITEM item)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (list != NULL && list->list != NULL);
 
@@ -120,6 +124,7 @@ _rt_aot_list_remove (
 	LIST_TYPE *list,
 	CONST_LIST_ITEM item)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (list != NULL && list->list != NULL);
 
@@ -143,6 +148,7 @@ _rt_aot_list_find (
 	CONST_LIST_ITEM item_to_find,
 	LIST_ITEM *found_item)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (list != NULL && list->list != NULL);
 	EP_ASSERT (found_item != NULL);
@@ -166,6 +172,7 @@ inline
 bool
 _rt_aot_list_is_empty (CONST_LIST_TYPE *list)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (list != NULL);
 
@@ -178,6 +185,7 @@ inline
 bool
 _rt_aot_list_is_valid (CONST_LIST_TYPE *list)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	return (list != NULL && list->list != NULL);
 }
@@ -188,6 +196,7 @@ inline
 ITERATOR_TYPE
 _rt_aot_list_iterator_begin (CONST_LIST_TYPE *list)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (list != NULL && list->list != NULL);
 
@@ -202,6 +211,7 @@ _rt_aot_list_iterator_end (
 	CONST_LIST_TYPE *list,
 	CONST_ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (list != NULL && list->list != NULL && iterator != NULL);
 
@@ -214,6 +224,7 @@ inline
 void
 _rt_aot_list_iterator_next (ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (iterator != NULL);
 
@@ -226,6 +237,7 @@ inline
 ITEM_TYPE
 _rt_aot_list_iterator_value (CONST_ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (iterator != NULL);
 
@@ -238,6 +250,7 @@ inline
 void
 _rt_aot_queue_alloc (QUEUE_TYPE *queue)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (queue != NULL);
 
@@ -250,6 +263,7 @@ inline
 void
 _rt_aot_queue_free (QUEUE_TYPE *queue)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (queue != NULL);
 
@@ -266,6 +280,7 @@ _rt_aot_queue_pop_head (
 	QUEUE_TYPE *queue,
 	ITEM_TYPE *item)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (queue != NULL && queue->queue != NULL && item != NULL);
 
@@ -289,6 +304,7 @@ _rt_aot_queue_push_head (
 	QUEUE_TYPE *queue,
 	ITEM_TYPE item)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (queue != NULL && queue->queue != NULL);
 
@@ -306,6 +322,7 @@ _rt_aot_queue_push_tail (
 	QUEUE_TYPE *queue,
 	ITEM_TYPE item)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (queue != NULL && queue->queue != NULL);
 
@@ -321,6 +338,7 @@ inline
 bool
 _rt_aot_queue_is_empty (CONST_QUEUE_TYPE *queue)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (queue != NULL && queue->queue != NULL);
 
@@ -333,6 +351,7 @@ inline
 bool
 _rt_aot_queue_is_valid (CONST_QUEUE_TYPE *queue)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	return (queue != NULL && queue->queue != NULL);
 }
@@ -343,6 +362,7 @@ inline
 void
 _rt_aot_array_alloc (ARRAY_TYPE *ep_array)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL);
 
@@ -357,6 +377,7 @@ _rt_aot_array_alloc_capacity (
 	ARRAY_TYPE *ep_array,
 	size_t capacity)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL);
 
@@ -373,6 +394,7 @@ _rt_aot_array_init_capacity (
 	ARRAY_TYPE *ep_array,
 	size_t capacity)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL);
 
@@ -386,6 +408,7 @@ inline
 void
 _rt_aot_array_free (ARRAY_TYPE *ep_array)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL);
 
@@ -403,6 +426,7 @@ _rt_aot_array_append (
 	ARRAY_TYPE *ep_array,
 	ITEM_TYPE item)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL && ep_array->array != NULL);
 
@@ -415,6 +439,7 @@ inline
 void
 _rt_aot_array_clear (ARRAY_TYPE *ep_array)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL && ep_array->array != NULL);
 
@@ -429,6 +454,7 @@ inline
 size_t
 _rt_aot_array_size (CONST_ARRAY_TYPE *ep_array)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL && ep_array->array != NULL);
 
@@ -441,6 +467,7 @@ inline
 ITEM_TYPE *
 _rt_aot_array_data (CONST_ARRAY_TYPE *ep_array)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL && ep_array->array != NULL);
 
@@ -453,6 +480,7 @@ inline
 bool
 _rt_aot_array_is_valid (CONST_ARRAY_TYPE *ep_array)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	return (ep_array->array != NULL);
 }
@@ -463,6 +491,7 @@ inline
 ITERATOR_TYPE
 _rt_aot_array_iterator_begin (CONST_ARRAY_TYPE *ep_array)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL && ep_array->array != NULL);
 
@@ -480,6 +509,7 @@ _rt_aot_array_iterator_end (
 	CONST_ARRAY_TYPE *ep_array,
 	CONST_ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL && iterator != NULL && iterator->array != NULL);
 
@@ -492,6 +522,7 @@ inline
 void
 _rt_aot_array_iterator_next (ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (iterator != NULL);
 
@@ -504,6 +535,7 @@ inline
 ITEM_TYPE
 _rt_aot_array_iterator_value (const CONST_ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (iterator != NULL && iterator->array != NULL);
 	EP_ASSERT (iterator->index < static_cast<size_t>(iterator->array->Size ()));
@@ -517,6 +549,7 @@ inline
 ITERATOR_TYPE
 _rt_aot_array_reverse_iterator_begin (CONST_ARRAY_TYPE *ep_array)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL && ep_array->array != NULL);
 
@@ -534,6 +567,7 @@ _rt_aot_array_reverse_iterator_end (
 	CONST_ARRAY_TYPE *ep_array,
 	CONST_ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_array != NULL && iterator != NULL && iterator->array != NULL);
 
@@ -546,6 +580,7 @@ inline
 void
 _rt_aot_array_reverse_iterator_next (ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (iterator != NULL);
 
@@ -558,6 +593,7 @@ inline
 ITEM_TYPE
 _rt_aot_array_reverse_iterator_value (CONST_ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (iterator != NULL && iterator->array != NULL);
 	EP_ASSERT (iterator->index > 0);
@@ -576,6 +612,7 @@ _rt_aot_hash_map_alloc (
 	void (*key_free_callback)(void *),
 	void (*value_free_callback)(void *))
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL && key_free_callback == NULL);
@@ -591,6 +628,7 @@ inline
 void
 _rt_aot_hash_map_free (HASH_MAP_TYPE *hash_map)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL);
@@ -614,6 +652,7 @@ _rt_aot_hash_map_add (
 	KEY_TYPE key,
 	VALUE_TYPE value)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
@@ -631,6 +670,7 @@ _rt_aot_hash_map_add_or_replace (
 	KEY_TYPE key,
 	VALUE_TYPE value)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
@@ -645,6 +685,7 @@ inline
 void
 _rt_aot_hash_map_remove_all (HASH_MAP_TYPE *hash_map)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
@@ -666,6 +707,7 @@ _rt_aot_hash_map_lookup (
 	CONST_KEY_TYPE key,
 	VALUE_TYPE *value)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
@@ -683,6 +725,7 @@ inline
 uint32_t
 _rt_aot_hash_map_count (CONST_HASH_MAP_TYPE *hash_map)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
@@ -696,6 +739,7 @@ inline
 bool
 _rt_aot_hash_map_is_valid (CONST_HASH_MAP_TYPE *hash_map)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 
@@ -710,6 +754,7 @@ _rt_aot_hash_map_remove (
 	HASH_MAP_TYPE *hash_map,
 	CONST_KEY_TYPE key)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
@@ -728,6 +773,7 @@ inline
 ITERATOR_TYPE
 _rt_aot_hash_map_iterator_begin (CONST_HASH_MAP_TYPE *hash_map)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
@@ -743,6 +789,7 @@ _rt_aot_hash_map_iterator_end (
 	CONST_HASH_MAP_TYPE *hash_map,
 	CONST_ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (hash_map != NULL && hash_map->table != NULL && iterator != NULL);
@@ -756,6 +803,7 @@ inline
 void
 _rt_aot_hash_map_iterator_next (ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (iterator != NULL);
@@ -769,6 +817,7 @@ inline
 KEY_TYPE
 _rt_aot_hash_map_iterator_key (CONST_ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (iterator != NULL);
@@ -784,6 +833,7 @@ inline
 VALUE_TYPE
 _rt_aot_hash_map_iterator_value (CONST_ITERATOR_TYPE *iterator)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
 	// EP_ASSERT (iterator != NULL);
@@ -1122,6 +1172,7 @@ inline
 ep_rt_lock_handle_t *
 ep_rt_aot_config_lock_get (void)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	// extern ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
@@ -1132,11 +1183,18 @@ ep_rt_aot_config_lock_get (void)
 static
 inline
 const ep_char8_t *
-ep_rt_entrypoint_assembly_name_get_utf8 (void) { return nullptr; }
+ep_rt_entrypoint_assembly_name_get_utf8 (void) 
+{ 
+    __debugbreak();
+	return nullptr; 
+}
 
 static
 const ep_char8_t *
-ep_rt_runtime_version_get_utf8 (void) { return nullptr; }
+ep_rt_runtime_version_get_utf8 (void) { 
+    __debugbreak();
+	return nullptr; 
+}
 
 /*
  * Little-Endian Conversion.
@@ -1147,6 +1205,7 @@ EP_ALWAYS_INLINE
 uint16_t
 ep_rt_val_uint16_t (uint16_t value)
 {
+    __debugbreak();
 	return value;
 }
 
@@ -1155,6 +1214,7 @@ EP_ALWAYS_INLINE
 uint32_t
 ep_rt_val_uint32_t (uint32_t value)
 {
+    __debugbreak();
 	return value;
 }
 
@@ -1163,6 +1223,7 @@ EP_ALWAYS_INLINE
 uint64_t
 ep_rt_val_uint64_t (uint64_t value)
 {
+    __debugbreak();
 	return value;
 }
 
@@ -1171,6 +1232,7 @@ EP_ALWAYS_INLINE
 int16_t
 ep_rt_val_int16_t (int16_t value)
 {
+    __debugbreak();
 	return value;
 }
 
@@ -1179,6 +1241,7 @@ EP_ALWAYS_INLINE
 int32_t
 ep_rt_val_int32_t (int32_t value)
 {
+    __debugbreak();
 	return value;
 }
 
@@ -1187,6 +1250,7 @@ EP_ALWAYS_INLINE
 int64_t
 ep_rt_val_int64_t (int64_t value)
 {
+    __debugbreak();
 	return value;
 }
 
@@ -1195,6 +1259,7 @@ EP_ALWAYS_INLINE
 uintptr_t
 ep_rt_val_uintptr_t (uintptr_t value)
 {
+    __debugbreak();
 	return value;
 }
 
@@ -1207,6 +1272,7 @@ inline
 uint32_t
 ep_rt_atomic_inc_uint32_t (volatile uint32_t *value)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return static_cast<uint32_t>(InterlockedIncrement ((volatile long *)(value)));
 	return 0;
@@ -1217,6 +1283,7 @@ inline
 uint32_t
 ep_rt_atomic_dec_uint32_t (volatile uint32_t *value)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return static_cast<uint32_t>(InterlockedDecrement ((volatile long *)(value)));
 	return 0;
@@ -1227,6 +1294,7 @@ inline
 int32_t
 ep_rt_atomic_inc_int32_t (volatile int32_t *value)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return static_cast<int32_t>(InterlockedIncrement ((volatile long *)(value)));
 	return 0;
@@ -1237,6 +1305,7 @@ inline
 int32_t
 ep_rt_atomic_dec_int32_t (volatile int32_t *value)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return static_cast<int32_t>(InterlockedDecrement ((volatile long *)(value)));
 	return 0;
@@ -1247,6 +1316,7 @@ inline
 int64_t
 ep_rt_atomic_inc_int64_t (volatile int64_t *value)
 {
+    __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 // 	return static_cast<int64_t>(InterlockedIncrement64 ((volatile LONG64 *)(value)));
 	return 0;
@@ -1255,17 +1325,26 @@ ep_rt_atomic_inc_int64_t (volatile int64_t *value)
 static
 inline
 int64_t
-ep_rt_atomic_dec_int64_t (volatile int64_t *value) { return 0; }
+ep_rt_atomic_dec_int64_t (volatile int64_t *value) { 
+    __debugbreak();
+	return 0; 
+}
 
 static
 inline
 size_t
-ep_rt_atomic_compare_exchange_size_t (volatile size_t *target, size_t expected, size_t value) { return 0; }
+ep_rt_atomic_compare_exchange_size_t (volatile size_t *target, size_t expected, size_t value) {
+    __debugbreak();
+	return 0; 
+}
 
 static
 inline
 ep_char8_t *
-ep_rt_atomic_compare_exchange_utf8_string (ep_char8_t *volatile *target, ep_char8_t *expected, ep_char8_t *value) { return nullptr; }
+ep_rt_atomic_compare_exchange_utf8_string (ep_char8_t *volatile *target, ep_char8_t *expected, ep_char8_t *value) { 
+    __debugbreak();
+	return nullptr; 
+}
 
 /*
  * EventPipe.
@@ -1312,6 +1391,7 @@ inline
 void
 ep_rt_init_finish (void)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 }
 
@@ -1320,6 +1400,7 @@ inline
 void
 ep_rt_shutdown (void)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 }
 
@@ -1328,6 +1409,7 @@ inline
 bool
 ep_rt_config_acquire (void)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	return ep_rt_lock_acquire (ep_rt_aot_config_lock_get ());
 }
@@ -1337,6 +1419,7 @@ inline
 bool
 ep_rt_config_release (void)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	return ep_rt_lock_release (ep_rt_aot_config_lock_get ());
 }
@@ -1347,6 +1430,7 @@ inline
 void
 ep_rt_config_requires_lock_held (void)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	ep_rt_lock_requires_lock_held (ep_rt_aot_config_lock_get ());
 }
@@ -1356,6 +1440,7 @@ inline
 void
 ep_rt_config_requires_lock_not_held (void)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	ep_rt_lock_requires_lock_not_held (ep_rt_aot_config_lock_get ());
 }
@@ -1368,6 +1453,7 @@ ep_rt_walk_managed_stack_for_thread (
 	ep_rt_thread_handle_t thread,
 	EventPipeStackContents *stack_contents)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	// extern bool ep_rt_aot_walk_managed_stack_for_thread (ep_rt_thread_handle_t thread, EventPipeStackContents *stack_contents);
 	// return ep_rt_aot_walk_managed_stack_for_thread (thread, stack_contents);
@@ -1382,6 +1468,7 @@ ep_rt_method_get_simple_assembly_name (
 	ep_char8_t *name,
 	size_t name_len)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (method != NULL);
 	// EP_ASSERT (name != NULL);
@@ -1405,6 +1492,7 @@ ep_rt_method_get_full_name (
 	ep_char8_t *name,
 	size_t name_len)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (method != NULL);
 	// EP_ASSERT (name != NULL);
@@ -1441,6 +1529,7 @@ inline
 void
 ep_rt_provider_config_init (EventPipeProviderConfiguration *provider_config)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// if (!ep_rt_utf8_string_compare (ep_config_get_rundown_provider_name_utf8 (), ep_provider_config_get_provider_name (provider_config))) {
@@ -1461,6 +1550,7 @@ static
 void
 ep_rt_init_providers_and_events (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// EX_TRY
@@ -1476,6 +1566,7 @@ inline
 bool
 ep_rt_providers_validate_all_disabled (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// return (!MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_DOTNET_Context.EventPipeProvider.IsEnabled &&
@@ -1489,6 +1580,7 @@ inline
 void
 ep_rt_prepare_provider_invoke_callback (EventPipeProviderCallbackData *provider_callback_data)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 }
 
@@ -1504,6 +1596,7 @@ ep_rt_provider_invoke_callback (
 	EventFilterDescriptor *filter_data,
 	void *callback_data)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (callback_func != NULL);
 
@@ -1576,6 +1669,7 @@ ep_rt_provider_list_find_by_name (
 	const ep_rt_provider_list_t *list,
 	const ep_char8_t *name)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	// The provider list should be non-NULL, but can be NULL on shutdown.
@@ -1606,6 +1700,7 @@ inline
 bool
 ep_rt_config_value_get_enable (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EnableEventPipe) != 0;
 	return false;
@@ -1616,6 +1711,7 @@ inline
 ep_char8_t *
 ep_rt_config_value_get_config (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// CLRConfigStringHolder value(CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeConfig));
 	// return ep_rt_utf16_to_utf8_string (reinterpret_cast<ep_char16_t *>(value.GetValue ()), -1);
@@ -1627,6 +1723,7 @@ inline
 ep_char8_t *
 ep_rt_config_value_get_output_path (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// CLRConfigStringHolder value(CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeOutputPath));
 	// return ep_rt_utf16_to_utf8_string (reinterpret_cast<ep_char16_t *>(value.GetValue ()), -1);
@@ -1638,6 +1735,7 @@ inline
 uint32_t
 ep_rt_config_value_get_circular_mb (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeCircularMB);
 	return 0;
@@ -1648,6 +1746,7 @@ inline
 bool
 ep_rt_config_value_get_output_streaming (void)
 {
+    __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 // 	return CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeOutputStreaming) != 0;
 	return false;
@@ -1664,6 +1763,7 @@ ep_rt_sample_profiler_write_sampling_event_for_threads (
 	ep_rt_thread_handle_t sampling_thread,
 	EventPipeEvent *sampling_event)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	// extern void ep_rt_aot_sample_profiler_write_sampling_event_for_threads (ep_rt_thread_handle_t sampling_thread, EventPipeEvent *sampling_event);
@@ -1675,6 +1775,7 @@ inline
 void
 ep_rt_notify_profiler_provider_created (EventPipeProvider *provider)
 {
+    __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 
 // #ifndef DACCESS_COMPILE
@@ -1698,6 +1799,7 @@ ep_rt_session_provider_list_find_by_name (
 	const ep_rt_session_provider_list_t *list,
 	const ep_char8_t *name)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	SList_EP<SListElem_EP<EventPipeSessionProvider *>> *provider_list = list->list;
@@ -1761,6 +1863,7 @@ inline
 uint8_t *
 ep_rt_byte_array_alloc (size_t len)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	return new (nothrow) uint8_t [len];
 }
@@ -1770,6 +1873,7 @@ inline
 void
 ep_rt_byte_array_free (uint8_t *ptr)
 {
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	if (ptr)
@@ -1787,6 +1891,7 @@ ep_rt_wait_event_alloc (
 	bool manual,
 	bool initial)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// EP_ASSERT (wait_event != NULL);
@@ -1811,6 +1916,7 @@ inline
 void
 ep_rt_wait_event_free (ep_rt_wait_event_handle_t *wait_event)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// if (wait_event != NULL && wait_event->event != NULL) {
@@ -1823,24 +1929,40 @@ ep_rt_wait_event_free (ep_rt_wait_event_handle_t *wait_event)
 static
 inline
 bool
-ep_rt_wait_event_set (ep_rt_wait_event_handle_t *wait_event) { return false; }
+ep_rt_wait_event_set (ep_rt_wait_event_handle_t *wait_event) 
+{ 
+    __debugbreak();
+	return false; 
+}
 
 static
 int32_t
 ep_rt_wait_event_wait (
 	ep_rt_wait_event_handle_t *wait_event,
 	uint32_t timeout,
-	bool alertable) { return 0;}
+	bool alertable) 
+{ 
+    __debugbreak();
+	return 0;
+}
 
 static
 inline
 EventPipeWaitHandle
-ep_rt_wait_event_get_wait_handle (ep_rt_wait_event_handle_t *wait_event) { return NULL;}
+ep_rt_wait_event_get_wait_handle (ep_rt_wait_event_handle_t *wait_event) 
+{ 
+    __debugbreak();
+	return NULL;
+}
 
 static
 inline
 bool
-ep_rt_wait_event_is_valid (ep_rt_wait_event_handle_t *wait_event) { return false; }
+ep_rt_wait_event_is_valid (ep_rt_wait_event_handle_t *wait_event) 
+{ 
+    __debugbreak();
+	return false; 
+}
 
 /*
  * Misc.
@@ -1851,6 +1973,7 @@ inline
 int
 ep_rt_get_last_error (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return ::GetLastError ();
 	return 0;
@@ -1861,6 +1984,7 @@ inline
 bool
 ep_rt_process_detach (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return (bool)g_fProcessDetach;
 	return false;
@@ -1871,6 +1995,7 @@ inline
 bool
 ep_rt_process_shutdown (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return (bool)g_fEEShutDown;
 	return false;
@@ -1883,6 +2008,7 @@ ep_rt_create_activity_id (
 	uint8_t *activity_id,
 	uint32_t activity_id_len)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (activity_id != NULL);
 	// EP_ASSERT (activity_id_len == EP_ACTIVITY_ID_SIZE);
@@ -1895,6 +2021,7 @@ inline
 bool
 ep_rt_is_running (void)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return (bool)g_fEEStarted;
 	return false;
@@ -1905,6 +2032,7 @@ inline
 void
 ep_rt_execute_rundown (ep_rt_execution_checkpoint_array_t *execution_checkpoints)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// //TODO: Write execution checkpoint rundown events.
@@ -1948,6 +2076,7 @@ typedef struct _rt_aot_thread_params_internal_t {
 
 EP_RT_DEFINE_THREAD_FUNC (ep_rt_thread_aot_start_func)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// rt_aot_thread_params_internal_t *thread_params = reinterpret_cast<rt_aot_thread_params_internal_t *>(data);
@@ -1967,6 +2096,7 @@ ep_rt_thread_create (
 	EventPipeThreadType thread_type,
 	void *id)
 {
+    __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (thread_func != NULL);
 
@@ -2015,6 +2145,7 @@ inline
 void
 ep_rt_set_server_name(void)
 {
+   __debugbreak();
 	// ::SetThreadName(GetCurrentThread(), W(".NET EventPipe"));
 }
 
@@ -2024,6 +2155,7 @@ inline
 void
 ep_rt_thread_sleep (uint64_t ns)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 
 // #ifdef TARGET_UNIX
@@ -2039,6 +2171,7 @@ inline
 uint32_t
 ep_rt_current_process_get_id (void)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 // 	return static_cast<uint32_t>(GetCurrentProcessId ());
 	return 0;
@@ -2049,6 +2182,7 @@ inline
 uint32_t
 ep_rt_current_processor_get_number (void)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 
 // #ifndef TARGET_UNIX
@@ -2068,6 +2202,7 @@ inline
 uint32_t
 ep_rt_processors_get_count (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// SYSTEM_INFO sys_info = {};
@@ -2081,6 +2216,7 @@ inline
 ep_rt_thread_id_t
 ep_rt_current_thread_get_id (void)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 
 // #ifdef TARGET_UNIX
@@ -2096,6 +2232,7 @@ inline
 int64_t
 ep_rt_perf_counter_query (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// LARGE_INTEGER value;
@@ -2110,6 +2247,7 @@ inline
 int64_t
 ep_rt_perf_frequency_query (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// LARGE_INTEGER value;
@@ -2124,6 +2262,7 @@ inline
 void
 ep_rt_system_time_get (EventPipeSystemTime *system_time)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// SYSTEMTIME value;
@@ -2147,6 +2286,7 @@ inline
 int64_t
 ep_rt_system_timestamp_get (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// FILETIME value;
@@ -2160,6 +2300,7 @@ inline
 int32_t
 ep_rt_system_get_alloc_granularity (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return static_cast<int32_t>(g_SystemInfo.dwAllocationGranularity);
 	return 0;
@@ -2170,6 +2311,7 @@ inline
 const ep_char8_t *
 ep_rt_os_command_line_get (void)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_UNREACHABLE ("Can not reach here");
 
@@ -2180,6 +2322,7 @@ static
 ep_rt_file_handle_t
 ep_rt_file_open_write (const ep_char8_t *path)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// ep_char16_t *path_utf16 = ep_rt_utf8_to_utf16le_string (path, -1);
@@ -2201,6 +2344,7 @@ inline
 bool
 ep_rt_file_close (ep_rt_file_handle_t file_handle)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// // Closed in destructor.
@@ -2219,6 +2363,7 @@ ep_rt_file_write (
 	uint32_t bytes_to_write,
 	uint32_t *bytes_written)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (buffer != NULL);
 
@@ -2236,6 +2381,7 @@ inline
 uint8_t *
 ep_rt_valloc0 (size_t buffer_size)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return reinterpret_cast<uint8_t *>(ClrVirtualAlloc (NULL, buffer_size, MEM_COMMIT, PAGE_READWRITE));
 	return nullptr;
@@ -2248,6 +2394,7 @@ ep_rt_vfree (
 	uint8_t *buffer,
 	size_t buffer_size)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// if (buffer)
@@ -2261,6 +2408,7 @@ ep_rt_temp_path_get (
 	ep_char8_t *buffer,
 	uint32_t buffer_len)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_UNREACHABLE ("Can not reach here");
 
@@ -2274,6 +2422,7 @@ static
 void
 ep_rt_os_environment_get_utf16 (ep_rt_env_array_utf16_t *env_array)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (env_array != NULL);
 
@@ -2296,6 +2445,7 @@ static
 bool
 ep_rt_lock_acquire (ep_rt_lock_handle_t *lock)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// bool result = true;
@@ -2320,6 +2470,7 @@ static
 bool
 ep_rt_lock_release (ep_rt_lock_handle_t *lock)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// bool result = true;
@@ -2346,6 +2497,8 @@ inline
 void
 ep_rt_lock_requires_lock_held (const ep_rt_lock_handle_t *lock)
 {
+
+    __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 //	EP_ASSERT (((ep_rt_lock_handle_t *)lock)->lock->OwnedByCurrentThread ());
 }
@@ -2355,6 +2508,7 @@ inline
 void
 ep_rt_lock_requires_lock_not_held (const ep_rt_lock_handle_t *lock)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 //	EP_ASSERT (lock->lock == NULL || !((ep_rt_lock_handle_t *)lock)->lock->OwnedByCurrentThread ());
 }
@@ -2368,6 +2522,7 @@ static
 void
 ep_rt_spin_lock_alloc (ep_rt_spin_lock_handle_t *spin_lock)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// EX_TRY
@@ -2384,6 +2539,7 @@ inline
 void
 ep_rt_spin_lock_free (ep_rt_spin_lock_handle_t *spin_lock)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// if (spin_lock && spin_lock->lock) {
@@ -2397,6 +2553,7 @@ inline
 bool
 ep_rt_spin_lock_acquire (ep_rt_spin_lock_handle_t *spin_lock)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (ep_rt_spin_lock_is_valid (spin_lock));
 
@@ -2410,6 +2567,7 @@ inline
 bool
 ep_rt_spin_lock_release (ep_rt_spin_lock_handle_t *spin_lock)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (ep_rt_spin_lock_is_valid (spin_lock));
 
@@ -2424,6 +2582,7 @@ inline
 void
 ep_rt_spin_lock_requires_lock_held (const ep_rt_spin_lock_handle_t *spin_lock)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (ep_rt_spin_lock_is_valid (spin_lock));
 //	EP_ASSERT (spin_lock->lock->OwnedByCurrentThread ());
@@ -2434,6 +2593,7 @@ inline
 void
 ep_rt_spin_lock_requires_lock_not_held (const ep_rt_spin_lock_handle_t *spin_lock)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 //	EP_ASSERT (spin_lock->lock == NULL || !spin_lock->lock->OwnedByCurrentThread ());
 }
@@ -2444,6 +2604,7 @@ inline
 bool
 ep_rt_spin_lock_is_valid (const ep_rt_spin_lock_handle_t *spin_lock)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	return (spin_lock != NULL && spin_lock->lock != NULL);
 }
@@ -2459,6 +2620,7 @@ ep_rt_utf8_string_compare (
 	const ep_char8_t *str1,
 	const ep_char8_t *str2)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (str1 != NULL && str2 != NULL);
 
@@ -2472,6 +2634,7 @@ ep_rt_utf8_string_compare_ignore_case (
 	const ep_char8_t *str1,
 	const ep_char8_t *str2)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (str1 != NULL && str2 != NULL);
 
@@ -2483,6 +2646,7 @@ inline
 bool
 ep_rt_utf8_string_is_null_or_empty (const ep_char8_t *str)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// if (str == NULL)
@@ -2502,6 +2666,7 @@ inline
 ep_char8_t *
 ep_rt_utf8_string_dup (const ep_char8_t *str)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	if (!str)
@@ -2515,6 +2680,7 @@ inline
 ep_char8_t *
 ep_rt_utf8_string_dup_range (const ep_char8_t *str, const ep_char8_t *strEnd)
 {
+   __debugbreak();
 	ptrdiff_t byte_len = strEnd - str;
 	ep_char8_t *buffer = reinterpret_cast<ep_char8_t *>(malloc(byte_len + 1));
 	if (buffer != NULL)
@@ -2533,6 +2699,7 @@ ep_rt_utf8_string_strtok (
 	const ep_char8_t *delimiter,
 	ep_char8_t **context)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	return strtok_s (str, delimiter, context);
 }
@@ -2554,6 +2721,7 @@ ep_rt_utf8_string_replace (
 	const ep_char8_t *strReplacement
 )
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	if ((*str) == NULL)
 		return false;
@@ -2583,6 +2751,7 @@ ep_rt_utf8_to_utf16le_string (
 	const ep_char8_t *str,
 	size_t len)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// if (!str)
@@ -2615,6 +2784,7 @@ inline
 ep_char16_t *
 ep_rt_utf16_string_dup (const ep_char16_t *str)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	if (!str)
@@ -2632,6 +2802,7 @@ inline
 void
 ep_rt_utf8_string_free (ep_char8_t *str)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	if (str)
@@ -2643,6 +2814,7 @@ inline
 size_t
 ep_rt_utf16_string_len (const ep_char16_t *str)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (str != NULL);
 
@@ -2656,6 +2828,7 @@ ep_rt_utf16_to_utf8_string (
 	const ep_char16_t *str,
 	size_t len)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// if (!str)
@@ -2690,6 +2863,7 @@ ep_rt_utf16le_to_utf8_string (
 	const ep_char16_t *str,
 	size_t len)
 {
+   __debugbreak();
 	return ep_rt_utf16_to_utf8_string (str, len);
 }
 
@@ -2698,6 +2872,7 @@ inline
 void
 ep_rt_utf16_string_free (ep_char16_t *str)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	if (str)
@@ -2709,6 +2884,7 @@ inline
 const ep_char8_t *
 ep_rt_managed_command_line_get (void)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_UNREACHABLE ("Can not reach here");
 
@@ -2719,6 +2895,7 @@ static
 const ep_char8_t *
 ep_rt_diagnostics_command_line_get (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// // In coreclr, this value can change over time, specifically before vs after suspension in diagnostics server.
@@ -2759,6 +2936,7 @@ inline
 EventPipeThreadHolder *
 thread_holder_alloc_func (void)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EventPipeThreadHolder *instance = ep_thread_holder_alloc (ep_thread_alloc());
 	if (instance)
@@ -2771,6 +2949,7 @@ inline
 void
 thread_holder_free_func (EventPipeThreadHolder * thread_holder)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	if (thread_holder) {
 		ep_thread_unregister (ep_thread_holder_get_thread (thread_holder));
@@ -2782,11 +2961,13 @@ class EventPipeAotThreadHolderTLS {
 public:
 	EventPipeAotThreadHolderTLS ()
 	{
+   __debugbreak();
 		STATIC_CONTRACT_NOTHROW;
 	}
 
 	~EventPipeAotThreadHolderTLS ()
 	{
+   __debugbreak();
 		STATIC_CONTRACT_NOTHROW;
 
 		if (m_threadHolder) {
@@ -2797,12 +2978,14 @@ public:
 
 	static inline EventPipeThreadHolder * getThreadHolder ()
 	{
+   __debugbreak();
 		STATIC_CONTRACT_NOTHROW;
 		return g_threadHolderTLS.m_threadHolder;
 	}
 
 	static inline EventPipeThreadHolder * createThreadHolder ()
 	{
+   __debugbreak();
 		STATIC_CONTRACT_NOTHROW;
 
 		if (g_threadHolderTLS.m_threadHolder) {
@@ -2822,6 +3005,7 @@ static
 void
 ep_rt_thread_setup (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 
 	// Thread* thread_handle = SetupThreadNoThrow ();
@@ -2833,6 +3017,7 @@ inline
 EventPipeThread *
 ep_rt_thread_get (void)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	// EventPipeThreadHolder *thread_holder = EventPipeAotThreadHolderTLS::getThreadHolder ();
@@ -2845,6 +3030,7 @@ inline
 EventPipeThread *
 ep_rt_thread_get_or_create (void)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 
 	// EventPipeThreadHolder *thread_holder = EventPipeAotThreadHolderTLS::getThreadHolder ();
@@ -2860,6 +3046,7 @@ inline
 ep_rt_thread_handle_t
 ep_rt_thread_get_handle (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return GetThreadNULLOk ();
 	return NULL;
@@ -2870,6 +3057,7 @@ inline
 ep_rt_thread_id_t
 ep_rt_thread_get_id (ep_rt_thread_handle_t thread_handle)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (thread_handle != NULL);
 
@@ -2882,6 +3070,7 @@ inline
 uint64_t
 ep_rt_thread_id_t_to_uint64_t (ep_rt_thread_id_t thread_id)
 {
+   __debugbreak();
 	return static_cast<uint64_t>(thread_id);
 }
 
@@ -2890,6 +3079,7 @@ inline
 ep_rt_thread_id_t
 ep_rt_uint64_t_to_thread_id_t (uint64_t thread_id)
 {
+   __debugbreak();
 	return static_cast<ep_rt_thread_id_t>(thread_id);
 }
 
@@ -2898,6 +3088,7 @@ inline
 bool
 ep_rt_thread_has_started (ep_rt_thread_handle_t thread_handle)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return thread_handle != NULL && thread_handle->HasStarted ();
 	return false;
@@ -2908,6 +3099,7 @@ inline
 ep_rt_thread_activity_id_handle_t
 ep_rt_thread_get_activity_id_handle (void)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return GetThread ();
 	return NULL;
@@ -2918,6 +3110,7 @@ inline
 const uint8_t *
 ep_rt_thread_get_activity_id_cref (ep_rt_thread_activity_id_handle_t activity_id_handle)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (activity_id_handle != NULL);
 
@@ -2933,6 +3126,7 @@ ep_rt_thread_get_activity_id (
 	uint8_t *activity_id,
 	uint32_t activity_id_len)
 {
+   __debugbreak();
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (activity_id_handle != NULL);
 	EP_ASSERT (activity_id != NULL);
@@ -2949,6 +3143,7 @@ ep_rt_thread_set_activity_id (
 	const uint8_t *activity_id,
 	uint32_t activity_id_len)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// EP_ASSERT (activity_id_handle != NULL);
 	// EP_ASSERT (activity_id != NULL);
@@ -2976,6 +3171,7 @@ inline
 uint32_t
 ep_rt_volatile_load_uint32_t (const volatile uint32_t *ptr)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return VolatileLoad<uint32_t> ((const uint32_t *)ptr);
 	return 0;
@@ -2986,6 +3182,7 @@ inline
 uint32_t
 ep_rt_volatile_load_uint32_t_without_barrier (const volatile uint32_t *ptr)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return VolatileLoadWithoutBarrier<uint32_t> ((const uint32_t *)ptr);
 	return 0;
@@ -2998,6 +3195,7 @@ ep_rt_volatile_store_uint32_t (
 	volatile uint32_t *ptr,
 	uint32_t value)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// VolatileStore<uint32_t> ((uint32_t *)ptr, value);
 }
@@ -3009,6 +3207,7 @@ ep_rt_volatile_store_uint32_t_without_barrier (
 	volatile uint32_t *ptr,
 	uint32_t value)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// VolatileStoreWithoutBarrier<uint32_t>((uint32_t *)ptr, value);
 }
@@ -3018,6 +3217,7 @@ inline
 uint64_t
 ep_rt_volatile_load_uint64_t (const volatile uint64_t *ptr)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return VolatileLoad<uint64_t> ((const uint64_t *)ptr);
 	return 0;
@@ -3028,6 +3228,7 @@ inline
 uint64_t
 ep_rt_volatile_load_uint64_t_without_barrier (const volatile uint64_t *ptr)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return VolatileLoadWithoutBarrier<uint64_t> ((const uint64_t *)ptr);
 	return 0;
@@ -3040,6 +3241,7 @@ ep_rt_volatile_store_uint64_t (
 	volatile uint64_t *ptr,
 	uint64_t value)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// VolatileStore<uint64_t> ((uint64_t *)ptr, value);
 }
@@ -3051,6 +3253,7 @@ ep_rt_volatile_store_uint64_t_without_barrier (
 	volatile uint64_t *ptr,
 	uint64_t value)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// VolatileStoreWithoutBarrier<uint64_t> ((uint64_t *)ptr, value);
 }
@@ -3060,6 +3263,7 @@ inline
 int64_t
 ep_rt_volatile_load_int64_t (const volatile int64_t *ptr)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return VolatileLoad<int64_t> ((int64_t *)ptr);
 	return 0;
@@ -3070,6 +3274,7 @@ inline
 int64_t
 ep_rt_volatile_load_int64_t_without_barrier (const volatile int64_t *ptr)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return VolatileLoadWithoutBarrier<int64_t> ((int64_t *)ptr);
 	return 0;
@@ -3082,6 +3287,7 @@ ep_rt_volatile_store_int64_t (
 	volatile int64_t *ptr,
 	int64_t value)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// VolatileStore<int64_t> ((int64_t *)ptr, value);
 }
@@ -3093,6 +3299,7 @@ ep_rt_volatile_store_int64_t_without_barrier (
 	volatile int64_t *ptr,
 	int64_t value)
 {
+   __debugbreak();
 // 	STATIC_CONTRACT_NOTHROW;
 // 	VolatileStoreWithoutBarrier<int64_t> ((int64_t *)ptr, value);
 }
@@ -3102,6 +3309,7 @@ inline
 void *
 ep_rt_volatile_load_ptr (volatile void **ptr)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return VolatileLoad<void *> ((void **)ptr);
 	return nullptr;
@@ -3112,6 +3320,7 @@ inline
 void *
 ep_rt_volatile_load_ptr_without_barrier (volatile void **ptr)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// return VolatileLoadWithoutBarrier<void *> ((void **)ptr);
 	return NULL;
@@ -3124,6 +3333,7 @@ ep_rt_volatile_store_ptr (
 	volatile void **ptr,
 	void *value)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// VolatileStore<void *> ((void **)ptr, value);
 }
@@ -3135,9 +3345,11 @@ ep_rt_volatile_store_ptr_without_barrier (
 	volatile void **ptr,
 	void *value)
 {
+   __debugbreak();
 	// STATIC_CONTRACT_NOTHROW;
 	// VolatileStoreWithoutBarrier<void *> ((void **)ptr, value);
 }
 
 #endif /* ENABLE_PERFTRACING */
 #endif /* __EVENTPIPE_RT_AOT_H__ */
+
