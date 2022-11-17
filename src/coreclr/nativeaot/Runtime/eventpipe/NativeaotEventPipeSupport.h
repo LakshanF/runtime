@@ -69,8 +69,8 @@ struct HDC__{int unused;}; typedef struct HDC__ *HDC;
 
 struct HWND__{int unused;}; typedef struct HWND__ *HWND;
 
-// struct HINSTANCE__{int unused;}; typedef struct HINSTANCE__ *HINSTANCE;
-// typedef HINSTANCE HMODULE;
+//struct HINSTANCE__{int unused;}; typedef struct HINSTANCE__ *HINSTANCE;
+//typedef HINSTANCE HMODULE;
 
 
 // @TODO - 
@@ -85,23 +85,23 @@ typedef HWND HMODULE;
 struct HTASK__{int unused;}; typedef struct HTASK__ *HTASK;
 typedef HANDLE *PHANDLE;
 
-// __declspec(dllimport)
-// BOOL
-// __stdcall
-// FreeLibrary(
-//     // See above
-//       //HMODULE hLibModule
-//       HANDLE hLibModule
-//     );
+__declspec(dllimport)
+BOOL
+__stdcall
+FreeLibrary(
+    // See above
+      //HMODULE hLibModule
+      HANDLE hLibModule
+    );
 
-// HMODULE
-// __stdcall
-// LoadLibraryW(
-//       LPCWSTR lpLibFileName
-//     );
+HMODULE
+__stdcall
+LoadLibraryW(
+      LPCWSTR lpLibFileName
+    );
 
 
-// #define LoadLibrary  LoadLibraryW
+#define LoadLibrary  LoadLibraryW
 
 #endif // __AOT_WINDOWS_DEF_NOT_NEEDED___
 
