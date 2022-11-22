@@ -12,6 +12,7 @@
 #include <PalRedhawk.h>
 #include <stresslog.h>
 #include <volatile.h>
+#include <event.h>
 
 //#include "fstream.h"
 //#include "typestring.h"
@@ -1400,13 +1401,10 @@ inline
 void
 ep_rt_provider_config_init (EventPipeProviderConfiguration *provider_config)
 {
-	STATIC_CONTRACT_NOTHROW;	
+	STATIC_CONTRACT_NOTHROW;
 
-	if (!ep_rt_utf8_string_compare (ep_config_get_rundown_provider_name_utf8 (), ep_provider_config_get_provider_name (provider_config))) {
-		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context.EventPipeProvider.Level = (UCHAR) ep_provider_config_get_logging_level (provider_config);
-		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context.EventPipeProvider.EnabledKeywordsBitmask = ep_provider_config_get_keywords (provider_config);
-		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context.EventPipeProvider.IsEnabled = true;
-	}
+	// TODO: MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context is not available in NativeAOT
+	__debugbreak();	
 }
 
 // This function is auto-generated from /src/scripts/genEventPipe.py
@@ -1431,10 +1429,10 @@ bool
 ep_rt_providers_validate_all_disabled (void)
 {
 	STATIC_CONTRACT_NOTHROW;
+	// TODO: MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context and MICROSOFT_WINDOWS_DOTNETRUNTIME_PRIVATE_PROVIDER_DOTNET_Context are not available in NativeAOT
+	__debugbreak();	
 
-	return (!MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_DOTNET_Context.EventPipeProvider.IsEnabled &&
-		!MICROSOFT_WINDOWS_DOTNETRUNTIME_PRIVATE_PROVIDER_DOTNET_Context.EventPipeProvider.IsEnabled &&
-		!MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context.EventPipeProvider.IsEnabled);
+	return false;
 }
 
 static
@@ -1570,7 +1568,7 @@ ep_rt_config_value_get_config (void)
 	// TODO: EventPipe Configuration values - RhConfig?
 	// (CLRConfig::INTERNAL_EventPipeConfig)
 	__debugbreak();
-	return reinterpret_cast<ep_char8_t*>("TODO");
+	return nullptr;
 //	return ep_rt_utf16_to_utf8_string (reinterpret_cast<ep_char16_t *>(value.GetValue ()), -1);
 }
 
@@ -1583,7 +1581,7 @@ ep_rt_config_value_get_output_path (void)
 	// TODO: EventPipe Configuration values - RhConfig?
 	// (CLRConfig::INTERNAL_EventPipeOutputPath)
 	__debugbreak();
-	return reinterpret_cast<ep_char8_t*>("TODO");
+	return nullptr;
 }
 
 static
@@ -1635,10 +1633,8 @@ ep_rt_notify_profiler_provider_created (EventPipeProvider *provider)
 	STATIC_CONTRACT_NOTHROW;
 
 #ifndef DACCESS_COMPILE
-		// Let the profiler know the provider has been created so it can register if it wants to
-		BEGIN_PROFILER_CALLBACK (CORProfilerTrackEventPipe ());
-		(&g_profControlBlock)->EventPipeProviderCreated (provider);
-		END_PROFILER_CALLBACK ();
+		// TODO: EventPipe profiler callback needed
+		__debugbreak();
 #endif // DACCESS_COMPILE
 }
 
@@ -1751,10 +1747,11 @@ ep_rt_wait_event_alloc (
 
 	wait_event->event = new (nothrow) CLREventStatic ();
 	if (wait_event->event) {
+		// NativeAOT has the NoThrow versions
 		if (manual)
-			wait_event->event->CreateManualEvent (initial);
+			wait_event->event->CreateManualEventNoThrow (initial);
 		else
-			wait_event->event->CreateAutoEvent (initial);
+			wait_event->event->CreateAutoEventNoThrow (initial);
 	}
 }
 
@@ -1804,7 +1801,9 @@ ep_rt_wait_event_get_wait_handle (ep_rt_wait_event_handle_t *wait_event)
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (wait_event != NULL && wait_event->event != NULL);
 
-	return reinterpret_cast<EventPipeWaitHandle>(wait_event->event->GetHandleUNHOSTED ());
+	// TODO: NativeAOT CLREventStatic doesn't have GetHandleUNHOSTED
+	__debugbreak();
+	return 0;
 }
 
 static
@@ -1839,7 +1838,10 @@ bool
 ep_rt_process_detach (void)
 {
 	STATIC_CONTRACT_NOTHROW;
-	return (bool)g_fProcessDetach;
+	// TODO: Does NativeAot have the concept of process detach
+	__debugbreak();
+
+	return false;
 }
 
 static
@@ -1848,7 +1850,10 @@ bool
 ep_rt_process_shutdown (void)
 {
 	STATIC_CONTRACT_NOTHROW;
-	return (bool)g_fEEShutDown;
+	// TODO: Does NativeAot have the concept of process shutdown
+	__debugbreak();
+
+	return false;
 }
 
 static
@@ -1871,7 +1876,10 @@ bool
 ep_rt_is_running (void)
 {
 	STATIC_CONTRACT_NOTHROW;
-	return (bool)g_fEEStarted;
+	// TODO: Does NativeAot have the concept of EEStarted
+	__debugbreak();
+
+	return false;
 }
 
 static
@@ -1923,9 +1931,9 @@ EP_RT_DEFINE_THREAD_FUNC (ep_rt_thread_aot_start_func)
 	STATIC_CONTRACT_NOTHROW;
 
 	rt_aot_thread_params_internal_t *thread_params = reinterpret_cast<rt_aot_thread_params_internal_t *>(data);
-	DWORD result = thread_params->thread_params.thread_func (thread_params);
+	size_t result = thread_params->thread_params.thread_func (thread_params);
 	if (thread_params->thread_params.thread)
-		::DestroyThread (thread_params->thread_params.thread);
+		thread_params->thread_params.thread->Destroy();
 	delete thread_params;
 	return result;
 }
