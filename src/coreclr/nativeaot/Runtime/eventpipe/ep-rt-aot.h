@@ -11,6 +11,7 @@
 #include <PalRedhawkCommon.h>
 #include <PalRedhawk.h>
 #include <stresslog.h>
+#include <volatile.h>
 
 //#include "fstream.h"
 //#include "typestring.h"
@@ -1172,7 +1173,9 @@ inline
 ep_rt_lock_handle_t *
 ep_rt_aot_config_lock_get (void)
 {
-    __debugbreak();
+	// @TODO_EP_PORT
+	// We have some locking facilities in the unmanaged runtime (those things are called Crst like in the CoreCLR VM), that needs to be investigated further
+
 	STATIC_CONTRACT_NOTHROW;
 
 	// extern ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
@@ -1360,15 +1363,16 @@ static
 void
 ep_rt_init (void) 
 {
-    __debugbreak();
-// 	STATIC_CONTRACT_NOTHROW;
+	STATIC_CONTRACT_NOTHROW;
 
+// @TODO_EP_PORT – will be done later
 // 	extern ep_rt_lock_handle_t _ep_rt_coreclr_config_lock_handle;
 // 	extern CrstStatic _ep_rt_coreclr_config_lock;
 
 // 	_ep_rt_coreclr_config_lock_handle.lock = &_ep_rt_coreclr_config_lock;
 // 	_ep_rt_coreclr_config_lock_handle.lock->InitNoThrow (CrstEventPipe, (CrstFlags)(CRST_REENTRANCY | CRST_TAKEN_DURING_SHUTDOWN | CRST_HOST_BREAKABLE));
 
+// @TODO_EP_PORT – will be done later
 // 	if (CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeProcNumbers) != 0) {
 // #ifndef TARGET_UNIX
 // 		// setup the windows processor group offset table
@@ -1440,9 +1444,10 @@ inline
 void
 ep_rt_config_requires_lock_not_held (void)
 {
-    __debugbreak();
-	STATIC_CONTRACT_NOTHROW;
-	ep_rt_lock_requires_lock_not_held (ep_rt_aot_config_lock_get ());
+	// @TODO_EP_PORT – will be done later
+    // __debugbreak();
+	// STATIC_CONTRACT_NOTHROW;
+	// ep_rt_lock_requires_lock_not_held (ep_rt_aot_config_lock_get ());
 }
 #endif
 
@@ -3171,10 +3176,8 @@ inline
 uint32_t
 ep_rt_volatile_load_uint32_t (const volatile uint32_t *ptr)
 {
-   __debugbreak();
-	// STATIC_CONTRACT_NOTHROW;
-	// return VolatileLoad<uint32_t> ((const uint32_t *)ptr);
-	return 0;
+	STATIC_CONTRACT_NOTHROW;
+	return VolatileLoad<uint32_t> ((const uint32_t *)ptr);
 }
 
 static
