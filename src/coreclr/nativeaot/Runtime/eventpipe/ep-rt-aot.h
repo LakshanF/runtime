@@ -1173,13 +1173,7 @@ inline
 ep_rt_lock_handle_t *
 ep_rt_aot_config_lock_get (void)
 {
-	// @TODO_EP_PORT
-	// We have some locking facilities in the unmanaged runtime (those things are called Crst like in the CoreCLR VM), that needs to be investigated further
-
-	STATIC_CONTRACT_NOTHROW;
-
-	// extern ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
-	// return &_ep_rt_aot_config_lock_handle;
+	// TODO: Implement EventPipe locking for NativeAOT
 	return nullptr;
 }
 
@@ -1363,31 +1357,7 @@ static
 void
 ep_rt_init (void) 
 {
-	STATIC_CONTRACT_NOTHROW;
-
-// @TODO_EP_PORT – will be done later
-// 	extern ep_rt_lock_handle_t _ep_rt_coreclr_config_lock_handle;
-// 	extern CrstStatic _ep_rt_coreclr_config_lock;
-
-// 	_ep_rt_coreclr_config_lock_handle.lock = &_ep_rt_coreclr_config_lock;
-// 	_ep_rt_coreclr_config_lock_handle.lock->InitNoThrow (CrstEventPipe, (CrstFlags)(CRST_REENTRANCY | CRST_TAKEN_DURING_SHUTDOWN | CRST_HOST_BREAKABLE));
-
-// @TODO_EP_PORT – will be done later
-// 	if (CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeProcNumbers) != 0) {
-// #ifndef TARGET_UNIX
-// 		// setup the windows processor group offset table
-// 		uint16_t groups = ::GetActiveProcessorGroupCount ();
-// 		extern uint32_t *_ep_rt_coreclr_proc_group_offsets;
-// 		_ep_rt_coreclr_proc_group_offsets = new (nothrow) uint32_t [groups];
-// 		if (_ep_rt_coreclr_proc_group_offsets) {
-// 			uint32_t procs = 0;
-// 			for (uint16_t i = 0; i < procs; ++i) {
-// 				_ep_rt_coreclr_proc_group_offsets [i] = procs;
-// 				procs += GetActiveProcessorCount (i);
-// 			}
-// 		}
-// #endif
-// 	}
+	// TODO: Implement EventPipe locking for NativeAOT
 }
 
 static
@@ -1413,9 +1383,8 @@ inline
 bool
 ep_rt_config_acquire (void)
 {
-    __debugbreak();
-	STATIC_CONTRACT_NOTHROW;
-	return ep_rt_lock_acquire (ep_rt_aot_config_lock_get ());
+	// TODO: Implement EventPipe locking for NativeAOT
+	return true;   
 }
 
 static
@@ -1423,9 +1392,8 @@ inline
 bool
 ep_rt_config_release (void)
 {
-    __debugbreak();
-	STATIC_CONTRACT_NOTHROW;
-	return ep_rt_lock_release (ep_rt_aot_config_lock_get ());
+	// TODO: Implement EventPipe locking for NativeAOT
+	return true;
 }
 
 #ifdef EP_CHECKED_BUILD
@@ -1434,9 +1402,8 @@ inline
 void
 ep_rt_config_requires_lock_held (void)
 {
-    __debugbreak();
-	STATIC_CONTRACT_NOTHROW;
-	ep_rt_lock_requires_lock_held (ep_rt_aot_config_lock_get ());
+	// TODO: Implement EventPipe locking for NativeAOT
+	return;
 }
 
 static
@@ -1444,10 +1411,8 @@ inline
 void
 ep_rt_config_requires_lock_not_held (void)
 {
-	// @TODO_EP_PORT – will be done later
-    // __debugbreak();
-	// STATIC_CONTRACT_NOTHROW;
-	// ep_rt_lock_requires_lock_not_held (ep_rt_aot_config_lock_get ());
+	// TODO: Implement EventPipe locking for NativeAOT
+	return;
 }
 #endif
 
