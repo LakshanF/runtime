@@ -1128,18 +1128,8 @@ ep_rt_entrypoint_assembly_name_get_utf8 (void)
 { 
 	STATIC_CONTRACT_NOTHROW;
 
-	AppDomain *app_domain_ref = nullptr;
-	Assembly *assembly_ref = nullptr;
-
-	app_domain_ref = GetAppDomain ();
-	if (app_domain_ref != nullptr)
-	{
-		assembly_ref = app_domain_ref->GetRootAssembly ();
-		if (assembly_ref != nullptr)
-		{
-			return reinterpret_cast<const ep_char8_t*>(assembly_ref->GetSimpleName ());
-		}
-	}
+	// TODO: Implement EventPipe assembly name - return filename in nativeaot?
+	__debugbreak();
 
 	// fallback to the empty string if we can't get assembly info, e.g., if the runtime is
 	// suspended before an assembly is loaded.
@@ -1151,7 +1141,8 @@ const ep_char8_t *
 ep_rt_runtime_version_get_utf8 (void) { 
 	STATIC_CONTRACT_NOTHROW;
 
-	return reinterpret_cast<const ep_char8_t*>(CLR_PRODUCT_VERSION);
+	// TODO: Find a way to use CoreCLR runtime_version.h here if a more exact version is needed
+	return reinterpret_cast<const ep_char8_t*>("8.0.0");
 }
 
 /*
@@ -1276,7 +1267,11 @@ inline
 size_t
 ep_rt_atomic_compare_exchange_size_t (volatile size_t *target, size_t expected, size_t value) {
 	STATIC_CONTRACT_NOTHROW;
-	return static_cast<size_t>(InterlockedCompareExchangeT<size_t> (target, value, expected));
+#ifdef HOST_64BIT
+    return static_cast<size_t>(PalInterlockedCompareExchange64 ((volatile int64_t *)target, (int64_t)value, (int64_t)expected));
+#else
+    return static_cast<size_t>(PalInterlockedCompareExchange ((volatile int32_t *)target, (int32_t)value, (int32_t)expected));
+#endif	
 }
 
 static
@@ -1284,7 +1279,7 @@ inline
 ep_char8_t *
 ep_rt_atomic_compare_exchange_utf8_string (ep_char8_t *volatile *target, ep_char8_t *expected, ep_char8_t *value) { 
 	STATIC_CONTRACT_NOTHROW;
-	return static_cast<ep_char8_t *>(InterlockedCompareExchangeT<ep_char8_t *> (target, value, expected));
+	return static_cast<ep_char8_t *>(PalInterlockedCompareExchangePointer ((void *volatile *)target, value, expected));
 }
 
 /*
@@ -1379,17 +1374,11 @@ ep_rt_method_get_simple_assembly_name (
 	size_t name_len)
 {
 	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (method != NULL);
-	EP_ASSERT (name != NULL);
 
-	const ep_char8_t *assembly_name = method->GetLoaderModule ()->GetAssembly ()->GetSimpleName ();
-	if (!assembly_name)
-		return false;
+	// TODO: Design MethodDesc and method name services if/when needed
+	__debugbreak();
 
-	size_t assembly_name_len = strlen (assembly_name) + 1;
-	size_t to_copy = assembly_name_len < name_len ? assembly_name_len : name_len;
-	memcpy (name, assembly_name, to_copy);
-	name [to_copy - 1] = 0;
+	return false;
 
 }
 
@@ -1400,33 +1389,10 @@ ep_rt_method_get_full_name (
 	ep_char8_t *name,
 	size_t name_len)
 {
-	STATIC_CONTRACT_NOTHROW;
-	EP_ASSERT (method != NULL);
-	EP_ASSERT (name != NULL);
+	// TODO: Design MethodDesc and method name services if/when needed
+	__debugbreak();
 
-	bool result = true;
-	EX_TRY
-	{
-		SString method_name;
-
-		TypeString::AppendMethodInternal (method_name, method, TypeString::FormatNamespace | TypeString::FormatSignature);
-		const ep_char8_t *method_name_utf8 = method_name.GetUTF8 ();
-		if (method_name_utf8) {
-			size_t method_name_utf8_len = strlen (method_name_utf8) + 1;
-			size_t to_copy = method_name_utf8_len < name_len ? method_name_utf8_len : name_len;
-			memcpy (name, method_name_utf8, to_copy);
-			name [to_copy - 1] = 0;
-		} else {
-			result = false;
-		}
-	}
-	EX_CATCH
-	{
-		result = false;
-	}
-	EX_END_CATCH(SwallowAllExceptions);
-
-	return result;
+	return false;
 }
 
 static
@@ -1434,7 +1400,7 @@ inline
 void
 ep_rt_provider_config_init (EventPipeProviderConfiguration *provider_config)
 {
-	STATIC_CONTRACT_NOTHROW;
+	STATIC_CONTRACT_NOTHROW;	
 
 	if (!ep_rt_utf8_string_compare (ep_config_get_rundown_provider_name_utf8 (), ep_provider_config_get_provider_name (provider_config))) {
 		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context.EventPipeProvider.Level = (UCHAR) ep_provider_config_get_logging_level (provider_config);
@@ -1456,12 +1422,7 @@ ep_rt_init_providers_and_events (void)
 {
 	STATIC_CONTRACT_NOTHROW;
 
-	EX_TRY
-	{
-		InitProvidersAndEvents ();
-	}
-	EX_CATCH {}
-	EX_END_CATCH(SwallowAllExceptions);
+	InitProvidersAndEvents ();
 }
 
 static
@@ -1499,19 +1460,14 @@ ep_rt_provider_invoke_callback (
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (callback_func != NULL);
 
-	EX_TRY
-	{
-		(*callback_func)(
-			source_id,
-			is_enabled,
-			level,
-			match_any_keywords,
-			match_all_keywords,
-			filter_data,
-			callback_data);
-	}
-	EX_CATCH {}
-	EX_END_CATCH(SwallowAllExceptions);
+	(*callback_func)(
+		source_id,
+		is_enabled,
+		level,
+		match_any_keywords,
+		match_all_keywords,
+		filter_data,
+		callback_data);
 }
 
 /*
@@ -1599,7 +1555,10 @@ bool
 ep_rt_config_value_get_enable (void)
 {
 	STATIC_CONTRACT_NOTHROW;
-	return CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EnableEventPipe) != 0;
+	// TODO: EventPipe Configuration values - RhConfig?
+	// (CLRConfig::INTERNAL_EnableEventPipe) != 0
+	__debugbreak();
+	return false;
 }
 
 static
@@ -1608,8 +1567,11 @@ ep_char8_t *
 ep_rt_config_value_get_config (void)
 {
 	STATIC_CONTRACT_NOTHROW;
-	CLRConfigStringHolder value(CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeConfig));
-	return ep_rt_utf16_to_utf8_string (reinterpret_cast<ep_char16_t *>(value.GetValue ()), -1);
+	// TODO: EventPipe Configuration values - RhConfig?
+	// (CLRConfig::INTERNAL_EventPipeConfig)
+	__debugbreak();
+	return reinterpret_cast<ep_char8_t*>("TODO");
+//	return ep_rt_utf16_to_utf8_string (reinterpret_cast<ep_char16_t *>(value.GetValue ()), -1);
 }
 
 static
@@ -1618,8 +1580,10 @@ ep_char8_t *
 ep_rt_config_value_get_output_path (void)
 {
 	STATIC_CONTRACT_NOTHROW;
-	CLRConfigStringHolder value(CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeOutputPath));
-	return ep_rt_utf16_to_utf8_string (reinterpret_cast<ep_char16_t *>(value.GetValue ()), -1);
+	// TODO: EventPipe Configuration values - RhConfig?
+	// (CLRConfig::INTERNAL_EventPipeOutputPath)
+	__debugbreak();
+	return reinterpret_cast<ep_char8_t*>("TODO");
 }
 
 static
@@ -1628,7 +1592,10 @@ uint32_t
 ep_rt_config_value_get_circular_mb (void)
 {
 	STATIC_CONTRACT_NOTHROW;
-	return CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeCircularMB);
+	// TODO: EventPipe Configuration values - RhConfig?
+	// (CLRConfig::INTERNAL_EventPipeCircularMB)
+	__debugbreak();
+	return 0;
 }
 
 static
@@ -1637,8 +1604,11 @@ bool
 ep_rt_config_value_get_output_streaming (void)
 {
 	STATIC_CONTRACT_NOTHROW;
-	return CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeOutputStreaming) != 0;
- }
+	// TODO: EventPipe Configuration values - RhConfig?
+	// (CLRConfig::INTERNAL_EventPipeOutputStreaming)
+	__debugbreak();
+	return false;
+}
 
 /*
  * EventPipeSampleProfiler.
@@ -1781,15 +1751,10 @@ ep_rt_wait_event_alloc (
 
 	wait_event->event = new (nothrow) CLREventStatic ();
 	if (wait_event->event) {
-		EX_TRY
-		{
-			if (manual)
-				wait_event->event->CreateManualEvent (initial);
-			else
-				wait_event->event->CreateAutoEvent (initial);
-		}
-		EX_CATCH {}
-		EX_END_CATCH(SwallowAllExceptions);
+		if (manual)
+			wait_event->event->CreateManualEvent (initial);
+		else
+			wait_event->event->CreateAutoEvent (initial);
 	}
 }
 
@@ -1828,17 +1793,7 @@ ep_rt_wait_event_wait (
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (wait_event != NULL && wait_event->event != NULL);
 
-	int32_t result;
-	EX_TRY
-	{
-		result = wait_event->event->Wait (timeout, alertable);
-	}
-	EX_CATCH
-	{
-		result = -1;
-	}
-	EX_END_CATCH(SwallowAllExceptions);
-	return result;
+	return wait_event->event->Wait (timeout, alertable);
 }
 
 static
@@ -1927,11 +1882,9 @@ ep_rt_execute_rundown (ep_rt_execution_checkpoint_array_t *execution_checkpoints
 	STATIC_CONTRACT_NOTHROW;
 
 	//TODO: Write execution checkpoint rundown events.
-	if (CLRConfig::GetConfigValue (CLRConfig::INTERNAL_EventPipeRundown) > 0) {
-		// Ask the runtime to emit rundown events.
-		if (g_fEEStarted && !g_fEEShutDown)
-			ETW::EnumerationLog::EndRundown ();
-	}
+	// TODO: EventPipe Configuration values - RhConfig?
+	// (CLRConfig::INTERNAL_EventPipeCircularMB)
+	__debugbreak();
 }
 
 /*
@@ -1990,39 +1943,31 @@ ep_rt_thread_create (
 
 	bool result = false;
 
-	EX_TRY
-	{
-		rt_aot_thread_params_internal_t *thread_params = new (nothrow) rt_aot_thread_params_internal_t ();
-		if (thread_params) {
-			thread_params->thread_params.thread_type = thread_type;
-			if (thread_type == EP_THREAD_TYPE_SESSION || thread_type == EP_THREAD_TYPE_SAMPLING) {
-				thread_params->thread_params.thread = SetupUnstartedThread ();
-				thread_params->thread_params.thread_func = reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func);
-				thread_params->thread_params.thread_params = params;
-				if (thread_params->thread_params.thread->CreateNewThread (0, ep_rt_thread_aot_start_func, thread_params)) {
-					thread_params->thread_params.thread->SetBackground (TRUE);
-					thread_params->thread_params.thread->StartThread ();
-					if (id)
-						*reinterpret_cast<DWORD *>(id) = thread_params->thread_params.thread->GetThreadId ();
-					result = true;
-				}
-			} else if (thread_type == EP_THREAD_TYPE_SERVER) {
-				DWORD thread_id = 0;
-				HANDLE server_thread = ::CreateThread (nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func), nullptr, 0, &thread_id);
-				if (server_thread != NULL) {
-					::CloseHandle (server_thread);
-					if (id)
-						*reinterpret_cast<DWORD *>(id) = thread_id;
-					result = true;
-				}
+	rt_aot_thread_params_internal_t *thread_params = new (nothrow) rt_aot_thread_params_internal_t ();
+	if (thread_params) {
+		thread_params->thread_params.thread_type = thread_type;
+		if (thread_type == EP_THREAD_TYPE_SESSION || thread_type == EP_THREAD_TYPE_SAMPLING) {
+			thread_params->thread_params.thread = SetupUnstartedThread ();
+			thread_params->thread_params.thread_func = reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func);
+			thread_params->thread_params.thread_params = params;
+			if (thread_params->thread_params.thread->CreateNewThread (0, ep_rt_thread_aot_start_func, thread_params)) {
+				thread_params->thread_params.thread->SetBackground (TRUE);
+				thread_params->thread_params.thread->StartThread ();
+				if (id)
+					*reinterpret_cast<DWORD *>(id) = thread_params->thread_params.thread->GetThreadId ();
+				result = true;
+			}
+		} else if (thread_type == EP_THREAD_TYPE_SERVER) {
+			DWORD thread_id = 0;
+			HANDLE server_thread = ::CreateThread (nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func), nullptr, 0, &thread_id);
+			if (server_thread != NULL) {
+				::CloseHandle (server_thread);
+				if (id)
+					*reinterpret_cast<DWORD *>(id) = thread_id;
+				result = true;
 			}
 		}
 	}
-	EX_CATCH
-	{
-		result = false;
-	}
-	EX_END_CATCH(SwallowAllExceptions);
 
 	return result;
 }
@@ -2306,18 +2251,10 @@ ep_rt_lock_acquire (ep_rt_lock_handle_t *lock)
 	STATIC_CONTRACT_NOTHROW;
 
 	bool result = true;
-	EX_TRY
-	{
-		if (lock) {
-			CrstBase::CrstHolderWithState holder (lock->lock);
-			holder.SuppressRelease ();
-		}
+	if (lock) {
+		CrstBase::CrstHolderWithState holder (lock->lock);
+		holder.SuppressRelease ();
 	}
-	EX_CATCH
-	{
-		result = false;
-	}
-	EX_END_CATCH(SwallowAllExceptions);
 
 	return result;
 }
@@ -2329,18 +2266,10 @@ ep_rt_lock_release (ep_rt_lock_handle_t *lock)
 	STATIC_CONTRACT_NOTHROW;
 
 	bool result = true;
-	EX_TRY
-	{
-		if (lock) {
-			CrstBase::UnsafeCrstInverseHolder holder (lock->lock);
-			holder.SuppressRelease ();
-		}
+	if (lock) {
+		CrstBase::UnsafeCrstInverseHolder holder (lock->lock);
+		holder.SuppressRelease ();
 	}
-	EX_CATCH
-	{
-		result = false;
-	}
-	EX_END_CATCH(SwallowAllExceptions);
 
 	return result;
 }
@@ -2376,13 +2305,8 @@ ep_rt_spin_lock_alloc (ep_rt_spin_lock_handle_t *spin_lock)
 {
 	STATIC_CONTRACT_NOTHROW;
 
-	EX_TRY
-	{
-		spin_lock->lock = new (nothrow) SpinLock ();
-		spin_lock->lock->Init (LOCK_TYPE_DEFAULT);
-	}
-	EX_CATCH {}
-	EX_END_CATCH(SwallowAllExceptions);
+	spin_lock->lock = new (nothrow) SpinLock ();
+	spin_lock->lock->Init (LOCK_TYPE_DEFAULT);
 }
 
 static

@@ -93,12 +93,7 @@ ds_rt_auto_trace_init (void)
 	STATIC_CONTRACT_NOTHROW;
 
 #ifdef FEATURE_AUTO_TRACE
-	EX_TRY
-	{
-		auto_trace_init ();
-	}
-	EX_CATCH {}
-	EX_END_CATCH(SwallowAllExceptions);
+	auto_trace_init ();
 #endif
 }
 
@@ -109,12 +104,7 @@ ds_rt_auto_trace_launch (void)
 	STATIC_CONTRACT_NOTHROW;
 
 #ifdef FEATURE_AUTO_TRACE
-	EX_TRY
-	{
-		auto_trace_launch ();
-	}
-	EX_CATCH {}
-	EX_END_CATCH(SwallowAllExceptions);
+	auto_trace_launch ();
 #endif
 }
 
@@ -125,12 +115,7 @@ ds_rt_auto_trace_signal (void)
 	STATIC_CONTRACT_NOTHROW;
 
 #ifdef FEATURE_AUTO_TRACE
-	EX_TRY
-	{
-		auto_trace_signal ();
-	}
-	EX_CATCH {}
-	EX_END_CATCH(SwallowAllExceptions);
+	auto_trace_signal ();
 #endif
 }
 
@@ -141,12 +126,7 @@ ds_rt_auto_trace_wait (void)
 	STATIC_CONTRACT_NOTHROW;
 
 #ifdef FEATURE_AUTO_TRACE
-	EX_TRY
-	{
-		auto_trace_wait ();
-	}
-	EX_CATCH {}
-	EX_END_CATCH(SwallowAllExceptions);
+	auto_trace_wait ();
 #endif
 }
 
@@ -198,23 +178,18 @@ ds_rt_generate_core_dump (
 	STATIC_CONTRACT_NOTHROW;
 
 	ds_ipc_result_t result = DS_IPC_E_FAIL;
-	EX_TRY
+	uint32_t flags = ds_generate_core_dump_command_payload_get_flags(payload);
+	if (commandId == DS_DUMP_COMMANDID_GENERATE_CORE_DUMP)
 	{
-		uint32_t flags = ds_generate_core_dump_command_payload_get_flags(payload);
-		if (commandId == DS_DUMP_COMMANDID_GENERATE_CORE_DUMP)
-		{
-			// For the old commmand, this payload field is a bool of whether to enable logging
-			flags = flags != 0 ? GenerateDumpFlagsLoggingEnabled : 0;
-		}
-		LPCWSTR dumpName = reinterpret_cast<LPCWSTR>(ds_generate_core_dump_command_payload_get_dump_name (payload));
-		int32_t dumpType = static_cast<int32_t>(ds_generate_core_dump_command_payload_get_dump_type (payload));
-		if (GenerateDump(dumpName, dumpType, flags, errorMessageBuffer, cbErrorMessageBuffer))
-		{
-			result = DS_IPC_S_OK;
-		}
+		// For the old commmand, this payload field is a bool of whether to enable logging
+		flags = flags != 0 ? GenerateDumpFlagsLoggingEnabled : 0;
 	}
-	EX_CATCH {}
-	EX_END_CATCH(SwallowAllExceptions);
+	LPCWSTR dumpName = reinterpret_cast<LPCWSTR>(ds_generate_core_dump_command_payload_get_dump_name (payload));
+	int32_t dumpType = static_cast<int32_t>(ds_generate_core_dump_command_payload_get_dump_type (payload));
+	if (GenerateDump(dumpName, dumpType, flags, errorMessageBuffer, cbErrorMessageBuffer))
+	{
+		result = DS_IPC_S_OK;
+	}
 	return result;
 }
 
@@ -290,14 +265,11 @@ ds_rt_profiler_attach (DiagnosticsAttachProfilerCommandPayload *payload)
 	ClrFlsSetThreadType (ThreadType_ProfAPI_Attach);
 
 	HRESULT hr = S_OK;
-	EX_TRY {
-		hr = ProfilingAPIUtility::LoadProfilerForAttach (reinterpret_cast<const CLSID *>(ds_attach_profiler_command_payload_get_profiler_guid_cref (payload)),
-			reinterpret_cast<LPCWSTR>(ds_attach_profiler_command_payload_get_profiler_path (payload)),
-			reinterpret_cast<LPVOID>(ds_attach_profiler_command_payload_get_client_data (payload)),
-			static_cast<UINT>(ds_attach_profiler_command_payload_get_client_data_len (payload)),
-			static_cast<DWORD>(ds_attach_profiler_command_payload_get_attach_timeout (payload)));
-	}
-	EX_CATCH_HRESULT (hr);
+	hr = ProfilingAPIUtility::LoadProfilerForAttach (reinterpret_cast<const CLSID *>(ds_attach_profiler_command_payload_get_profiler_guid_cref (payload)),
+		reinterpret_cast<LPCWSTR>(ds_attach_profiler_command_payload_get_profiler_path (payload)),
+		reinterpret_cast<LPVOID>(ds_attach_profiler_command_payload_get_client_data (payload)),
+		static_cast<UINT>(ds_attach_profiler_command_payload_get_client_data_len (payload)),
+		static_cast<DWORD>(ds_attach_profiler_command_payload_get_attach_timeout (payload)));
 
 	// Clear the flag so this thread isn't permanently marked as the attach thread.
 	ClrFlsClearThreadType (ThreadType_ProfAPI_Attach);
@@ -313,14 +285,11 @@ ds_rt_profiler_startup (DiagnosticsStartupProfilerCommandPayload *payload)
 	STATIC_CONTRACT_NOTHROW;
 
 	HRESULT hr = S_OK;
-	EX_TRY {
-		StoredProfilerNode *profilerData = new StoredProfilerNode();
-		profilerData->guid = *(reinterpret_cast<const CLSID *>(ds_startup_profiler_command_payload_get_profiler_guid_cref (payload)));
-		profilerData->path.Set(reinterpret_cast<LPCWSTR>(ds_startup_profiler_command_payload_get_profiler_path (payload)));
+	StoredProfilerNode *profilerData = new StoredProfilerNode();
+	profilerData->guid = *(reinterpret_cast<const CLSID *>(ds_startup_profiler_command_payload_get_profiler_guid_cref (payload)));
+	profilerData->path.Set(reinterpret_cast<LPCWSTR>(ds_startup_profiler_command_payload_get_profiler_path (payload)));
 
-		g_profControlBlock.storedProfilers.InsertHead(profilerData);
-	}
-	EX_CATCH_HRESULT (hr);
+	g_profControlBlock.storedProfilers.InsertHead(profilerData);
 
 	return hr;
 }
