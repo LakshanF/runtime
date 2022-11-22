@@ -86,34 +86,29 @@ public:
 
 	static key_t GetKey (element_t e)
 	{
-	   __debugbreak();
 		extern StackHashKey * ep_stack_hash_entry_get_key (StackHashEntry *);
 		return ep_stack_hash_entry_get_key (e.Value ());
 	}
 
 	static bool Equals (key_t k1, key_t k2)
 	{
-   __debugbreak();
 		extern bool ep_stack_hash_key_equal (const void *, const void *);
 		return ep_stack_hash_key_equal (k1, k2);
 	}
 
 	static count_t Hash (key_t k)
 	{
-   __debugbreak();
 		extern uint32_t ep_stack_hash_key_hash (const void *);
 		return (count_t)ep_stack_hash_key_hash (k);
 	}
 
 	static element_t Null ()
 	{
-   __debugbreak();
 		return element_t (NULL, NULL);
 	}
 
 	static bool IsNull (const element_t &e)
 	{
-   __debugbreak();
 		return (e.Key () == NULL|| e.Value () == NULL);
 	}
 };

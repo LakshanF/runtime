@@ -28,11 +28,13 @@ protected:
     // get the list node within the object
     static PTR_SLink_EP GetLink (T* pLink)
     {
+        __debugbreak();
         return nullptr;
     }
 
     static T* GetObject (PTR_SLink_EP pLink)
     {
+        __debugbreak();
         return nullptr;
     }
 
@@ -40,32 +42,41 @@ public:
 
     T*	GetHead()
     {
+        __debugbreak();
         return NULL;
     }
 
     static T *GetNext(T *pObj)
     {
+        __debugbreak();
         return NULL;
     }
 
-    void InsertTail(T *pObj){}
+    void InsertTail(T *pObj)
+    {
+        __debugbreak();
+    }
 
     T* FindAndRemove(T *pObj)
     {
+        __debugbreak();
         return NULL;
     }
 
     bool IsEmpty()
     {
+        __debugbreak();
         return false;
     }
 
     void InsertHead(T *pObj)
     {
+        __debugbreak();
     }
 
     T*	RemoveHead()
     {
+        __debugbreak();
         return NULL;
     }
 
@@ -76,24 +87,45 @@ public:
 
     public:
         Iterator & operator++()
-        { return *this; }
+        { 
+            __debugbreak();
+            return *this; 
+        }
 
         Iterator operator++(int)
-        { return {}; }
+        { 
+            __debugbreak();
+            return {}; 
+        }
 
         bool operator==(Iterator const & other) const
         {
+            __debugbreak();
             return false;
         }
-        T & operator*() {return *_t;}
-        T * operator->() const {return _t;}
+        T & operator*() 
+        {
+            __debugbreak();
+            return *_t;
+        }
+        T * operator->() const 
+        {
+            __debugbreak();
+            return _t;
+        }
     };
 
     Iterator begin()
-    { return Iterator(); }
+    {         
+        __debugbreak();
+        return Iterator(); 
+    }
 
     Iterator end()
-    { return Iterator(); }
+    { 
+        __debugbreak();
+        return Iterator(); 
+    }
 
 };
 
@@ -104,30 +136,49 @@ struct SListElem_EP
     ElemT m_Value;
 
     operator ElemT const &() const
-    { return m_Value; }
+    { 
+        __debugbreak();
+        return m_Value; 
+    }
 
     operator ElemT &()
-    { return m_Value; }
+    { 
+        __debugbreak();
+        return m_Value; 
+    }
 
     ElemT const & operator*() const
-    { return m_Value; }
+    { 
+        __debugbreak();
+        return m_Value; 
+    }
 
     ElemT & operator*()
-    { return m_Value; }
+    { 
+        __debugbreak();
+        return m_Value; 
+    }
 
     SListElem_EP()
         : m_Link()
         , m_Value()
-    { }
+    { 
+        __debugbreak();
+    }
 
     template <typename T1>
     SListElem_EP(T1&& val)
         : m_Link()
         , m_Value(std::forward<T1>(val))
-    { }
+    { 
+        __debugbreak();
+    }
 
     ElemT & GetValue()
-    { return m_Value; }    
+    { 
+        __debugbreak();
+        return m_Value; 
+    }    
 
 };
 
@@ -138,20 +189,24 @@ class CQuickArrayList_EP
 public:
     T* AllocNoThrow(size_t iItems)
     {
+        __debugbreak();
         return NULL;
     }
 
     bool PushNoThrow(const T & value)
     {
+        __debugbreak();
         return false;
     }
 
     size_t Size() const
     {
+        __debugbreak();
         return 0;
     }
     T Pop()
     {
+        __debugbreak();
         return _t;
     }
     void Shrink()
@@ -159,11 +214,13 @@ public:
     }
     T& operator[] (size_t ix)
     {
+        __debugbreak();
         return _t;
     }
 
     T* Ptr()
     {
+        __debugbreak();
         return NULL;
     }
 };
@@ -175,20 +232,24 @@ class KeyValuePair_EP {
 public:
     KeyValuePair_EP()
     {
+        __debugbreak();
     }
 
     KeyValuePair_EP(const KEY& k, const VALUE& v)
         : key(k), value(v)
     {
+        __debugbreak();
     }
 
     KEY const & Key() const
     {
+        __debugbreak();
         return key;
     }
 
     VALUE const & Value() const
     {
+        __debugbreak();
         return value;
     }
 
@@ -203,7 +264,11 @@ class SHash_EP : public TRAITS
     typedef typename TRAITS::key_t key_t;
     typedef typename TRAITS::count_t count_t;
 
-    const element_t* LookupPtr(key_t key) const{return nullptr;}
+    const element_t* LookupPtr(key_t key) const
+    {
+        __debugbreak();
+        return nullptr;
+    }
 
 
     class Iterator
@@ -213,37 +278,82 @@ class SHash_EP : public TRAITS
 
     public:
         Iterator & operator++()
-        { return *this; }
+        { 
+            __debugbreak();
+            return *this; 
+        }
 
         Iterator operator++(int)
-        { return {}; }
+        { 
+            __debugbreak();
+            return {}; 
+        }
 
         bool operator==(Iterator const & other) const
         {
+            __debugbreak();
             return false;
         }
 
         bool operator!=(Iterator const & other) const
         {
+            __debugbreak();
             return false;
         }
-        TRAITS & operator*() {return *_t;}
-        TRAITS * operator->() const {return _t;}
+        TRAITS & operator*() 
+        {
+            __debugbreak();
+            return *_t;
+        }
+        TRAITS * operator->() const 
+        {
+            __debugbreak();
+            return _t;
+        }
     };
 
-    Iterator Begin() const{return {}; }
-    Iterator End() const{return {}; }
+    Iterator Begin() const
+    {
+        __debugbreak();
+        return {}; 
+    }
+    Iterator End() const
+    {
+        __debugbreak();
+        return {}; 
+    }
     
-    bool AddNoThrow(const element_t &element){return false;}
-    bool AddOrReplaceNoThrow(const element_t &element){return false;}
+    bool AddNoThrow(const element_t &element)
+    {
+        __debugbreak();
+        return false;
+    }
+    bool AddOrReplaceNoThrow(const element_t &element)
+    {
+        __debugbreak();
+        return false;
+    }
 
-    count_t GetCount() const{return 0;}
+    count_t GetCount() const
+    {
+        __debugbreak();
+        return 0;
+    }
 
-    void Remove(key_t key){}
+    void Remove(key_t key)
+    {
+        __debugbreak();
+    }
 
     // Remove the specific element.
-    void Remove(Iterator& i){}
-    void RemoveAll(){}
+    void Remove(Iterator& i)
+    {
+        __debugbreak();
+    }
+    void RemoveAll()
+    {
+        __debugbreak();
+    }
 
 };
 
@@ -267,21 +377,39 @@ public:
 
     static key_t GetKey(element_t e)
     {
+        __debugbreak();
         return e.Key();
     }
     static bool Equals(key_t k1, key_t k2)
     {
+        __debugbreak();
         return k1 == k2;
     }
     static count_t Hash(key_t k)
     {
+        __debugbreak();
         return (count_t)(size_t)k;
     }
 
-    static const element_t Null() { return element_t(KEY(),VALUE()); }
-    static const element_t Deleted() { return element_t(KEY(-1), VALUE()); }
-    static bool IsNull(const element_t &e) { return e.Key() == KEY(); }
-    static bool IsDeleted(const element_t &e) { return e.Key() == KEY(-1); }
+    static const element_t Null() 
+    { 
+        __debugbreak();
+        return element_t(KEY(),VALUE()); 
+    }
+    static const element_t Deleted() 
+    { 
+        __debugbreak();
+        return element_t(KEY(-1), VALUE()); 
+    }
+    static bool IsNull(const element_t &e) { 
+        __debugbreak();
+        return e.Key() == KEY(); 
+    }
+    static bool IsDeleted(const element_t &e) 
+    { 
+        __debugbreak();
+        return e.Key() == KEY(-1); 
+    }
 };
 
 template <typename PARENT>
