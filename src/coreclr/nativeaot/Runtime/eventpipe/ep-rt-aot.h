@@ -2,6 +2,7 @@
 #ifndef __EVENTPIPE_RT_AOT_H__
 #define __EVENTPIPE_RT_AOT_H__
 // #include "NativeaotEventPipeSupport.h"
+#include "forward_declarations.h"
 #include <eventpipe/ep-rt-config.h>
 #ifdef ENABLE_PERFTRACING
 #include <eventpipe/ep-thread.h>
@@ -10,9 +11,14 @@
 #include <eventpipe/ep-session-provider.h>
 #include <PalRedhawkCommon.h>
 #include <PalRedhawk.h>
-#include <stresslog.h>
+#include <Crst.h>
 #include <volatile.h>
 #include <event.h>
+#include <SpinLock.h>
+// #include <thread.h>
+// #include <threadstore.h>
+// #include <threadstore.inl>
+#include <stresslog.h>
 
 //#include "fstream.h"
 //#include "typestring.h"
@@ -1933,6 +1939,8 @@ EP_RT_DEFINE_THREAD_FUNC (ep_rt_thread_aot_start_func)
 	rt_aot_thread_params_internal_t *thread_params = reinterpret_cast<rt_aot_thread_params_internal_t *>(data);
 	size_t result = thread_params->thread_params.thread_func (thread_params);
 	if (thread_params->thread_params.thread)
+		// thread_params->thread_params.thread == ep_rt_thread_handle_t == Thread
+		// CoreCLR ::DestroyThread (thread_params->thread_params.thread);
 		thread_params->thread_params.thread->Destroy();
 	delete thread_params;
 	return result;
@@ -1951,31 +1959,34 @@ ep_rt_thread_create (
 
 	bool result = false;
 
-	rt_aot_thread_params_internal_t *thread_params = new (nothrow) rt_aot_thread_params_internal_t ();
-	if (thread_params) {
-		thread_params->thread_params.thread_type = thread_type;
-		if (thread_type == EP_THREAD_TYPE_SESSION || thread_type == EP_THREAD_TYPE_SAMPLING) {
-			thread_params->thread_params.thread = SetupUnstartedThread ();
-			thread_params->thread_params.thread_func = reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func);
-			thread_params->thread_params.thread_params = params;
-			if (thread_params->thread_params.thread->CreateNewThread (0, ep_rt_thread_aot_start_func, thread_params)) {
-				thread_params->thread_params.thread->SetBackground (TRUE);
-				thread_params->thread_params.thread->StartThread ();
-				if (id)
-					*reinterpret_cast<DWORD *>(id) = thread_params->thread_params.thread->GetThreadId ();
-				result = true;
-			}
-		} else if (thread_type == EP_THREAD_TYPE_SERVER) {
-			DWORD thread_id = 0;
-			HANDLE server_thread = ::CreateThread (nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func), nullptr, 0, &thread_id);
-			if (server_thread != NULL) {
-				::CloseHandle (server_thread);
-				if (id)
-					*reinterpret_cast<DWORD *>(id) = thread_id;
-				result = true;
-			}
-		}
-	}
+	// TODO: need to revisit
+	__debugbreak();
+
+	// rt_aot_thread_params_internal_t *thread_params = new (nothrow) rt_aot_thread_params_internal_t ();
+	// if (thread_params) {
+	// 	thread_params->thread_params.thread_type = thread_type;
+	// 	if (thread_type == EP_THREAD_TYPE_SESSION || thread_type == EP_THREAD_TYPE_SAMPLING) {
+	// 		thread_params->thread_params.thread = SetupUnstartedThread ();
+	// 		thread_params->thread_params.thread_func = reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func);
+	// 		thread_params->thread_params.thread_params = params;
+	// 		if (thread_params->thread_params.thread->CreateNewThread (0, ep_rt_thread_aot_start_func, thread_params)) {
+	// 			thread_params->thread_params.thread->SetBackground (TRUE);
+	// 			thread_params->thread_params.thread->StartThread ();
+	// 			if (id)
+	// 				*reinterpret_cast<DWORD *>(id) = thread_params->thread_params.thread->GetThreadId ();
+	// 			result = true;
+	// 		}
+	// 	} else if (thread_type == EP_THREAD_TYPE_SERVER) {
+	// 		DWORD thread_id = 0;
+	// 		HANDLE server_thread = ::CreateThread (nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func), nullptr, 0, &thread_id);
+	// 		if (server_thread != NULL) {
+	// 			::CloseHandle (server_thread);
+	// 			if (id)
+	// 				*reinterpret_cast<DWORD *>(id) = thread_id;
+	// 			result = true;
+	// 		}
+	// 	}
+	// }
 
 	return result;
 }
@@ -1996,12 +2007,8 @@ ep_rt_thread_sleep (uint64_t ns)
 {
 	STATIC_CONTRACT_NOTHROW;
 
-#ifdef TARGET_UNIX
-	PAL_nanosleep (ns);
-#else  //TARGET_UNIX
-	const uint32_t NUM_NANOSECONDS_IN_1_MS = 1000000;
-	ClrSleepEx (static_cast<DWORD>(ns / NUM_NANOSECONDS_IN_1_MS), FALSE);
-#endif //TARGET_UNIX
+	// TODO: thread sleep
+	__debugbreak();
 }
 
 static
@@ -2149,14 +2156,10 @@ ep_rt_file_open_write (const ep_char8_t *path)
 	ep_char16_t *path_utf16 = ep_rt_utf8_to_utf16le_string (path, -1);
 	ep_return_null_if_nok (path_utf16 != NULL);
 
-	CFileStream *file_stream = new (nothrow) CFileStream ();
-	if (file_stream && FAILED (file_stream->OpenForWrite (reinterpret_cast<LPWSTR>(path_utf16)))) {
-		delete file_stream;
-		file_stream = NULL;
-	}
+	// TODO: Find out the way to open a file in native
+	__debugbreak();
 
-	ep_rt_utf16_string_free (path_utf16);
-	return static_cast<ep_rt_file_handle_t>(file_stream);
+	return 0;
 }
 
 static
@@ -2166,9 +2169,8 @@ ep_rt_file_close (ep_rt_file_handle_t file_handle)
 {
 	STATIC_CONTRACT_NOTHROW;
 
-	// Closed in destructor.
-	if (file_handle)
-		delete file_handle;
+	// TODO: Find out the way to close a file in native
+	__debugbreak();
 	return true;
 }
 
@@ -2184,12 +2186,10 @@ ep_rt_file_write (
 	STATIC_CONTRACT_NOTHROW;
 	EP_ASSERT (buffer != NULL);
 
-	ep_return_false_if_nok (file_handle != NULL);
-
-	ULONG out_count;
-	HRESULT result = reinterpret_cast<CFileStream *>(file_handle)->Write (buffer, bytes_to_write, &out_count);
-	*bytes_written = static_cast<uint32_t>(out_count);
-	return result == S_OK;
+	// TODO: Find out the way to write to a file in native
+	__debugbreak();
+	
+	return false;
 }
 
 static
@@ -2198,7 +2198,7 @@ uint8_t *
 ep_rt_valloc0 (size_t buffer_size)
 {
 	STATIC_CONTRACT_NOTHROW;
-	return reinterpret_cast<uint8_t *>(ClrVirtualAlloc (NULL, buffer_size, MEM_COMMIT, PAGE_READWRITE));
+	return reinterpret_cast<uint8_t *>(PalVirtualAlloc (NULL, buffer_size, MEM_COMMIT, PAGE_READWRITE));
 }
 
 static
@@ -2211,7 +2211,7 @@ ep_rt_vfree (
 	STATIC_CONTRACT_NOTHROW;
 
 	if (buffer)
-		ClrVirtualFree (buffer, 0, MEM_RELEASE);
+		PalVirtualFree (buffer, 0, MEM_RELEASE);
 }
 
 static
@@ -2259,10 +2259,7 @@ ep_rt_lock_acquire (ep_rt_lock_handle_t *lock)
 	STATIC_CONTRACT_NOTHROW;
 
 	bool result = true;
-	if (lock) {
-		CrstBase::CrstHolderWithState holder (lock->lock);
-		holder.SuppressRelease ();
-	}
+	// TODO: Implement EventPipe locking for NativeAOT	
 
 	return result;
 }
@@ -2274,10 +2271,7 @@ ep_rt_lock_release (ep_rt_lock_handle_t *lock)
 	STATIC_CONTRACT_NOTHROW;
 
 	bool result = true;
-	if (lock) {
-		CrstBase::UnsafeCrstInverseHolder holder (lock->lock);
-		holder.SuppressRelease ();
-	}
+	// TODO: Implement EventPipe locking for NativeAOT	
 
 	return result;
 }
@@ -2523,25 +2517,9 @@ ep_rt_utf8_to_utf16le_string (
 	if (!str)
 		return NULL;
 
-	COUNT_T len_utf16 = WszMultiByteToWideChar (CP_UTF8, 0, str, static_cast<int>(len), 0, 0);
-	if (len_utf16 == 0)
-		return NULL;
-
-	if (static_cast<int>(len) != -1)
-		len_utf16 += 1;
-
-	ep_char16_t *str_utf16 = reinterpret_cast<ep_char16_t *>(malloc (len_utf16 * sizeof (ep_char16_t)));
-	if (!str_utf16)
-		return NULL;
-
-	len_utf16 = WszMultiByteToWideChar (CP_UTF8, 0, str, static_cast<int>(len), reinterpret_cast<LPWSTR>(str_utf16), len_utf16);
-	if (len_utf16 == 0) {
-		free (str_utf16);
-		return NULL;
-	}
-
-	str_utf16 [len_utf16 - 1] = 0;
-	return str_utf16;
+	// TODO: Find out the way to convert utf8 to utf16
+	__debugbreak();
+	return NULL:
 }
 
 static
@@ -2594,25 +2572,9 @@ ep_rt_utf16_to_utf8_string (
 	if (!str)
 		return NULL;
 
-	COUNT_T size_utf8 = WszWideCharToMultiByte (CP_UTF8, 0, reinterpret_cast<LPCWSTR>(str), static_cast<int>(len), NULL, 0, NULL, NULL);
-	if (size_utf8 == 0)
-		return NULL;
-
-	if (static_cast<int>(len) != -1)
-		size_utf8 += 1;
-
-	ep_char8_t *str_utf8 = reinterpret_cast<ep_char8_t *>(malloc (size_utf8));
-	if (!str_utf8)
-		return NULL;
-
-	size_utf8 = WszWideCharToMultiByte (CP_UTF8, 0, reinterpret_cast<LPCWSTR>(str), static_cast<int>(len), reinterpret_cast<LPSTR>(str_utf8), size_utf8, NULL, NULL);
-	if (size_utf8 == 0) {
-		free (str_utf8);
-		return NULL;
-	}
-
-	str_utf8 [size_utf8 - 1] = 0;
-	return str_utf8;
+	// TODO: Find out the way to convert utf8 to utf16
+	__debugbreak();
+	return NULL:
 }
 
 static
