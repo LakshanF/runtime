@@ -364,6 +364,8 @@ public:
     typedef unsigned int count_t;
     typedef ELEMENT element_t;
     typedef DPTR(element_t) PTR_element_t;
+
+    static const bool s_NoThrow = true;
 };
 
 template <typename KEY, typename VALUE>
@@ -374,6 +376,7 @@ public:
     typedef typename DefaultSHashTraits_EP< KeyValuePair_EP<KEY,VALUE> >::count_t count_t;
 
     typedef KEY key_t;
+    typedef VALUE value_t;
 
     static key_t GetKey(element_t e)
     {
@@ -409,6 +412,18 @@ public:
     { 
         __debugbreak();
         return e.Key() == KEY(-1); 
+    }
+
+    key_t const & Key() const
+    {
+        __debugbreak();
+        return *(new KEY());
+    }
+
+    value_t const & Value() const
+    {
+        __debugbreak();
+        return *(new VALUE());
     }
 };
 

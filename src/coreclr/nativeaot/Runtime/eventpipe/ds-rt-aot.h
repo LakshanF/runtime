@@ -64,19 +64,19 @@
 
 #undef DS_RT_DEFINE_ARRAY
 #define DS_RT_DEFINE_ARRAY(array_name, array_type, iterator_type, item_type) \
-	EP_RT_DEFINE_ARRAY_PREFIX(ds, array_name, array_type, iterator_type, item_type)
+    EP_RT_DEFINE_ARRAY_PREFIX(ds, array_name, array_type, iterator_type, item_type)
 
 #undef DS_RT_DEFINE_LOCAL_ARRAY
 #define DS_RT_DEFINE_LOCAL_ARRAY(array_name, array_type, iterator_type, item_type) \
-	EP_RT_DEFINE_LOCAL_ARRAY_PREFIX(ds, array_name, array_type, iterator_type, item_type)
+    EP_RT_DEFINE_LOCAL_ARRAY_PREFIX(ds, array_name, array_type, iterator_type, item_type)
 
 #undef DS_RT_DEFINE_ARRAY_ITERATOR
 #define DS_RT_DEFINE_ARRAY_ITERATOR(array_name, array_type, iterator_type, item_type) \
-	EP_RT_DEFINE_ARRAY_ITERATOR_PREFIX(ds, array_name, array_type, iterator_type, item_type)
+    EP_RT_DEFINE_ARRAY_ITERATOR_PREFIX(ds, array_name, array_type, iterator_type, item_type)
 
 #undef DS_RT_DEFINE_ARRAY_REVERSE_ITERATOR
 #define DS_RT_DEFINE_ARRAY_REVERSE_ITERATOR(array_name, array_type, iterator_type, item_type) \
-	EP_RT_DEFINE_ARRAY_REVERSE_ITERATOR_PREFIX(ds, array_name, array_type, iterator_type, item_type)
+    EP_RT_DEFINE_ARRAY_REVERSE_ITERATOR_PREFIX(ds, array_name, array_type, iterator_type, item_type)
 
 /*
 * AutoTrace.
@@ -90,10 +90,10 @@ static
 void
 ds_rt_auto_trace_init (void)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
 #ifdef FEATURE_AUTO_TRACE
-	auto_trace_init ();
+    auto_trace_init ();
 #endif
 }
 
@@ -101,10 +101,10 @@ static
 void
 ds_rt_auto_trace_launch (void)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
 #ifdef FEATURE_AUTO_TRACE
-	auto_trace_launch ();
+    auto_trace_launch ();
 #endif
 }
 
@@ -112,10 +112,10 @@ static
 void
 ds_rt_auto_trace_signal (void)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
 #ifdef FEATURE_AUTO_TRACE
-	auto_trace_signal ();
+    auto_trace_signal ();
 #endif
 }
 
@@ -123,10 +123,10 @@ static
 void
 ds_rt_auto_trace_wait (void)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
 #ifdef FEATURE_AUTO_TRACE
-	auto_trace_wait ();
+    auto_trace_wait ();
 #endif
 }
 
@@ -139,11 +139,11 @@ inline
 bool
 ds_rt_config_value_get_enable (void)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
-	// TODO: EventPipe Configuration values - RhConfig?
-	__debugbreak();
-	return false;
+    // TODO: EventPipe Configuration values - RhConfig?
+    __debugbreak();
+    return false;
 }
 
 static
@@ -151,11 +151,11 @@ inline
 ep_char8_t *
 ds_rt_config_value_get_ports (void)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
-	// TODO: EventPipe Configuration values - RhConfig?
-	__debugbreak();
-	return nullptr;
+    // TODO: EventPipe Configuration values - RhConfig?
+    __debugbreak();
+    return nullptr;
 }
 
 static
@@ -163,10 +163,10 @@ inline
 uint32_t
 ds_rt_config_value_get_default_port_suspend (void)
 {
-	STATIC_CONTRACT_NOTHROW;
-	// TODO: EventPipe Configuration values - RhConfig?
-	__debugbreak();
-	return 0;
+    STATIC_CONTRACT_NOTHROW;
+    // TODO: EventPipe Configuration values - RhConfig?
+    __debugbreak();
+    return 0;
 }
 
 /*
@@ -176,19 +176,19 @@ ds_rt_config_value_get_default_port_suspend (void)
 static
 ds_ipc_result_t
 ds_rt_generate_core_dump (
-	DiagnosticsDumpCommandId commandId,
-	DiagnosticsGenerateCoreDumpCommandPayload *payload,
-	ep_char8_t *errorMessageBuffer,
-	int32_t cbErrorMessageBuffer)
+    DiagnosticsDumpCommandId commandId,
+    DiagnosticsGenerateCoreDumpCommandPayload *payload,
+    ep_char8_t *errorMessageBuffer,
+    int32_t cbErrorMessageBuffer)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
-	ds_ipc_result_t result = DS_IPC_E_FAIL;
-	uint32_t flags = ds_generate_core_dump_command_payload_get_flags(payload);
-	// TODO: Generate an exception dump
-	__debugbreak();
+    ds_ipc_result_t result = DS_IPC_E_FAIL;
+    uint32_t flags = ds_generate_core_dump_command_payload_get_flags(payload);
+    // TODO: Generate an exception dump
+    __debugbreak();
 
-	return 0;
+    return 0;
 }
 
 /*
@@ -199,19 +199,19 @@ static
 inline
 bool
 ds_rt_transport_get_default_name (
-	ep_char8_t *name,
-	int32_t name_len,
-	const ep_char8_t *prefix,
-	int32_t id,
-	const ep_char8_t *group_id,
-	const ep_char8_t *suffix)
+    ep_char8_t *name,
+    int32_t name_len,
+    const ep_char8_t *prefix,
+    int32_t id,
+    const ep_char8_t *group_id,
+    const ep_char8_t *suffix)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
 #ifdef TARGET_UNIX
-	PAL_GetTransportName (name_len, name, prefix, id, group_id, suffix);
+    PAL_GetTransportName (name_len, name, prefix, id, group_id, suffix);
 #endif
-	return true;
+    return true;
 }
 
 /*
@@ -224,7 +224,7 @@ DS_RT_DEFINE_ARRAY_ITERATOR (ipc_poll_handle_array, ds_rt_ipc_poll_handle_array_
 
 #undef DS_RT_DECLARE_LOCAL_IPC_POLL_HANDLE_ARRAY
 #define DS_RT_DECLARE_LOCAL_IPC_POLL_HANDLE_ARRAY(var_name) \
-	EP_RT_DECLARE_LOCAL_ARRAY_VARIABLE(var_name, ds_rt_ipc_poll_handle_array_t)
+    EP_RT_DECLARE_LOCAL_ARRAY_VARIABLE(var_name, ds_rt_ipc_poll_handle_array_t)
 
 /*
  * DiagnosticsPort.
@@ -240,7 +240,7 @@ DS_RT_DEFINE_ARRAY_REVERSE_ITERATOR (port_config_array, ds_rt_port_config_array_
 
 #undef DS_RT_DECLARE_LOCAL_PORT_CONFIG_ARRAY
 #define DS_RT_DECLARE_LOCAL_PORT_CONFIG_ARRAY(var_name) \
-	EP_RT_DECLARE_LOCAL_ARRAY_VARIABLE(var_name, ds_rt_port_config_array_t)
+    EP_RT_DECLARE_LOCAL_ARRAY_VARIABLE(var_name, ds_rt_port_config_array_t)
 
 /*
 * DiagnosticsProfiler.
@@ -254,25 +254,25 @@ static
 uint32_t
 ds_rt_profiler_attach (DiagnosticsAttachProfilerCommandPayload *payload)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
-	if (!g_profControlBlock.fProfControlBlockInitialized)
-		return DS_IPC_E_RUNTIME_UNINITIALIZED;
+    if (!g_profControlBlock.fProfControlBlockInitialized)
+        return DS_IPC_E_RUNTIME_UNINITIALIZED;
 
-	// Certain actions are only allowable during attach, and this flag is how we track it.
-	ClrFlsSetThreadType (ThreadType_ProfAPI_Attach);
+    // Certain actions are only allowable during attach, and this flag is how we track it.
+    ClrFlsSetThreadType (ThreadType_ProfAPI_Attach);
 
-	HRESULT hr = S_OK;
-	hr = ProfilingAPIUtility::LoadProfilerForAttach (reinterpret_cast<const CLSID *>(ds_attach_profiler_command_payload_get_profiler_guid_cref (payload)),
-		reinterpret_cast<LPCWSTR>(ds_attach_profiler_command_payload_get_profiler_path (payload)),
-		reinterpret_cast<LPVOID>(ds_attach_profiler_command_payload_get_client_data (payload)),
-		static_cast<UINT>(ds_attach_profiler_command_payload_get_client_data_len (payload)),
-		static_cast<DWORD>(ds_attach_profiler_command_payload_get_attach_timeout (payload)));
+    HRESULT hr = S_OK;
+    hr = ProfilingAPIUtility::LoadProfilerForAttach (reinterpret_cast<const CLSID *>(ds_attach_profiler_command_payload_get_profiler_guid_cref (payload)),
+        reinterpret_cast<LPCWSTR>(ds_attach_profiler_command_payload_get_profiler_path (payload)),
+        reinterpret_cast<LPVOID>(ds_attach_profiler_command_payload_get_client_data (payload)),
+        static_cast<UINT>(ds_attach_profiler_command_payload_get_client_data_len (payload)),
+        static_cast<DWORD>(ds_attach_profiler_command_payload_get_attach_timeout (payload)));
 
-	// Clear the flag so this thread isn't permanently marked as the attach thread.
-	ClrFlsClearThreadType (ThreadType_ProfAPI_Attach);
+    // Clear the flag so this thread isn't permanently marked as the attach thread.
+    ClrFlsClearThreadType (ThreadType_ProfAPI_Attach);
 
-	return hr;
+    return hr;
 }
 #endif // FEATURE_PROFAPI_ATTACH_DETACH
 
@@ -280,16 +280,16 @@ static
 uint32_t
 ds_rt_profiler_startup (DiagnosticsStartupProfilerCommandPayload *payload)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
-	HRESULT hr = S_OK;
-	StoredProfilerNode *profilerData = new StoredProfilerNode();
-	profilerData->guid = *(reinterpret_cast<const CLSID *>(ds_startup_profiler_command_payload_get_profiler_guid_cref (payload)));
-	profilerData->path.Set(reinterpret_cast<LPCWSTR>(ds_startup_profiler_command_payload_get_profiler_path (payload)));
+    HRESULT hr = S_OK;
+    StoredProfilerNode *profilerData = new StoredProfilerNode();
+    profilerData->guid = *(reinterpret_cast<const CLSID *>(ds_startup_profiler_command_payload_get_profiler_guid_cref (payload)));
+    profilerData->path.Set(reinterpret_cast<LPCWSTR>(ds_startup_profiler_command_payload_get_profiler_path (payload)));
 
-	g_profControlBlock.storedProfilers.InsertHead(profilerData);
+    g_profControlBlock.storedProfilers.InsertHead(profilerData);
 
-	return hr;
+    return hr;
 }
 #endif // PROFILING_SUPPORTED
 
@@ -297,7 +297,9 @@ static
 uint32_t
 ds_rt_set_environment_variable (const ep_char16_t *name, const ep_char16_t *value)
 {
- 	return SetEnvironmentVariableW(reinterpret_cast<LPCWSTR>(name), reinterpret_cast<LPCWSTR>(value)) ? S_OK : HRESULT_FROM_WIN32(GetLastError());
+     // return SetEnvironmentVariableW(reinterpret_cast<LPCWSTR>(name), reinterpret_cast<LPCWSTR>(value)) ? S_OK : HRESULT_FROM_WIN32(GetLastError());
+     __debugbreak();
+    return 0xffff;
 }
 
 /*
@@ -308,11 +310,11 @@ static
 void
 ds_rt_server_log_pause_message (void)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
-	const char diagPortsName[] = "DOTNET_DiagnosticPorts";
-	// TODO: Cannot find nocache versions of RhConfig
-	__debugbreak();
+    const char diagPortsName[] = "DOTNET_DiagnosticPorts";
+    // TODO: Cannot find nocache versions of RhConfig
+    __debugbreak();
 }
 
 #endif /* ENABLE_PERFTRACING */

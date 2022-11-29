@@ -1,6 +1,7 @@
 # These need to happen before the VM and debug-pal includes.
 set(EP_GENERATED_HEADER_PATH "${GENERATED_INCLUDE_DIR}")
 include (${CLR_SRC_NATIVE_DIR}/eventpipe/configure.cmake)
+include_directories(${EP_GENERATED_HEADER_PATH})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(AOT_EVENTPIPE_SHIM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/eventpipe")
