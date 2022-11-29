@@ -163,7 +163,6 @@ struct SListElem_EP
         : m_Link()
         , m_Value()
     { 
-        __debugbreak();
     }
 
     template <typename T1>
@@ -171,12 +170,10 @@ struct SListElem_EP
         : m_Link()
         , m_Value(std::forward<T1>(val))
     { 
-        __debugbreak();
     }
 
     ElemT & GetValue()
     { 
-        __debugbreak();
         return m_Value; 
     }    
 
