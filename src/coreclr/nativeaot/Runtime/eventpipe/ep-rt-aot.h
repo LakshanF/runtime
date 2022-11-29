@@ -1440,7 +1440,9 @@ ep_rt_init_providers_and_events (void)
 {
     STATIC_CONTRACT_NOTHROW;
 
-    InitProvidersAndEvents ();
+    __debugbreak();
+    // TODO: auto-generated fn
+    // InitProvidersAndEvents ();
 }
 
 static

@@ -10,13 +10,13 @@
 // // ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
 // // CrstStatic _ep_rt_aot_config_lock;
 
-// // thread_local EventPipeAotThreadHolderTLS EventPipeAotThreadHolderTLS::g_threadHolderTLS;
+thread_local EventPipeAotThreadHolderTLS EventPipeAotThreadHolderTLS::g_threadHolderTLS;
 
-// // ep_char8_t *volatile _ep_rt_aot_diagnostics_cmd_line;
+ep_char8_t *volatile _ep_rt_aot_diagnostics_cmd_line;
 
-// // #ifndef TARGET_UNIX
-// // uint32_t *_ep_rt_aot_proc_group_offsets;
-// // #endif
+#ifndef TARGET_UNIX
+uint32_t *_ep_rt_aot_proc_group_offsets;
+#endif
 
 // /*
 //  * Forward declares of all static functions.
@@ -63,33 +63,34 @@
 // 	return 0;
 // }
 
-// bool
-// ep_rt_aot_walk_managed_stack_for_thread (
-// 	ep_rt_thread_handle_t thread,
-// 	EventPipeStackContents *stack_contents)
-// {
-// 	// STATIC_CONTRACT_NOTHROW;
-// 	// EP_ASSERT (thread != NULL);
-// 	// EP_ASSERT (stack_contents != NULL);
+bool
+ep_rt_aot_walk_managed_stack_for_thread (
+    ep_rt_thread_handle_t thread,
+    EventPipeStackContents *stack_contents)
+{
+    __debugbreak();
+    // STATIC_CONTRACT_NOTHROW;
+    // EP_ASSERT (thread != NULL);
+    // EP_ASSERT (stack_contents != NULL);
 
-// 	// // Calling into StackWalkFrames in preemptive mode violates the host contract,
-// 	// // but this contract is not used on CoreCLR.
-// 	// CONTRACT_VIOLATION (HostViolation);
+    // // Calling into StackWalkFrames in preemptive mode violates the host contract,
+    // // but this contract is not used on CoreCLR.
+    // CONTRACT_VIOLATION (HostViolation);
 
-// 	// // Before we call into StackWalkFrames we need to mark GC_ON_TRANSITIONS as FALSE
-// 	// // because under GCStress runs (GCStress=0x3), a GC will be triggered for every transition,
-// 	// // which will cause the GC to try to walk the stack while we are in the middle of walking the stack.
-// 	// bool gc_on_transitions = GC_ON_TRANSITIONS (FALSE);
+    // // Before we call into StackWalkFrames we need to mark GC_ON_TRANSITIONS as FALSE
+    // // because under GCStress runs (GCStress=0x3), a GC will be triggered for every transition,
+    // // which will cause the GC to try to walk the stack while we are in the middle of walking the stack.
+    // bool gc_on_transitions = GC_ON_TRANSITIONS (FALSE);
 
-// 	// StackWalkAction result = thread->StackWalkFrames (
-// 	// 	(PSTACKWALKFRAMESCALLBACK)stack_walk_callback,
-// 	// 	stack_contents,
-// 	// 	ALLOW_ASYNC_STACK_WALK | FUNCTIONSONLY | HANDLESKIPPEDFRAMES | ALLOW_INVALID_OBJECTS);
+    // StackWalkAction result = thread->StackWalkFrames (
+    // 	(PSTACKWALKFRAMESCALLBACK)stack_walk_callback,
+    // 	stack_contents,
+    // 	ALLOW_ASYNC_STACK_WALK | FUNCTIONSONLY | HANDLESKIPPEDFRAMES | ALLOW_INVALID_OBJECTS);
 
-// 	// GC_ON_TRANSITIONS (gc_on_transitions);
-// 	// return ((result == SWA_DONE) || (result == SWA_CONTINUE));
-// 	return false;
-// }
+    // GC_ON_TRANSITIONS (gc_on_transitions);
+    // return ((result == SWA_DONE) || (result == SWA_CONTINUE));
+    return false;
+}
 
 // // The thread store lock must already be held by the thread before this function
 // // is called.  ThreadSuspend::SuspendEE acquires the thread store lock.
@@ -139,28 +140,28 @@
 // 	// ep_stack_contents_fini (current_stack_contents);
 // }
 
-// void
-// ep_rt_aot_sample_profiler_write_sampling_event_for_threads (
-// 	ep_rt_thread_handle_t sampling_thread,
-// 	EventPipeEvent *sampling_event)
-// {
-// 	// STATIC_CONTRACT_NOTHROW;
-// 	// EP_ASSERT (sampling_thread != NULL);
+void
+ep_rt_aot_sample_profiler_write_sampling_event_for_threads (
+    ep_rt_thread_handle_t sampling_thread,
+    EventPipeEvent *sampling_event)
+{
+    // STATIC_CONTRACT_NOTHROW;
+    // EP_ASSERT (sampling_thread != NULL);
 
-// 	// // Check to see if we can suspend managed execution.
-// 	// if (ThreadSuspend::SysIsSuspendInProgress () || (ThreadSuspend::GetSuspensionThread () != 0))
-// 	// 	return;
+    // // Check to see if we can suspend managed execution.
+    // if (ThreadSuspend::SysIsSuspendInProgress () || (ThreadSuspend::GetSuspensionThread () != 0))
+    // 	return;
 
-// 	// // Actually suspend managed execution.
-// 	// ThreadSuspend::SuspendEE (ThreadSuspend::SUSPEND_REASON::SUSPEND_OTHER);
+    // // Actually suspend managed execution.
+    // ThreadSuspend::SuspendEE (ThreadSuspend::SUSPEND_REASON::SUSPEND_OTHER);
 
-// 	// // Walk all managed threads and capture stacks.
-// 	// walk_managed_stack_for_threads (sampling_thread, sampling_event);
+    // // Walk all managed threads and capture stacks.
+    // walk_managed_stack_for_threads (sampling_thread, sampling_event);
 
-// 	// // Resume managed execution.
-// 	// ThreadSuspend::RestartEE (FALSE /* bFinishedGC */, TRUE /* SuspendSucceeded */);
+    // // Resume managed execution.
+    // ThreadSuspend::RestartEE (FALSE /* bFinishedGC */, TRUE /* SuspendSucceeded */);
 
-// 	// return;
-// }
+    // return;
+}
 
 #endif /* ENABLE_PERFTRACING */
