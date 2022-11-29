@@ -24,14 +24,10 @@
 
 #define PalRaiseFailFastException RaiseFailFastException
 
-// TODO: Since the updated PalRedhawk.h is defining PalEventWrite in all cases (regardless
-// of which Windows headers have and haven't been included), there is no longer a need for
-// a separate definition here.
-
-// uint32_t PalEventWrite(REGHANDLE arg1, const EVENT_DESCRIPTOR * arg2, uint32_t arg3, EVENT_DATA_DESCRIPTOR * arg4)
-// {
-//     return EventWrite(arg1, arg2, arg3, arg4);
-// }
+uint32_t PalEventWrite(REGHANDLE arg1, const EVENT_DESCRIPTOR * arg2, uint32_t arg3, EVENT_DATA_DESCRIPTOR * arg4)
+{
+    return EventWrite(arg1, arg2, arg3, arg4);
+}
 
 #include "gcenv.h"
 #include "gcenv.ee.h"

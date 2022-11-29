@@ -602,26 +602,17 @@ extern uint32_t g_RhNumberOfProcessors;
 #endif // !_INC_WINDOWS
 #endif // !DACCESS_COMPILE
 
-// TODO: This prototype is duplicated from PalRedhawkFunctions.h since that file is not
-// included when windows.h has already been included; by keying off of the same _EVNTPROV_H_
-// symbol used above, ensure that a local declaration (copied from PalRedhawkFunctions.h)
-// is used in environments where the code above has defined the ETW data structures by
-// hand, and ensure that the declaration from the SDK (defined against SDK data structure
-// definitions) is used otherwise. Basically this is a special accommodation to allow the
-// EventPipe code to access PalEventWrite even though the PalRedhawkFunctions.h services
-// have historically generally not been available in NativeAOT runtime contexts where
-// windows.h has been included.
+// TODO: Duplicate the definition from PalRedhawkFunctions.h to allow the EventPipe code to
+// access PalEventWrite even though the PalRedhawkFunctions.h services are generally not
+// available in NativeAOT runtime contexts where windows.h has been included.
 #ifdef _INC_WINDOWS
-
-#ifndef _EVNTPROV_H_
+#ifdef BUILDING_SHARED_NATIVEAOT_EVENTPIPE_CODE
 extern "C" uint32_t __stdcall EventWrite(REGHANDLE, const EVENT_DESCRIPTOR *, uint32_t, EVENT_DATA_DESCRIPTOR *);
-#endif // _EVNTPROV_H_
-
 inline uint32_t PalEventWrite(REGHANDLE arg1, const EVENT_DESCRIPTOR * arg2, uint32_t arg3, EVENT_DATA_DESCRIPTOR * arg4)
 {
     return EventWrite(arg1, arg2, arg3, arg4);
 }
-
+#endif // BUILDING_SHARED_NATIVEAOT_EVENTPIPE_CODE
 #endif // _INC_WINDOWS
 
 // The Redhawk PAL must be initialized before any of its exports can be called. Returns true for a successful

@@ -2534,9 +2534,22 @@ ep_rt_utf8_to_utf16le_string (
     if (!str)
         return NULL;
 
-    // TODO: Find out the way to convert utf8 to utf16
-    __debugbreak();
-    return NULL;
+    // TODO: Implementation would just use strlen and malloc to make a new buffer, and would then copy the string chars one by one
+    size_t len_utf8 = strlen(str);        
+    if (len_utf8 == 0)
+        return NULL;
+
+    ep_char16_t *str_utf16 = reinterpret_cast<ep_char16_t *>(malloc ((len_utf8 + 1) * sizeof (ep_char16_t)));
+    if (!str_utf16)
+        return NULL;
+
+    for (size_t i = 0; i < len_utf8; i++)
+    {
+         str_utf16[i] = str[i];
+    }
+
+    str_utf16[len_utf8] = 0;
+    return str_utf16;
 }
 
 static

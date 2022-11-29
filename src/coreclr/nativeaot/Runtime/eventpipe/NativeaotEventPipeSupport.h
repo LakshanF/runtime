@@ -12,8 +12,11 @@
 // Redhawk global definitions can co-exist, meaning NativeAOT runtime source files
 // generally do not have access to windows.h; that said, the HOST_WIN32 parts of the shared
 // EventPipe code are designed to rely on windows.h, so windows.h must be included when
-// compiling shared EventPipe source files.
+// compiling shared EventPipe source files, and a marker is set to indicate that windows.h
+// has been added to the compilation in this manner.
 
 #include <windows.h>
+
+#define BUILDING_SHARED_NATIVEAOT_EVENTPIPE_CODE
 
 #endif // __NativeaotEventPipeSupport_h__
