@@ -18,6 +18,7 @@ struct SLink_EP
 };
 
 //template <class T, bool fHead = false, typename __PTR = T*, SLink_EP T::*LinkPtr = &T::m_Link>
+// Assumes fHead to be false
 template <class T>
 class SList_EP
 {
@@ -34,11 +35,32 @@ protected:
 
     static T* GetObject (PTR_SLink_EP pLink)
     {
-        __debugbreak();
-        return nullptr;
+        if (pLink == NULL)
+        {
+            return NULL;
+        }
+        else
+        {
+            __debugbreak();
+            return NULL;
+            // Newer compilers define offsetof to be __builtin_offsetof, which doesn't use the
+            // old-school memory model trick to determine offset.
+            // const UINT_PTR offset = (((UINT_PTR)&(((T *)0x1000)->*LinkPtr))-0x1000);
+            // return (T*)__PTR(dac_cast<TADDR>(pLink) - offset);
+        }
     }
 
 public:
+
+    SList_EP()
+    {
+        m_pHead = PTR_SLink_EP(&m_link);
+        // NOTE :: fHead variable is template argument
+        // the following code is a compiled in, only if the fHead flag
+        // is set to false,
+        m_pTail = PTR_SLink_EP(&m_link);
+
+    }
 
     T*	GetHead()
     {
@@ -77,8 +99,7 @@ public:
 
     bool IsEmpty()
     {
-        __debugbreak();
-        return false;
+        return m_pHead->m_pNext == NULL;
     }
 
     void InsertHead(T *pObj)
@@ -88,8 +109,19 @@ public:
 
     T*	RemoveHead()
     {
-        __debugbreak();
-        return NULL;
+        SLink_EP* pLink = m_pHead->m_pNext;
+        if (pLink != NULL)
+        {
+            m_pHead->m_pNext = pLink->m_pNext;
+        }
+        // conditionally compiled, if the instantiated class
+        // uses Insert Tail operations
+        if(m_pTail == pLink)
+        {
+            m_pTail = m_pHead;
+        }
+
+        return GetObject(pLink);
     }
 
     class Iterator
