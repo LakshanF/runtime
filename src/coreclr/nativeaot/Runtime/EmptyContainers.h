@@ -17,7 +17,8 @@ struct SLink_EP
     PTR_SLink_EP m_pNext;
 };
 
-template <class T, bool fHead = false, typename __PTR = T*, SLink_EP T::*LinkPtr = &T::m_Link>
+//template <class T, bool fHead = false, typename __PTR = T*, SLink_EP T::*LinkPtr = &T::m_Link>
+template <class T>
 class SList_EP
 {
 protected:
@@ -26,10 +27,9 @@ protected:
     PTR_SLink_EP m_pHead;
     PTR_SLink_EP m_pTail;
     // get the list node within the object
-    static PTR_SLink_EP GetLink (T* pLink)
+    static SLink_EP* GetLink (T* pLink)
     {
-        __debugbreak();
-        return nullptr;
+        return &(pLink->m_Link);
     }
 
     static T* GetObject (PTR_SLink_EP pLink)
@@ -54,7 +54,19 @@ public:
 
     void InsertTail(T *pObj)
     {
-        __debugbreak();
+        // NOTE : conditional compilation on fHead template variable
+        // if (!fHead)
+        // {
+            _ASSERTE(pObj != NULL);
+            SLink_EP *pLink = GetLink(pObj);
+
+            m_pTail->m_pNext = pLink;
+            m_pTail = pLink;
+        // }
+        // else
+        // {// you instantiated this class asking only for InsertHead operations
+        //     _ASSERTE(0);
+        // }
     }
 
     T* FindAndRemove(T *pObj)
