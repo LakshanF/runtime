@@ -1438,10 +1438,7 @@ static
 void
 ep_rt_init_providers_and_events (void)
 {
-    STATIC_CONTRACT_NOTHROW;
-
-    __debugbreak();
-    // TODO: auto-generated fn
+    // TODO: auto-generated fn, no op for now
     // InitProvidersAndEvents ();
 }
 
@@ -1574,10 +1571,10 @@ inline
 bool
 ep_rt_config_value_get_enable (void)
 {
-    STATIC_CONTRACT_NOTHROW;
     // TODO: EventPipe Configuration values - RhConfig?
     // (CLRConfig::INTERNAL_EnableEventPipe) != 0
-    __debugbreak();
+    // If EventPipe environment variables are specified, parse them and start a session.
+    // TODO: Not start a session for now
     return false;
 }
 
@@ -1884,8 +1881,35 @@ ep_rt_create_activity_id (
     EP_ASSERT (activity_id != NULL);
     EP_ASSERT (activity_id_len == EP_ACTIVITY_ID_SIZE);
 
+    // TODO: Implement a way to generate a real Guid
     // CoCreateGuid (reinterpret_cast<GUID *>(activity_id));
-    __debugbreak();
+
+    // TODO: Using roughly Mono's implementation but Mono randomly generates this, hardcoding for now
+    uint8_t data1[] = {0x67,0xac,0x33,0xf1,0x8d,0xed,0x41,0x01,0xb4,0x26,0xc9,0xb7,0x94,0x35,0xf7,0x8a};
+    memcpy (activity_id, data1, EP_ACTIVITY_ID_SIZE);
+
+	const uint16_t version_mask = 0xF000;
+	const uint16_t random_guid_version = 0x4000;
+	const uint8_t clock_seq_hi_and_reserved_mask = 0xC0;
+	const uint8_t clock_seq_hi_and_reserved_value = 0x80;
+
+	// Modify bits indicating the type of the GUID
+	uint8_t *activity_id_c = activity_id + sizeof (uint32_t) + sizeof (uint16_t);
+	uint8_t *activity_id_d = activity_id + sizeof (uint32_t) + sizeof (uint16_t) + sizeof (uint16_t);
+
+	uint16_t c;
+	memcpy (&c, activity_id_c, sizeof (c));
+
+	uint8_t d;
+	memcpy (&d, activity_id_d, sizeof (d));
+
+	// time_hi_and_version
+	c = ((c & ~version_mask) | random_guid_version);
+	// clock_seq_hi_and_reserved
+	d = ((d & ~clock_seq_hi_and_reserved_mask) | clock_seq_hi_and_reserved_value);
+
+	memcpy (activity_id_c, &c, sizeof (c));
+	memcpy (activity_id_d, &d, sizeof (d));
 }
 
 static

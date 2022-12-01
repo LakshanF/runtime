@@ -142,8 +142,7 @@ ds_rt_config_value_get_enable (void)
     STATIC_CONTRACT_NOTHROW;
 
     // TODO: EventPipe Configuration values - RhConfig?
-    __debugbreak();
-    return false;
+    return true;
 }
 
 static
@@ -151,10 +150,7 @@ inline
 ep_char8_t *
 ds_rt_config_value_get_ports (void)
 {
-    STATIC_CONTRACT_NOTHROW;
-
     // TODO: EventPipe Configuration values - RhConfig?
-    __debugbreak();
     return nullptr;
 }
 
@@ -165,7 +161,6 @@ ds_rt_config_value_get_default_port_suspend (void)
 {
     STATIC_CONTRACT_NOTHROW;
     // TODO: EventPipe Configuration values - RhConfig?
-    __debugbreak();
     return 0;
 }
 
