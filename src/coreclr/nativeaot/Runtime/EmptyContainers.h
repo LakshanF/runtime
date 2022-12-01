@@ -17,7 +17,7 @@ struct SLink_EP
     PTR_SLink_EP m_pNext;
 };
 
-//template <class T, bool fHead = false, typename __PTR = T*, SLink_EP T::*LinkPtr = &T::m_Link>
+// template <class T, bool fHead = false, typename __PTR = T*, SLink_EP T::*LinkPtr = &T::m_Link>
 // Assumes fHead to be false
 template <class T>
 class SList_EP
@@ -36,29 +36,18 @@ protected:
     static T* GetObject (PTR_SLink_EP pLink)
     {
         if (pLink == NULL)
-        {
             return NULL;
-        }
-        else
-        {
-            __debugbreak();
-            return NULL;
-            // Newer compilers define offsetof to be __builtin_offsetof, which doesn't use the
-            // old-school memory model trick to determine offset.
-            // const UINT_PTR offset = (((UINT_PTR)&(((T *)0x1000)->*LinkPtr))-0x1000);
-            // return (T*)__PTR(dac_cast<TADDR>(pLink) - offset);
-        }
-    }
+        return reinterpret_cast<T*>(reinterpret_cast<ptrdiff_t>(pLink) - offsetof(T, m_Link));
+     }
 
 public:
 
     SList_EP()
     {
         m_pHead = PTR_SLink_EP(&m_link);
-        // NOTE :: fHead variable is template argument
-        // the following code is a compiled in, only if the fHead flag
-        // is set to false,
         m_pTail = PTR_SLink_EP(&m_link);
+        
+        m_link.m_pNext = NULL;
 
     }
 
@@ -76,19 +65,11 @@ public:
 
     void InsertTail(T *pObj)
     {
-        // NOTE : conditional compilation on fHead template variable
-        // if (!fHead)
-        // {
-            _ASSERTE(pObj != NULL);
-            SLink_EP *pLink = GetLink(pObj);
+        _ASSERTE(pObj != NULL);
+        SLink_EP *pLink = GetLink(pObj);
 
-            m_pTail->m_pNext = pLink;
-            m_pTail = pLink;
-        // }
-        // else
-        // {// you instantiated this class asking only for InsertHead operations
-        //     _ASSERTE(0);
-        // }
+        m_pTail->m_pNext = pLink;
+        m_pTail = pLink;
     }
 
     T* FindAndRemove(T *pObj)
@@ -114,8 +95,7 @@ public:
         {
             m_pHead->m_pNext = pLink->m_pNext;
         }
-        // conditionally compiled, if the instantiated class
-        // uses Insert Tail operations
+
         if(m_pTail == pLink)
         {
             m_pTail = m_pHead;
