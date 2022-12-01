@@ -7,15 +7,11 @@
 // This header file will contains minimal containers that are needed for EventPipe library implementation
 // @TODO - this will likely be replaced by the common container classes to be added to the EventPipe library
 
-#include "forward_declarations.h"
-
-struct SLink_EP;
-typedef DPTR(struct SLink_EP) PTR_SLink_EP;
-
 struct SLink_EP
 {
-    PTR_SLink_EP m_pNext;
+    SLink_EP* m_pNext;
 };
+
 
 // template <class T, bool fHead = false, typename __PTR = T*, SLink_EP T::*LinkPtr = &T::m_Link>
 // Assumes fHead to be false
@@ -25,15 +21,16 @@ class SList_EP
 protected:
     // used as sentinel
     SLink_EP  m_link;
-    PTR_SLink_EP m_pHead;
-    PTR_SLink_EP m_pTail;
+    SLink_EP* m_pHead;
+    SLink_EP* m_pTail;
+
     // get the list node within the object
     static SLink_EP* GetLink (T* pLink)
     {
         return &(pLink->m_Link);
     }
 
-    static T* GetObject (PTR_SLink_EP pLink)
+    static T* GetObject (SLink_EP* pLink)
     {
         if (pLink == NULL)
             return NULL;
@@ -44,11 +41,12 @@ public:
 
     SList_EP()
     {
-        m_pHead = PTR_SLink_EP(&m_link);
-        m_pTail = PTR_SLink_EP(&m_link);
-        
+        m_pHead = &m_link;
+        // NOTE :: fHead variable is template argument
+        // the following code is a compiled in, only if the fHead flag
+        // is set to false,
+        m_pTail = &m_link;        
         m_link.m_pNext = NULL;
-
     }
 
     T*	GetHead()
@@ -384,7 +382,7 @@ class DefaultSHashTraits_EP
 public:
     typedef unsigned int count_t;
     typedef ELEMENT element_t;
-    typedef DPTR(element_t) PTR_element_t;
+    typedef element_t* PTR_element_t;
 
     static const bool s_NoThrow = true;
 };

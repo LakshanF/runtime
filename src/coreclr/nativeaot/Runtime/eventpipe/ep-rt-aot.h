@@ -1652,12 +1652,7 @@ inline
 void
 ep_rt_notify_profiler_provider_created (EventPipeProvider *provider)
 {
-    STATIC_CONTRACT_NOTHROW;
-
-#ifndef DACCESS_COMPILE
-        // TODO: EventPipe profiler callback needed
-        __debugbreak();
-#endif // DACCESS_COMPILE
+    // Following mono's path of no-op
 }
 
 /*
