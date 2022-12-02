@@ -220,8 +220,7 @@ public:
 
     T* AllocNoThrow(size_t iItems)
     {
-        __debugbreak();
-        return NULL;
+        return new T[iItems];
     }
 
     bool PushNoThrow(const T & value)
@@ -255,8 +254,7 @@ public:
 
     T* Ptr()
     {
-        __debugbreak();
-        return nullptr;
+        return m_array;
     }
 };
 

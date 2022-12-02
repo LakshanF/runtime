@@ -1994,12 +1994,16 @@ ep_rt_thread_create (
     STATIC_CONTRACT_NOTHROW;
     EP_ASSERT (thread_func != NULL);
 
-    bool result = false;
+    if (thread_type == EP_THREAD_TYPE_SERVER) {
+        // Match CoreCLR and hardcode a null thread context in this case.
+        // TODO: Fill in the outgoing id if any callers ever need it
+        *reinterpret_cast<DWORD*>(id) = 0xffffffff;
+        return PalStartEventPipeHelperThread(reinterpret_cast<BackgroundCallback>(thread_func), NULL);
+    }
 
-    // TODO: need to revisit
+    // TODO: Add support for EP_THREAD_TYPE_SAMPLING and EP_THREAD_TYPE_SESSION if needed
     __debugbreak();
-
-    rt_aot_thread_params_internal_t *thread_params = new (nothrow) rt_aot_thread_params_internal_t ();
+    return false;
 
     // Mono implementation
 /** 
@@ -2042,8 +2046,6 @@ ep_rt_thread_create (
     // 		}
     // 	}
     // }
-
-    return result;
 }
 
 static
@@ -2051,8 +2053,9 @@ inline
 void
 ep_rt_set_server_name(void)
 {
+    // TODO: Need to set name for  the thread
     // ::SetThreadName(GetCurrentThread(), W(".NET EventPipe"));
-    __debugbreak();
+    //__debugbreak();
 }
 
 
