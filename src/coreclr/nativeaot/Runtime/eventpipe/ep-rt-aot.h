@@ -2641,10 +2641,31 @@ ep_rt_utf16_to_utf8_string (
 
     if (!str)
         return NULL;
+    
+    // TODO: Temp implementation that is the reverse of ep_rt_utf8_to_utf16le_string
+    size_t len_utf16 = len;
+    if(len_utf16 == -1)
+    {
+        len_utf16 = 0;//wcslen(str);
+        const ep_char16_t *strCp = str;
+        while(*strCp)
+        {
+            len_utf16++;
+            strCp++;
+        }
+    }
 
-    // TODO: Find out the way to convert utf8 to utf16
-    __debugbreak();
-    return NULL;
+    ep_char8_t *str_utf8 = reinterpret_cast<ep_char8_t *>(malloc ((len_utf16 + 1) * sizeof (ep_char8_t)));
+    if (!str_utf8)
+        return NULL;
+
+    for (size_t i = 0; i < len_utf16; i++)
+    {
+         str_utf8[i] = (char)str[i];
+    }
+
+    str_utf8[len_utf16] = 0;
+    return str_utf8;
 }
 
 static
