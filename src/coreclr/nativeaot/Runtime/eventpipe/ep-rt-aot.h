@@ -1999,7 +1999,25 @@ ep_rt_thread_create (
     // TODO: need to revisit
     __debugbreak();
 
-    // rt_aot_thread_params_internal_t *thread_params = new (nothrow) rt_aot_thread_params_internal_t ();
+    rt_aot_thread_params_internal_t *thread_params = new (nothrow) rt_aot_thread_params_internal_t ();
+
+    // Mono implementation
+/** 
+	rt_mono_thread_params_internal_t *thread_params = g_new0 (rt_mono_thread_params_internal_t, 1);
+	if (thread_params) {
+		thread_params->thread_params.thread_type = thread_type;
+		thread_params->thread_params.thread_func = (ep_rt_thread_start_func)thread_func;
+		thread_params->thread_params.thread_params = params;
+		thread_params->background_thread = true;
+		return (mono_thread_platform_create_thread (ep_rt_thread_mono_start_func, thread_params, NULL, (ep_rt_thread_id_t *)id) == TRUE) ? true : false;
+	}
+
+	return false;
+ 
+ * */    
+
+    // CoreCLR implementation
+
     // if (thread_params) {
     // 	thread_params->thread_params.thread_type = thread_type;
     // 	if (thread_type == EP_THREAD_TYPE_SESSION || thread_type == EP_THREAD_TYPE_SAMPLING) {

@@ -6,6 +6,7 @@
 
 // This header file will contains minimal containers that are needed for EventPipe library implementation
 // @TODO - this will likely be replaced by the common container classes to be added to the EventPipe library
+// Hence initially, the bare boned implementation focus is on unblocking HW/Simple Trace bring up
 
 struct SLink_EP
 {
@@ -201,11 +202,22 @@ struct SListElem_EP
 
 };
 
+// Bare boned implementation to unblock HW
 template <class T>
 class CQuickArrayList_EP
 {
-    T _t;
+private:
+    size_t m_curSize;
+    T *m_array;
+    size_t maxSize;
 public:
+    CQuickArrayList_EP()
+        : m_curSize(0), maxSize(100)
+    {
+        m_array = new T[maxSize];
+    }
+
+
     T* AllocNoThrow(size_t iItems)
     {
         __debugbreak();
@@ -214,33 +226,37 @@ public:
 
     bool PushNoThrow(const T & value)
     {
-        __debugbreak();
-        return false;
+        if(m_curSize >= maxSize)
+            __debugbreak();
+        m_array[m_curSize++] = value;
+        return true;
     }
 
     size_t Size() const
     {
-        __debugbreak();
-        return 0;
+        return m_curSize;
     }
+    
     T Pop()
     {
-        __debugbreak();
-        return _t;
+        T t = m_array[m_curSize];
+        m_curSize--;
+        return t;
     }
+
     void Shrink()
     {
     }
+    
     T& operator[] (size_t ix)
     {
-        __debugbreak();
-        return _t;
+        return m_array[ix];
     }
 
     T* Ptr()
     {
         __debugbreak();
-        return NULL;
+        return nullptr;
     }
 };
 
