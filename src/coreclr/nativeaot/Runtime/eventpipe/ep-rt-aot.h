@@ -21,7 +21,9 @@
 #include "thread.h"
 #include "holder.h"
 #include "SpinLock.h"
-
+#ifdef _INC_WINDOWS
+#include <sysinfoapi.h>
+#endif
 // @TODO - temp, lakshanf. This is not used in NativeAOT
 #define STATIC_CONTRACT_NOTHROW
 
@@ -1424,7 +1426,24 @@ ep_rt_provider_config_init (EventPipeProviderConfiguration *provider_config)
     STATIC_CONTRACT_NOTHROW;
 
     // TODO: MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context is not available in NativeAOT
-    __debugbreak();	
+
+/**
+    // Mono implementation
+	if (!ep_rt_utf8_string_compare (ep_config_get_rundown_provider_name_utf8 (), ep_provider_config_get_provider_name (provider_config))) {
+		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_EVENTPIPE_Context.Level = (uint8_t)ep_provider_config_get_logging_level (provider_config);
+		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_EVENTPIPE_Context.EnabledKeywordsBitmask = ep_provider_config_get_keywords (provider_config);
+		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_EVENTPIPE_Context.IsEnabled = true;
+	}
+
+    // CoreCLR
+	if (!ep_rt_utf8_string_compare (ep_config_get_rundown_provider_name_utf8 (), ep_provider_config_get_provider_name (provider_config))) {
+		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context.EventPipeProvider.Level = (UCHAR) ep_provider_config_get_logging_level (provider_config);
+		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context.EventPipeProvider.EnabledKeywordsBitmask = ep_provider_config_get_keywords (provider_config);
+		MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context.EventPipeProvider.IsEnabled = true;
+	}
+*/
+
+    //__debugbreak();	
 }
 
 // This function is auto-generated from /src/scripts/genEventPipe.py
@@ -2151,21 +2170,26 @@ ep_rt_system_time_get (EventPipeSystemTime *system_time)
 {
     STATIC_CONTRACT_NOTHROW;
 
-    // SYSTEMTIME value;
-    // GetSystemTime (&value);
+#ifdef _INC_WINDOWS
+    SYSTEMTIME value;
+    GetSystemTime (&value);
 
-    // EP_ASSERT(system_time != NULL);
-    // ep_system_time_set (
-    //	system_time,
-    //	value.wYear,
-    //	value.wMonth,
-    //	value.wDayOfWeek,
-    //	value.wDay,
-    //	value.wHour,
-    //	value.wMinute,
-    //	value.wSecond,
-    //	value.wMilliseconds);
+    EP_ASSERT(system_time != NULL);
+    ep_system_time_set (
+    	system_time,
+    	value.wYear,
+    	value.wMonth,
+    	value.wDayOfWeek,
+    	value.wDay,
+    	value.wHour,
+    	value.wMinute,
+    	value.wSecond,
+    	value.wMilliseconds);
+#else
+    // TODO: Get System time
     __debugbreak();
+#endif
+
 }
 
 static
