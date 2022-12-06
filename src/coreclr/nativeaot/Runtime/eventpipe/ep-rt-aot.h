@@ -2123,12 +2123,14 @@ uint32_t
 ep_rt_processors_get_count (void)
 {
     STATIC_CONTRACT_NOTHROW;
-
-    // SYSTEM_INFO sys_info = {};
-    // GetSystemInfo (&sys_info);
-    // return static_cast<uint32_t>(sys_info.dwNumberOfProcessors);
+#ifdef _INC_WINDOWS
+    SYSTEM_INFO sys_info = {};
+    GetSystemInfo (&sys_info);
+    return static_cast<uint32_t>(sys_info.dwNumberOfProcessors);
+#else    
     __debugbreak();
     return 0xffff;
+#endif
 }
 
 static
