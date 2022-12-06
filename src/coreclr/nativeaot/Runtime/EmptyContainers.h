@@ -50,16 +50,9 @@ public:
         m_link.m_pNext = NULL;
     }
 
-    T*	GetHead()
+    bool IsEmpty()
     {
-        __debugbreak();
-        return NULL;
-    }
-
-    static T *GetNext(T *pObj)
-    {
-        __debugbreak();
-        return NULL;
+        return m_pHead->m_pNext == NULL;
     }
 
     void InsertTail(T *pObj)
@@ -69,22 +62,6 @@ public:
 
         m_pTail->m_pNext = pLink;
         m_pTail = pLink;
-    }
-
-    T* FindAndRemove(T *pObj)
-    {
-        __debugbreak();
-        return NULL;
-    }
-
-    bool IsEmpty()
-    {
-        return m_pHead->m_pNext == NULL;
-    }
-
-    void InsertHead(T *pObj)
-    {
-        __debugbreak();
     }
 
     T*	RemoveHead()
@@ -103,50 +80,92 @@ public:
         return GetObject(pLink);
     }
 
+    T*	GetHead()
+    {
+        return GetObject(m_pHead->m_pNext);
+    }
+
+    static T *GetNext(T *pObj)
+    {
+        _ASSERTE(pObj != NULL);
+        return GetObject(GetLink(pObj)->m_pNext);
+    }
+
+
+    T* FindAndRemove(T *pObj)
+    {
+        __debugbreak();
+        return NULL;
+    }
+
+    void InsertHead(T *pObj)
+    {
+        __debugbreak();
+    }
+
+
     class Iterator
     {
         friend class SList_EP;
-        T* _t;
+        //T* _t;
 
     public:
         Iterator & operator++()
         { 
-            __debugbreak();
+            _ASSERTE(m_cur != NULL); 
+            m_cur = SList_EP::GetNext(m_cur); 
             return *this; 
         }
 
         Iterator operator++(int)
         { 
-            __debugbreak();
-            return {}; 
+            Iterator it(m_cur); 
+            ++(*this); 
+            return it; 
         }
 
         bool operator==(Iterator const & other) const
         {
-            __debugbreak();
-            return false;
+            return m_cur == other.m_cur ||
+                   (m_cur != NULL && other.m_cur != NULL && *m_cur == *other.m_cur);
         }
+
         T & operator*() 
         {
-            __debugbreak();
-            return *_t;
+            _ASSERTE(m_cur != NULL);
+            return *m_cur;
         }
+
         T * operator->() const 
         {
             __debugbreak();
-            return _t;
+            return m_cur;
         }
+
+    private:
+        // Iterator(SList * pList)
+        //     : m_cur(pList->GetHead())
+        // { }
+
+        Iterator(T* pObj)
+            : m_cur(pObj)
+        { }
+
+        Iterator()
+            : m_cur(NULL)
+        { }
+
+        T* m_cur;
+
     };
 
     Iterator begin()
-    {         
-        __debugbreak();
-        return Iterator(); 
+    { 
+        return Iterator(GetHead()); 
     }
 
     Iterator end()
     { 
-        __debugbreak();
         return Iterator(); 
     }
 
@@ -160,13 +179,11 @@ struct SListElem_EP
 
     operator ElemT const &() const
     { 
-        __debugbreak();
         return m_Value; 
     }
 
     operator ElemT &()
     { 
-        __debugbreak();
         return m_Value; 
     }
 
