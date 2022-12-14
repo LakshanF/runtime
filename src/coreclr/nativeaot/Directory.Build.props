@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <FeaturePerfTracing>true</FeaturePerfTracing>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <EnableDefaultItems>false</EnableDefaultItems>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
@@ -39,8 +43,7 @@
 
     <!-- Ignore all previous constants since we are sensitive to what is defined and the Sdk adds some by default -->
     <DefineConstants>NATIVEAOT;NETCOREAPP</DefineConstants>
-<!--    <DefineConstants Condition="'$(FeaturePerfTracing)' == 'true'">$(DefineConstants);FEATURE_PERFTRACING</DefineConstants> -->
-    <DefineConstants>$(DefineConstants);FEATURE_PERFTRACING</DefineConstants>
+    <DefineConstants Condition="'$(FeaturePerfTracing)' == 'true'">$(DefineConstants);FEATURE_PERFTRACING</DefineConstants>
 
     <DisableImplicitConfigurationDefines>true</DisableImplicitConfigurationDefines>
 
