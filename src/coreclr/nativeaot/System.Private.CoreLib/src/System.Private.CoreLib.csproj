@@ -292,6 +292,11 @@
     <Compile Include="$(CommonPath)\Interop\Windows\Kernel32\Interop.ThreadPool.cs">
       <Link>Interop\Windows\Kernel32\Interop.ThreadPool.cs</Link>
     </Compile>
+
+    <!-- EventSource features needed for EventPipe port-->
+    <Compile Include="$(LibrariesProjectRoot)\System.Private.CoreLib\src\System\Diagnostics\Tracing\RuntimeEventSource.cs" />
+    <Compile Include="$(LibrariesProjectRoot)\System.Private.CoreLib\src\System\Diagnostics\Tracing\TraceLogging\TraceLoggingEventHandleTable.cs" />
+
     <Compile Include="System\Threading\Timer.Windows.cs" Condition="'$(FeaturePortableTimer)' != 'true'" />
     <Compile Include="$(CommonPath)\Interop\Windows\Kernel32\Interop.Timer.cs">
       <Link>Interop\Windows\Kernel32\Interop.Timer.cs</Link>

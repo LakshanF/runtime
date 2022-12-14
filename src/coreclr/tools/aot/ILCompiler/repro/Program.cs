@@ -5,21 +5,27 @@ namespace EP_Target
 {
     using System;
     using System.Diagnostics.Tracing;
+    using System.Threading;
 
     public static class Program
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Please enter to continue:");
-            Console.ReadLine();
+            Console.WriteLine("Waiting 10 seconds to client to get the PID");
+            Thread.Sleep(10 * 1000);
 
-            DemoEventSource.Log.AppStarted("Hello World From .NET!", 12);
-            DemoEventSource.Log.DebugMessage("Got here From .NET!");
-            DemoEventSource.Log.DebugMessage("finishing startup From .NET!");
-            DemoEventSource.Log.RequestStart(3);
-            DemoEventSource.Log.RequestStop(3);
+            TargetStartLogging();
 
             Console.WriteLine("Done done!");
+        }
+
+        private static void TargetStartLogging()
+        {
+            DemoEventSource.Log.AppStarted("Hello World From .NET!", 12);
+            //DemoEventSource.Log.DebugMessage("Got here From .NET!");
+            //DemoEventSource.Log.DebugMessage("finishing startup From .NET!");
+            //DemoEventSource.Log.RequestStart(3);
+            //DemoEventSource.Log.RequestStop(3);
         }
     }
 

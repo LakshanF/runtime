@@ -1988,19 +1988,20 @@ typedef struct _rt_aot_thread_params_internal_t {
 #define EP_RT_DEFINE_THREAD_FUNC(name) static ep_rt_thread_start_func_return_t __stdcall name (void *data)
 
 // TODO: Re-establish once ep_rt_thread_create is implemented
-// EP_RT_DEFINE_THREAD_FUNC (ep_rt_thread_aot_start_func)
-// {
-// 	STATIC_CONTRACT_NOTHROW;
-// 
-// 	rt_aot_thread_params_internal_t *thread_params = reinterpret_cast<rt_aot_thread_params_internal_t *>(data);
-// 	size_t result = thread_params->thread_params.thread_func (thread_params);
-// 	if (thread_params->thread_params.thread)
-// 		// thread_params->thread_params.thread == ep_rt_thread_handle_t == Thread
-// 		// CoreCLR ::DestroyThread (thread_params->thread_params.thread);
-// 		thread_params->thread_params.thread->Destroy();
-// 	delete thread_params;
-// 	return result;
-// }
+EP_RT_DEFINE_THREAD_FUNC (ep_rt_thread_aot_start_func)
+{
+	STATIC_CONTRACT_NOTHROW;
+
+    __debugbreak();
+	rt_aot_thread_params_internal_t *thread_params = reinterpret_cast<rt_aot_thread_params_internal_t *>(data);
+	size_t result = thread_params->thread_params.thread_func (thread_params);
+	if (thread_params->thread_params.thread)
+		// thread_params->thread_params.thread == ep_rt_thread_handle_t == Thread
+		// CoreCLR ::DestroyThread (thread_params->thread_params.thread);
+		thread_params->thread_params.thread->Destroy();
+	delete thread_params;
+	return result;
+}
 
 static
 bool
