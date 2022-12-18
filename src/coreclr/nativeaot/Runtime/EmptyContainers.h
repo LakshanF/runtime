@@ -11,6 +11,38 @@
 struct SLink_EP
 {
     SLink_EP* m_pNext;
+
+    SLink_EP()
+    {
+        m_pNext = NULL;
+    }
+
+    // find pLink within the list starting at pHead
+    // if found remove the link from the list and return the link
+    // otherwise return NULL
+    static SLink_EP* FindAndRemove(SLink_EP *pHead, SLink_EP* pLink, SLink_EP ** ppPrior)
+    {
+
+	    _ASSERTE(pHead != NULL);
+	    _ASSERTE(pLink != NULL);
+
+	    SLink_EP* pFreeLink = NULL;
+        *ppPrior = NULL;
+
+	    while (pHead->m_pNext != NULL)
+	    {
+		    if (pHead->m_pNext == pLink)
+		    {
+			    pFreeLink = pLink;
+			    pHead->m_pNext = pLink->m_pNext;
+                *ppPrior = pHead;
+                break;
+		    }
+            pHead = pHead->m_pNext;
+	    }
+
+	    return pFreeLink;
+    }
 };
 
 
@@ -46,7 +78,8 @@ public:
         // NOTE :: fHead variable is template argument
         // the following code is a compiled in, only if the fHead flag
         // is set to false,
-        m_pTail = &m_link;        
+        m_pTail = &m_link;
+        // TODO: Likely not needed now since SLink_EP has a ctor
         m_link.m_pNext = NULL;
     }
 
@@ -94,8 +127,15 @@ public:
 
     T* FindAndRemove(T *pObj)
     {
-        __debugbreak();
-        return NULL;
+        _ASSERTE(pObj != NULL);
+
+        SLink_EP   *prior;
+        SLink_EP   *ret = SLink_EP::FindAndRemove(m_pHead, GetLink(pObj), &prior);
+
+        if (ret == m_pTail)
+            m_pTail = prior;
+
+        return GetObject(ret);
     }
 
     void InsertHead(T *pObj)

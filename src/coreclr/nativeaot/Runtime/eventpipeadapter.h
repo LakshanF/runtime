@@ -166,6 +166,19 @@ public:
         ep_init();
     }
 
+    static inline EventPipeProvider * CreateProvider(LPCWSTR providerName, EventPipeCallback callback)
+    {
+        ep_char8_t *providerNameUTF8 = ep_rt_utf16_to_utf8_string(reinterpret_cast<const ep_char16_t *>(providerName), -1);
+        EventPipeProvider * provider = ep_create_provider (providerNameUTF8, callback, NULL, NULL);
+        ep_rt_utf8_string_free (providerNameUTF8);
+        return provider;
+    }
+
+    static inline void DeleteProvider (EventPipeProvider * provider)
+    {
+        ep_delete_provider (provider);
+    }
+
 #if defined(NATIVEAOT_CORPROF_INCLUDE_IS_READY)
 
     static inline void FinishInitialize()
@@ -322,35 +335,6 @@ public:
         CONTRACTL_END;
 
         ep_add_provider_to_session (provider, session);
-    }
-
-    static inline EventPipeProvider * CreateProvider(const SString &providerName, EventPipeCallback callback)
-    {
-        CONTRACTL
-        {
-            NOTHROW;
-            GC_TRIGGERS;
-            MODE_ANY;
-        }
-        CONTRACTL_END;
-
-        ep_char8_t *providerNameUTF8 = ep_rt_utf16_to_utf8_string(reinterpret_cast<const ep_char16_t *>(providerName.GetUnicode ()), -1);
-        EventPipeProvider * provider = ep_create_provider (providerNameUTF8, callback, NULL, NULL);
-        ep_rt_utf8_string_free (providerNameUTF8);
-        return provider;
-    }
-
-    static inline void DeleteProvider (EventPipeProvider * provider)
-    {
-        CONTRACTL
-        {
-            NOTHROW;
-            GC_TRIGGERS;
-            MODE_ANY;
-        }
-        CONTRACTL_END;
-
-        ep_delete_provider (provider);
     }
 
     static inline EventPipeProvider * GetProvider (LPCWSTR providerName)

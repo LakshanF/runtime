@@ -1,11 +1,28 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-using System.Threading;
+using System.Runtime;
+using System.Runtime.InteropServices;
 
 #if FEATURE_PERFTRACING
 
 namespace System.Diagnostics.Tracing
 {
+    //
+    // NOTE:
+    //
+    // The implementation below takes some manual marshaling actions to ensure arguments are in
+    // primitive form before they are passed through to the underlying RuntimeImports.Rh*
+    // function.
+    //
+    // These extra steps are necessary only if the RuntimeImports mechanism represents "raw"
+    // calls into the native runtime (as has been the case at least in the distant past).
+    //
+    // If the RuntimeImports mechanism automatically applies rich p/invoke marshaling to all of
+    // these calls, then all of the manual steps below are unnecessary and can be removed (by
+    // making the RuntimeImports.Rh* function signatures generally match the corresponding
+    // EventPipeInternal function signatures; in other words, by making the RuntimeImports.Rh*
+    // functions look like the QCalls in EventPipe.CoreCLR.cs).
+    //
     internal static partial class EventPipeInternal
     {
         //
@@ -18,13 +35,17 @@ namespace System.Diagnostics.Tracing
             EventPipeProviderConfigurationNative* providers,
             uint numProviders)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x101)).ToPointer())), 0x101);
-            return 0;
+            return RuntimeImports.RhEventPipeInternal_Enable(
+                outputFile,
+                (int)format,
+                circularBufferSizeInMB,
+                providers,
+                numProviders);
         }
 
-        internal static unsafe void Disable(ulong sessionID)
+        internal static void Disable(ulong sessionID)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x102)).ToPointer())), 0x102);
+            RuntimeImports.RhEventPipeInternal_Disable(sessionID);
         }
 
         //
@@ -32,36 +53,70 @@ namespace System.Diagnostics.Tracing
         //
         internal static unsafe IntPtr CreateProvider(string providerName, Interop.Advapi32.EtwEnableCallback callbackFunc)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x103)).ToPointer())), 0x103);
-            return IntPtr.Zero;
+            fixed (char* pProviderName = providerName)
+            {
+                return RuntimeImports.RhEventPipeInternal_CreateProvider(
+                    pProviderName,
+                    Marshal.GetFunctionPointerForDelegate(callbackFunc));
+            }
         }
 
-        internal static unsafe IntPtr DefineEvent(IntPtr provHandle, uint eventID, long keywords, uint eventVersion, uint level, void *pMetadata, uint metadataLength)
+        internal static unsafe IntPtr DefineEvent(
+            IntPtr provHandle,
+            uint eventID,
+            long keywords,
+            uint eventVersion,
+            uint level,
+            void *pMetadata,
+            uint metadataLength)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x104)).ToPointer())), 0x104);
-            return IntPtr.Zero;
+            return RuntimeImports.RhEventPipeInternal_DefineEvent(
+                provHandle,
+                eventID,
+                keywords,
+                eventVersion,
+                level,
+                pMetadata,
+                metadataLength);
         }
 
         internal static unsafe IntPtr GetProvider(string providerName)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x105)).ToPointer())), 0x105);
-            return IntPtr.Zero;
+            fixed (char* pProviderName = providerName)
+            {
+                return RuntimeImports.RhEventPipeInternal_GetProvider(pProviderName);
+            }
         }
 
-        internal static unsafe void DeleteProvider(IntPtr provHandle)
+        internal static void DeleteProvider(IntPtr provHandle)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x107)).ToPointer())), 0x107);
+            RuntimeImports.RhEventPipeInternal_DeleteProvider(provHandle);
         }
 
         internal static unsafe int EventActivityIdControl(uint controlCode, ref Guid activityId)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x107)).ToPointer())), 0x108);
-            return 0;
+            //
+            // Ensure that the address passed to native code is never on the managed heap, while still
+            // managing the supplied byref in an in/out manner.
+            //
+            Guid localActivityId = activityId;
+            try { return RuntimeImports.RhEventPipeInternal_EventActivityIdControl(controlCode, &localActivityId); }
+            finally { activityId = localActivityId; }
         }
 
-        internal static unsafe void WriteEventData(IntPtr eventHandle, EventProvider.EventData* pEventData, uint dataCount, Guid* activityId, Guid* relatedActivityId)
+        internal static unsafe void WriteEventData(
+            IntPtr eventHandle,
+            EventProvider.EventData* pEventData,
+            uint dataCount,
+            Guid* activityId,
+            Guid* relatedActivityId)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x108)).ToPointer())), 0x109);
+            RuntimeImports.RhEventPipeInternal_WriteEventData(
+                eventHandle,
+                pEventData,
+                dataCount,
+                activityId,
+                relatedActivityId);
         }
 
         //
@@ -69,26 +124,26 @@ namespace System.Diagnostics.Tracing
         //
         internal static unsafe bool GetSessionInfo(ulong sessionID, EventPipeSessionInfo* pSessionInfo)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x10a)).ToPointer())), 0x10a);
-            return false;
+            uint rawBool = RuntimeImports.RhEventPipeInternal_GetSessionInfo(sessionID, pSessionInfo);
+            return (rawBool != 0);
         }
 
         internal static unsafe bool GetNextEvent(ulong sessionID, EventPipeEventInstanceData* pInstance)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x10b)).ToPointer())), 0x10b);
-            return false;
+            uint rawBool = RuntimeImports.RhEventPipeInternal_GetNextEvent(sessionID, pInstance);
+            return (rawBool != 0);
         }
 
-        internal static unsafe bool SignalSession(ulong sessionID)
+        internal static bool SignalSession(ulong sessionID)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x10c)).ToPointer())), 0x10c);
-            return false;
+            uint rawBool = RuntimeImports.RhEventPipeInternal_SignalSession(sessionID);
+            return (rawBool != 0);
         }
 
-        internal static unsafe bool WaitForSessionSignal(ulong sessionID, int timeoutMs)
+        internal static bool WaitForSessionSignal(ulong sessionID, int timeoutMs)
         {
-            Volatile.Write(ref (*(int*)((new IntPtr(0x10d)).ToPointer())), 0x10d);
-            return false;
+            uint rawBool = RuntimeImports.RhEventPipeInternal_WaitForSessionSignal(sessionID, timeoutMs);
+            return (rawBool != 0);
         }
     }
 }

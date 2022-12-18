@@ -1884,9 +1884,9 @@ ep_rt_process_shutdown (void)
 {
     STATIC_CONTRACT_NOTHROW;
     // TODO: Does NativeAot have the concept of process shutdown
-    __debugbreak();
+    //__debugbreak();
 
-    return false;
+    return true;
 }
 
 static
@@ -2673,13 +2673,7 @@ ep_rt_utf16_to_utf8_string (
     size_t len_utf16 = len;
     if(len_utf16 == -1)
     {
-        len_utf16 = 0;//wcslen(str);
-        const ep_char16_t *strCp = str;
-        while(*strCp)
-        {
-            len_utf16++;
-            strCp++;
-        }
+        len_utf16 = ep_rt_utf16_string_len (str);
     }
 
     ep_char8_t *str_utf8 = reinterpret_cast<ep_char8_t *>(malloc ((len_utf16 + 1) * sizeof (ep_char8_t)));

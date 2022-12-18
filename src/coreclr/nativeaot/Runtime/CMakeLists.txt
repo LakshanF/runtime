@@ -135,6 +135,7 @@ set(COMMON_RUNTIME_SOURCES
     MethodTable.cpp
     EHHelpers.cpp
     event.cpp
+    eventpipeinternal.cpp
     FinalizerHelpers.cpp
     GCHelpers.cpp
     gctoclreventsink.cpp
