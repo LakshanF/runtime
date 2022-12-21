@@ -179,7 +179,6 @@ public:
         ep_delete_provider (provider);
     }
 
-#if defined(NATIVEAOT_CORPROF_INCLUDE_IS_READY)
 
     static inline void FinishInitialize()
     {
@@ -192,6 +191,7 @@ public:
         ep_finish_init();
     }
 
+#if defined(NATIVEAOT_CORPROF_INCLUDE_IS_READY)
     static inline void Shutdown()
     {
         CONTRACTL
