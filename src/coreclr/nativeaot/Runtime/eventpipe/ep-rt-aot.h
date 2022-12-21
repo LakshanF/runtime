@@ -1886,7 +1886,7 @@ ep_rt_process_shutdown (void)
     // TODO: Does NativeAot have the concept of process shutdown
     //__debugbreak();
 
-    return true;
+    return false;
 }
 
 static

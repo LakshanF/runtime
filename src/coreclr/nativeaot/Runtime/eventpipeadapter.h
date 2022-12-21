@@ -415,13 +415,6 @@ public:
         const EventPipeParameterDescAdapter &params,
         bool needStack)
     {
-        CONTRACTL
-        {
-            NOTHROW;
-            GC_TRIGGERS;
-            MODE_ANY;
-        }
-        CONTRACTL_END;
 
         size_t metadataLen = 0;
         EventPipeEvent *realEvent = NULL;
@@ -450,6 +443,8 @@ public:
         return realEvent;
     }
 
+#endif // defined(NATIVEAOT_CORPROF_INCLUDE_IS_READY)
+
     static inline EventPipeEvent * AddEvent(
         EventPipeProvider *provider,
         uint32_t eventID,
@@ -460,14 +455,6 @@ public:
         BYTE *metadata = NULL,
         uint32_t metadataLen = 0)
     {
-        CONTRACTL
-        {
-            NOTHROW;
-            GC_TRIGGERS;
-            MODE_ANY;
-        }
-        CONTRACTL_END;
-
         return ep_provider_add_event(provider, eventID, keywords, eventVersion, level, needStack, metadata, metadataLen);
     }
 
@@ -475,17 +462,9 @@ public:
         EventPipeEvent *ep_event,
         BYTE *data,
         uint32_t dataLen,
-        LPCGUID activityId,
-        LPCGUID relatedActivityId)
+        const GUID * activityId,
+        const GUID * relatedActivityId)
     {
-        CONTRACTL
-        {
-            NOTHROW;
-            GC_NOTRIGGER;
-            MODE_ANY;
-        }
-        CONTRACTL_END;
-
         ep_write_event(
             ep_event,
             data,
@@ -498,17 +477,9 @@ public:
         EventPipeEvent *ep_event,
         EventData *data,
         uint32_t dataLen,
-        LPCGUID activityId,
-        LPCGUID relatedActivityId)
+        const GUID * activityId,
+        const GUID * relatedActivityId)
     {
-        CONTRACTL
-        {
-            NOTHROW;
-            GC_NOTRIGGER;
-            MODE_ANY;
-        }
-        CONTRACTL_END;
-
         ep_write_event_2(
             ep_event,
             data,
@@ -517,11 +488,12 @@ public:
             reinterpret_cast<const uint8_t*>(relatedActivityId));
     }
 
+#if defined(NATIVEAOT_CORPROF_INCLUDE_IS_READY)
     static inline void WriteEvent(
         EventPipeEvent *ep_event,
         EventDataAdapter &data,
-        LPCGUID activityId,
-        LPCGUID relatedActivityId)
+        const GUID * activityId,
+        const GUID * relatedActivityId)
     {
         WriteEvent(
             ep_event,

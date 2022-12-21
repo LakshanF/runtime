@@ -58,8 +58,14 @@ EXTERN_C NATIVEAOT_API intptr_t __cdecl RhEventPipeInternal_DefineEvent(
     void *pMetadata,
     uint32_t metadataLength)
 {
-    __debugbreak();
-    return 0;
+    EventPipeEvent *pEvent = NULL;
+
+    _ASSERTE(provHandle != NULL);
+    EventPipeProvider *pProvider = reinterpret_cast<EventPipeProvider *>(provHandle);
+    pEvent = EventPipeAdapter::AddEvent(pProvider, eventID, keywords, eventVersion, (EventPipeEventLevel)level, /* needStack = */ true, (BYTE *)pMetadata, metadataLength);
+    _ASSERTE(pEvent != NULL);
+
+    return reinterpret_cast<intptr_t>(pEvent);
 }
 
 EXTERN_C NATIVEAOT_API intptr_t __cdecl RhEventPipeInternal_GetProvider(LPCWSTR providerName)
@@ -90,7 +96,9 @@ EXTERN_C NATIVEAOT_API void __cdecl RhEventPipeInternal_WriteEventData(
     const GUID * pActivityId,
     const GUID * pRelatedActivityId)
 {
-    __debugbreak();
+    _ASSERTE(eventHandle != NULL);
+    EventPipeEvent *pEvent = reinterpret_cast<EventPipeEvent *>(eventHandle);
+    EventPipeAdapter::WriteEvent(pEvent, pEventData, eventDataCount, pActivityId, pRelatedActivityId);
 }
 
 EXTERN_C NATIVEAOT_API UInt32_BOOL __cdecl RhEventPipeInternal_GetSessionInfo(uint64_t sessionID, EventPipeSessionInfo *pSessionInfo)
