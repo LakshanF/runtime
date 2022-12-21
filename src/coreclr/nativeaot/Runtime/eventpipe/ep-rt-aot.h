@@ -1980,27 +1980,24 @@ ep_rt_execute_rundown (ep_rt_execution_checkpoint_array_t *execution_checkpoints
  * PAL.
  */
 
-typedef struct _rt_aot_thread_params_internal_t {
-    ep_rt_thread_params_t thread_params;
-} rt_aot_thread_params_internal_t;
-
 #undef EP_RT_DEFINE_THREAD_FUNC
 #define EP_RT_DEFINE_THREAD_FUNC(name) static ep_rt_thread_start_func_return_t __stdcall name (void *data)
 
-// TODO: Re-establish once ep_rt_thread_create is implemented
-EP_RT_DEFINE_THREAD_FUNC (ep_rt_thread_aot_start_func)
+EP_RT_DEFINE_THREAD_FUNC (ep_rt_thread_aot_start_session_or_sampling_thread)
 {
-	STATIC_CONTRACT_NOTHROW;
+    STATIC_CONTRACT_NOTHROW;
 
-    __debugbreak();
-	rt_aot_thread_params_internal_t *thread_params = reinterpret_cast<rt_aot_thread_params_internal_t *>(data);
-	size_t result = thread_params->thread_params.thread_func (thread_params);
-	if (thread_params->thread_params.thread)
-		// thread_params->thread_params.thread == ep_rt_thread_handle_t == Thread
-		// CoreCLR ::DestroyThread (thread_params->thread_params.thread);
-		thread_params->thread_params.thread->Destroy();
-	delete thread_params;
-	return result;
+    ep_rt_thread_params_t* thread_params = reinterpret_cast<ep_rt_thread_params_t *>(data);
+
+    // TODO: Implement thread creation/management if needed.
+    // The session and sampling threads both assert that the incoming thread handle is
+    // non-null, but do not necessarily rely on it otherwise; just pass a meaningless non-null
+    // value until testing shows that a meaningful value is needed.
+    thread_params->thread = reinterpret_cast<ep_rt_thread_handle_t>(1);
+
+    size_t result = thread_params->thread_func (thread_params);
+    delete thread_params;
+    return result;
 }
 
 static
@@ -2014,57 +2011,77 @@ ep_rt_thread_create (
     STATIC_CONTRACT_NOTHROW;
     EP_ASSERT (thread_func != NULL);
 
-    if (thread_type == EP_THREAD_TYPE_SERVER) {
-        // Match CoreCLR and hardcode a null thread context in this case.
-        // TODO: Fill in the outgoing id if any callers ever need it
+    // TODO: Fill in the outgoing id if any callers ever need it
+    if (id)
         *reinterpret_cast<DWORD*>(id) = 0xffffffff;
+
+    switch (thread_type)
+    {
+    default:
+        return false;
+
+    case EP_THREAD_TYPE_SERVER:
+        // Match CoreCLR and hardcode a null thread context in this case.
         return PalStartEventPipeHelperThread(reinterpret_cast<BackgroundCallback>(thread_func), NULL);
+
+    case EP_THREAD_TYPE_SESSION:
+    case EP_THREAD_TYPE_SAMPLING:
+        ep_rt_thread_params_t* thread_params = new (nothrow) ep_rt_thread_params_t ();
+        if (!thread_params)
+            return false;
+
+        thread_params->thread_type = thread_type;
+        thread_params->thread_func = reinterpret_cast<ep_rt_thread_start_func>(thread_func);
+        thread_params->thread_params = params;
+        if (!PalStartEventPipeHelperThread(reinterpret_cast<BackgroundCallback>(ep_rt_thread_aot_start_session_or_sampling_thread), thread_params)) {
+            delete thread_params;
+            return false;
+        }
+
+        return true;
     }
 
-    // TODO: Add support for EP_THREAD_TYPE_SAMPLING and EP_THREAD_TYPE_SESSION if needed
-    __debugbreak();
-    return false;
 
     // Mono implementation
-/** 
-	rt_mono_thread_params_internal_t *thread_params = g_new0 (rt_mono_thread_params_internal_t, 1);
-	if (thread_params) {
-		thread_params->thread_params.thread_type = thread_type;
-		thread_params->thread_params.thread_func = (ep_rt_thread_start_func)thread_func;
-		thread_params->thread_params.thread_params = params;
-		thread_params->background_thread = true;
-		return (mono_thread_platform_create_thread (ep_rt_thread_mono_start_func, thread_params, NULL, (ep_rt_thread_id_t *)id) == TRUE) ? true : false;
-	}
+/**
+    rt_mono_thread_params_internal_t *thread_params = g_new0 (rt_mono_thread_params_internal_t, 1);
+    if (thread_params) {
+        thread_params->thread_params.thread_type = thread_type;
+        thread_params->thread_params.thread_func = (ep_rt_thread_start_func)thread_func;
+        thread_params->thread_params.thread_params = params;
+        thread_params->background_thread = true;
+        return (mono_thread_platform_create_thread (ep_rt_thread_mono_start_func, thread_params, NULL, (ep_rt_thread_id_t *)id) == TRUE) ? true : false;
+    }
 
-	return false;
- 
- * */    
+    return false;
+
+ * */
 
     // CoreCLR implementation
 
     // if (thread_params) {
-    // 	thread_params->thread_params.thread_type = thread_type;
-    // 	if (thread_type == EP_THREAD_TYPE_SESSION || thread_type == EP_THREAD_TYPE_SAMPLING) {
-    // 		thread_params->thread_params.thread = SetupUnstartedThread ();
-    // 		thread_params->thread_params.thread_func = reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func);
-    // 		thread_params->thread_params.thread_params = params;
-    // 		if (thread_params->thread_params.thread->CreateNewThread (0, ep_rt_thread_aot_start_func, thread_params)) {
-    // 			thread_params->thread_params.thread->SetBackground (TRUE);
-    // 			thread_params->thread_params.thread->StartThread ();
-    // 			if (id)
-    // 				*reinterpret_cast<DWORD *>(id) = thread_params->thread_params.thread->GetThreadId ();
-    // 			result = true;
-    // 		}
-    // 	} else if (thread_type == EP_THREAD_TYPE_SERVER) {
-    // 		DWORD thread_id = 0;
-    // 		HANDLE server_thread = ::CreateThread (nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func), nullptr, 0, &thread_id);
-    // 		if (server_thread != NULL) {
-    // 			::CloseHandle (server_thread);
-    // 			if (id)
-    // 				*reinterpret_cast<DWORD *>(id) = thread_id;
-    // 			result = true;
-    // 		}
-    // 	}
+    //     thread_params->thread_params.thread_type = thread_type;
+    //     if (thread_type == EP_THREAD_TYPE_SESSION || thread_type == EP_THREAD_TYPE_SAMPLING) {
+    //         thread_params->thread_params.thread = SetupUnstartedThread ();
+    //         thread_params->thread_params.thread_func = reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func);
+    //         thread_params->thread_params.thread_params = params;
+    //         if (thread_params->thread_params.thread->CreateNewThread (0, ep_rt_thread_aot_start_func, thread_params)) {
+    //             thread_params->thread_params.thread->SetBackground (TRUE);
+    //             thread_params->thread_params.thread->StartThread ();
+    //             if (id)
+    //                 *reinterpret_cast<DWORD *>(id) = thread_params->thread_params.thread->GetThreadId ();
+    //             result = true;
+    //         }
+    //     } else if (thread_type == EP_THREAD_TYPE_SERVER) {
+    //         DWORD thread_id = 0;
+    //         HANDLE server_thread = ::CreateThread (nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(thread_func), nullptr, 0, &thread_id);
+    //         if (server_thread != NULL) {
+    //             ::CloseHandle (server_thread);
+    //             if (id)
+    //                 *reinterpret_cast<DWORD *>(id) = thread_id;
+    //             result = true;
+    //         }
+    //     }
     // }
 }
 
