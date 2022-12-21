@@ -2214,8 +2214,8 @@ ep_rt_system_get_alloc_granularity (void)
 {
     STATIC_CONTRACT_NOTHROW;
     // return static_cast<int32_t>(g_SystemInfo.dwAllocationGranularity);
-    __debugbreak();
-    return 0xffff;
+    //__debugbreak();
+    return 0x10000;//0xffff;
 }
 
 static
@@ -2866,9 +2866,8 @@ ep_rt_thread_handle_t
 ep_rt_thread_get_handle (void)
 {
     STATIC_CONTRACT_NOTHROW;
-    // TODO: Implement thread creation/management
+    // TODO: Implement thread creation/management if needed
     // return GetThreadNULLOk ();
-    __debugbreak();
     return NULL;
 }
 
@@ -2880,7 +2879,7 @@ ep_rt_thread_get_id (ep_rt_thread_handle_t thread_handle)
     STATIC_CONTRACT_NOTHROW;
     EP_ASSERT (thread_handle != NULL);
 
-    // TODO: Implement thread creation/management
+    // TODO: Implement thread creation/management if needed
     // return ep_rt_uint64_t_to_thread_id_t (thread_handle->GetOSThreadId64 ());
     __debugbreak();
     return NULL;
@@ -2908,9 +2907,8 @@ bool
 ep_rt_thread_has_started (ep_rt_thread_handle_t thread_handle)
 {
     STATIC_CONTRACT_NOTHROW;
-    // TODO: Implement thread creation/management
+    // TODO: Implement thread creation/management if needed
     // return thread_handle != NULL && thread_handle->HasStarted ();
-    __debugbreak();
     return true;
 }
 
@@ -2920,7 +2918,7 @@ ep_rt_thread_activity_id_handle_t
 ep_rt_thread_get_activity_id_handle (void)
 {
     STATIC_CONTRACT_NOTHROW;
-    // TODO: Implement thread creation/management
+    // TODO: Implement thread creation/management if needed
     // return GetThread ();
     __debugbreak();
     return NULL;
@@ -2934,7 +2932,7 @@ ep_rt_thread_get_activity_id_cref (ep_rt_thread_activity_id_handle_t activity_id
     STATIC_CONTRACT_NOTHROW;
     EP_ASSERT (activity_id_handle != NULL);
 
-    // TODO: Implement thread creation/management
+    // TODO: Implement thread creation/management if needed
     // return reinterpret_cast<const uint8_t *>(activity_id_handle->GetActivityId ());
     __debugbreak();
     return NULL;
@@ -2969,7 +2967,7 @@ ep_rt_thread_set_activity_id (
     EP_ASSERT (activity_id != NULL);
     EP_ASSERT (activity_id_len == EP_ACTIVITY_ID_SIZE);
 
-    // TODO: Implement thread creation/management
+    // TODO: Implement thread creation/management if needed
     // activity_id_handle->SetActivityId (reinterpret_cast<LPCGUID>(activity_id));
     __debugbreak();
 }
