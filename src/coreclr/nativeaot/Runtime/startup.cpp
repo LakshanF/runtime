@@ -463,9 +463,6 @@ static void DllThreadDetach()
 
 void RuntimeThreadShutdown(void* thread)
 {
-    // EventPipeAdapter::Shutdown();
-    // DiagnosticServerAdapter::Shutdown();
-
     // Note: loader lock is normally *not* held here!
     // The one exception is that the loader lock may be held during the thread shutdown callback
     // that is made for the single thread that runs the final stages of orderly process
@@ -519,6 +516,9 @@ extern "C" bool RhInitialize()
 //
 COOP_PINVOKE_HELPER(void, RhpShutdown, ())
 {
+    // TODO: It may be incorrect to make these calls in cooperative mode
+    EventPipeAdapter::Shutdown();
+    DiagnosticServerAdapter::Shutdown();
     // Indicate that runtime shutdown is complete and that the caller is about to start shutting down the entire process.
     g_threadPerformingShutdown = ThreadStore::RawGetCurrentThread();
 }

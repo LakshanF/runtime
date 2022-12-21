@@ -1872,7 +1872,7 @@ ep_rt_process_detach (void)
 {
     STATIC_CONTRACT_NOTHROW;
     // TODO: Does NativeAot have the concept of process detach
-    __debugbreak();
+    // __debugbreak();
 
     return false;
 }
@@ -2102,9 +2102,7 @@ void
 ep_rt_thread_sleep (uint64_t ns)
 {
     STATIC_CONTRACT_NOTHROW;
-
-    // TODO: thread sleep
-    __debugbreak();
+    PalSleep(static_cast<uint32_t>(ns/1000000));
 }
 
 static
@@ -2756,18 +2754,20 @@ ep_rt_diagnostics_command_line_get (void)
     extern ep_char8_t *volatile _ep_rt_aot_diagnostics_cmd_line;
 
     ep_char8_t *old_cmd_line = _ep_rt_aot_diagnostics_cmd_line;
+
+    // TODO: revisit commandline for AOT
     // ep_char8_t *new_cmd_line = ep_rt_utf16_to_utf8_string (reinterpret_cast<const ep_char16_t *>(GetCommandLineForDiagnostics ()), -1);
-    __debugbreak();
-    ep_char8_t *new_cmd_line = NULL;
-    if (old_cmd_line && ep_rt_utf8_string_compare (old_cmd_line, new_cmd_line) == 0) {
-        // same as old, so free the new one
-        ep_rt_utf8_string_free (new_cmd_line);
-    } else {
-        // attempt an update, and give up if you lose the race
-        if (ep_rt_atomic_compare_exchange_utf8_string (&_ep_rt_aot_diagnostics_cmd_line, old_cmd_line, new_cmd_line) != old_cmd_line) {
-            ep_rt_utf8_string_free (new_cmd_line);
-        }
-    }
+    // __debugbreak();
+    // ep_char8_t *new_cmd_line = NULL;
+    // if (old_cmd_line && ep_rt_utf8_string_compare (old_cmd_line, new_cmd_line) == 0) {
+    //     // same as old, so free the new one
+    //     ep_rt_utf8_string_free (new_cmd_line);
+    // } else {
+    //     // attempt an update, and give up if you lose the race
+    //     if (ep_rt_atomic_compare_exchange_utf8_string (&_ep_rt_aot_diagnostics_cmd_line, old_cmd_line, new_cmd_line) != old_cmd_line) {
+    //         ep_rt_utf8_string_free (new_cmd_line);
+    //     }
+    // }
 
     return _ep_rt_aot_diagnostics_cmd_line;
 }
@@ -2846,10 +2846,10 @@ ep_rt_thread_setup (void)
 {
     STATIC_CONTRACT_NOTHROW;
 
-    // TODO: Implement thread creation/management
+    // TODO: Implement thread creation/management if needed
     // Thread* thread_handle = SetupThreadNoThrow ();
     // EP_ASSERT (thread_handle != NULL);
-    __debugbreak();
+    //__debugbreak();
 }
 
 static

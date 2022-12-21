@@ -191,17 +191,8 @@ public:
         ep_finish_init();
     }
 
-#if defined(NATIVEAOT_CORPROF_INCLUDE_IS_READY)
     static inline void Shutdown()
     {
-        CONTRACTL
-        {
-            NOTHROW;
-            GC_TRIGGERS;
-            MODE_ANY;
-        }
-        CONTRACTL_END;
-
         ep_shutdown();
     }
 
@@ -211,6 +202,7 @@ public:
         return ep_enabled();
     }
 
+#if defined(NATIVEAOT_CORPROF_INCLUDE_IS_READY)
     static inline EventPipeSessionID Enable(
         LPCWSTR outputPath,
         uint32_t circularBufferSizeInMB,
