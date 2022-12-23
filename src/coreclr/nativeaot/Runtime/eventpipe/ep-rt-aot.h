@@ -2740,7 +2740,12 @@ static
 const ep_char8_t *
 ep_rt_diagnostics_command_line_get (void)
 {
+
     STATIC_CONTRACT_NOTHROW;
+
+    // TODO: revisit commandline for AOT
+    // return reinterpret_cast<const ep_char8_t *>(::GetCommandLineA());
+
 
     // In coreclr, this value can change over time, specifically before vs after suspension in diagnostics server.
     // The host initializes the runtime in two phases, init and exec assembly. On non-Windows platforms the commandline returned by the runtime
@@ -2755,7 +2760,6 @@ ep_rt_diagnostics_command_line_get (void)
 
     ep_char8_t *old_cmd_line = _ep_rt_aot_diagnostics_cmd_line;
 
-    // TODO: revisit commandline for AOT
     // ep_char8_t *new_cmd_line = ep_rt_utf16_to_utf8_string (reinterpret_cast<const ep_char16_t *>(GetCommandLineForDiagnostics ()), -1);
     // __debugbreak();
     // ep_char8_t *new_cmd_line = NULL;
