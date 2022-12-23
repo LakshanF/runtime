@@ -56,7 +56,7 @@ class SHash_EP : public TRAITS
         delete [] m_table;
     }
 
-    const element_t * Lookup(element_t* table, count_t tableSize, key_t key)
+    const element_t * Lookup(element_t* table, count_t tableSize, key_t key) const
     {
         if (tableSize == 0)
             return NULL;
@@ -91,8 +91,6 @@ class SHash_EP : public TRAITS
     const element_t* LookupPtr(key_t key) const
     {
         return Lookup(m_table, m_tableSize, key);        
-        // __debugbreak();
-        // return nullptr;
     }
 
 
