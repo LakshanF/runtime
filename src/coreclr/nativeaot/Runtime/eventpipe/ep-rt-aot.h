@@ -626,7 +626,7 @@ _rt_aot_hash_map_add (
     EP_ASSERT (HASH_MAP_TYPE::table_type_t::s_NoThrow);
     EP_ASSERT (hash_map != NULL && hash_map->table != NULL);
 
-    return hash_map->table->AddNoThrow (typename HASH_MAP_TYPE::table_type_t::element_t (key, value));
+    return hash_map->table->Add (typename HASH_MAP_TYPE::table_type_t::element_t (key, value));
 }
 
 template<typename HASH_MAP_TYPE, typename KEY_TYPE, typename VALUE_TYPE>
