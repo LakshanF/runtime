@@ -11,30 +11,38 @@
 // TODO: Should shash.h FailureType be used instead?
 enum FailureType_EP { ftAllocation_EP, ftOverflow_EP };
 
-template <typename KEY, typename VALUE>
-class KeyValuePair_EP{
-    KEY     key;
-    VALUE   value;
-
+template < typename ELEMENT, typename COUNT_T = uint32_t  >
+class DefaultSHashTraits_EP
+{
 public:
-    KeyValuePair_EP()
-    {
+    typedef COUNT_T count_t;
+    typedef ELEMENT element_t;
+    typedef DPTR(element_t) PTR_element_t;   // by default SHash is DAC-aware. For RS
+                                             // only SHash use NonDacAwareSHashTraits
+                                             // (which typedefs element_t* PTR_element_t)
+
+    static const count_t s_growth_factor_numerator = 3;
+    static const count_t s_growth_factor_denominator = 2;
+
+    static const count_t s_density_factor_numerator = 3;
+    static const count_t s_density_factor_denominator = 4;
+
+    static const count_t s_minimum_allocation = 7;
+
+    static const bool s_NoThrow = true;
+
+    static const ELEMENT Null() { return (const ELEMENT) 0; }
+    static const ELEMENT Deleted() { return (const ELEMENT) -1; }
+    static bool IsNull(const ELEMENT &e) { return e == (const ELEMENT) 0; }
+    static bool IsDeleted(const ELEMENT &e) 
+    { 
+        __debugbreak();
+        return false;
+        //return e == (const ELEMENT) -1;
     }
 
-    KeyValuePair_EP(const KEY& k, const VALUE& v)
-        : key(k), value(v)
-    {
-    }
+    static void OnFailure(FailureType_EP /*ft*/) { }
 
-    KEY const & Key() const
-    {
-        return key;
-    }
-
-    VALUE const & Value() const
-    {
-        return value;
-    }
 };
 
 template <typename TRAITS>
@@ -118,44 +126,6 @@ class SHash_EP : public TRAITS
         return true;
     }
 
-
-    // bool CheckGrowth(count_t newElements)
-    // {
-    //     count_t newCount = (m_tableCount + newElements);
-
-    //     // handle potential overflow
-    //     if (newCount < newElements)
-    //     {
-    //         TRAITS::OnFailure(ftOverflow_EP);
-    //         return false;
-    //     }
-
-    //     // enough space in the table?
-    //     if (newCount < m_tableMax)
-    //         return true;
-
-    //     count_t newSize = (count_t) (newCount * TRAITS::s_density_factor_denominator / TRAITS::s_density_factor_numerator) + 1;
-
-    //     // handle potential overflow
-    //     if (newSize < newCount)
-    //     {
-    //         TRAITS::OnFailure(ftOverflow_EP);
-    //         return false;
-    //     }
-
-    //     // accelerate the growth to avoid unnecessary rehashing
-    //     count_t newSize2 = (m_tableCount * TRAITS::s_growth_factor_numerator / TRAITS::s_growth_factor_denominator
-    //                                     * TRAITS::s_density_factor_denominator / TRAITS::s_density_factor_numerator);
-
-    //     if (newSize < newSize2)
-    //         newSize = newSize2;
-
-    //     if (newSize < TRAITS::s_minimum_allocation)
-    //         newSize = TRAITS::s_minimum_allocation;
-
-    //     return Reallocate(newSize);
-    // }
-
     bool Reallocate(count_t newTableSize)
     {
         ASSERT(newTableSize >=
@@ -185,15 +155,24 @@ class SHash_EP : public TRAITS
         }
 
         // Move all entries over to new table.
-        // TODO - can we copy the old table without using an interator?
-        // TODO: Need a way (inefficient is ok) to copy the elements to the new table
 
-        for (Iterator i = Begin(), end = End(); i != end; i++)
+        // TODO: Need a way (inefficient is ok) to copy the elements to the new table
+        for (count_t index = 0; index < m_tableSize; index++)
         {
-            // const element_t & cur = (*i);
-            // if (!TRAITS::IsNull(cur) && !TRAITS::IsDeleted(cur))
-            //     Add(newTable, newTableSize, cur);
+            element_t& cur = m_table[index];
+            if (!TRAITS::IsNull(cur) && !TRAITS::IsDeleted(cur))
+                Add(newTable, newTableSize, cur);
+
         }
+
+        // TODO - how to do this via an interator
+
+        // for (Iterator i = Begin(), end = End(); i != end; i++)
+        // {
+        //     const element_t & cur = (*i);
+        //     if (!TRAITS::IsNull(cur) && !TRAITS::IsDeleted(cur))
+        //         Add(newTable, newTableSize, cur);
+        // }
 
         // @todo:
         // We might want to try to delay this cleanup to allow asynchronous readers
@@ -403,26 +382,38 @@ class SHash_EP : public TRAITS
 
 };
 
-template < typename ELEMENT >
-class DefaultSHashTraits_EP
+template <typename KEY, typename VALUE>
+class KeyValuePair_EP{
+    KEY     key;
+    VALUE   value;
+
+public:
+    KeyValuePair_EP()
+    {
+    }
+
+    KeyValuePair_EP(const KEY& k, const VALUE& v)
+        : key(k), value(v)
+    {
+    }
+
+    KEY const & Key() const
+    {
+        return key;
+    }
+
+    VALUE const & Value() const
+    {
+        return value;
+    }
+};
+
+template <typename PARENT>
+class NoRemoveSHashTraits_EP : public PARENT
 {
 public:
-    typedef unsigned int count_t;
-    typedef ELEMENT element_t;
-    typedef element_t* PTR_element_t;
-
-    static const count_t s_growth_factor_numerator = 3;
-    static const count_t s_growth_factor_denominator = 2;
-
-    static const count_t s_density_factor_numerator = 3;
-    static const count_t s_density_factor_denominator = 4;
-
-    static const count_t s_minimum_allocation = 7;
-
-    static const bool s_NoThrow = true;
-
-    static void OnFailure(FailureType_EP /*ft*/) { }
-
+    typedef typename PARENT::element_t element_t;
+    typedef typename PARENT::count_t count_t;
 };
 
 template <typename KEY, typename VALUE>
@@ -437,37 +428,35 @@ public:
 
     static key_t GetKey(element_t e)
     {
-        __debugbreak();
+        //__debugbreak();
         return e.Key();
     }
     static bool Equals(key_t k1, key_t k2)
     {
-        __debugbreak();
+        //__debugbreak();
         return k1 == k2;
     }
     static count_t Hash(key_t k)
     {
-        __debugbreak();
+        //__debugbreak();
         return (count_t)(size_t)k;
     }
 
     static const element_t Null() 
     { 
-        __debugbreak();
-        return element_t(KEY(),VALUE()); 
+        return element_t(KEY(),VALUE());
     }
-    static const element_t Deleted() 
+    // static const element_t Deleted() 
+    // { 
+    //     __debugbreak();
+    //     return element_t(KEY(-1), VALUE()); 
+    // }
+    static bool IsNull(const element_t &e) 
     { 
-        __debugbreak();
-        return element_t(KEY(-1), VALUE()); 
-    }
-    static bool IsNull(const element_t &e) { 
-        __debugbreak();
-        return e.Key() == KEY(); 
+        return e.Key() == KEY();
     }
     static bool IsDeleted(const element_t &e) 
     { 
-        __debugbreak();
         return e.Key() == KEY(-1); 
     }
 
@@ -482,15 +471,6 @@ public:
         __debugbreak();
         return *(new VALUE());
     }
-};
-
-
-template <typename PARENT>
-class NoRemoveSHashTraits_EP : public PARENT
-{
-public:
-    typedef typename PARENT::element_t element_t;
-    typedef typename PARENT::count_t count_t;
 };
 
 
