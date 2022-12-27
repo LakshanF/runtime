@@ -154,25 +154,12 @@ class SHash_EP : public TRAITS
             p++;
         }
 
-        // Move all entries over to new table.
-
-        // TODO: Need a way (inefficient is ok) to copy the elements to the new table
-        for (count_t index = 0; index < m_tableSize; index++)
+        for (Iterator i = Begin(), end = End(); i != end; i++)
         {
-            element_t& cur = m_table[index];
+            const element_t & cur = (*i);
             if (!TRAITS::IsNull(cur) && !TRAITS::IsDeleted(cur))
                 Add(newTable, newTableSize, cur);
-
         }
-
-        // TODO - how to do this via an interator
-
-        // for (Iterator i = Begin(), end = End(); i != end; i++)
-        // {
-        //     const element_t & cur = (*i);
-        //     if (!TRAITS::IsNull(cur) && !TRAITS::IsDeleted(cur))
-        //         Add(newTable, newTableSize, cur);
-        // }
 
         // @todo:
         // We might want to try to delay this cleanup to allow asynchronous readers
@@ -187,57 +174,140 @@ class SHash_EP : public TRAITS
         return true;
     }
 
+    //
+    // Enumerator, provides a template to produce an iterator on an existing class
+    // with a single iteration variable.
+    //
 
-    class Iterator
+    template <typename SUBTYPE>
+    class Enumerator
+    {
+     private:
+        const SUBTYPE *This() const
+        {
+            return (const SUBTYPE *) this;
+        }
+
+        SUBTYPE *This()
+        {
+            return (SUBTYPE *)this;
+        }
+
+      public:
+
+        Enumerator()
+        {
+        }
+
+        const element_t &operator*() const
+        {
+            return This()->Get();
+        }
+        const element_t *operator->() const
+        {
+            return &(This()->Get());
+        }
+        SUBTYPE &operator++()
+        {
+            This()->Next();
+            return *This();
+        }
+        SUBTYPE operator++(int)
+        {
+            SUBTYPE i = *This();
+            This()->Next();
+            return i;
+        }
+        bool operator==(const SUBTYPE &i) const
+        {
+            return This()->Equal(i);
+        }
+        bool operator!=(const SUBTYPE &i) const
+        {
+            return !This()->Equal(i);
+        }
+    };
+
+    //
+    // Index for whole table iterator.  This is also the base for the keyed iterator.
+    //
+
+    class Index
+    {
+        friend class SHash_EP;
+        friend class Iterator;
+        friend class Enumerator<Iterator>;
+
+        // The methods implementation has to be here for portability
+        // Some compilers won't compile the separate implementation in shash.inl
+      protected:
+
+        PTR_element_t m_table;
+        count_t m_tableSize;
+        count_t m_index;
+
+        Index(const SHash_EP *hash, bool begin)
+        : m_table(hash->m_table),
+            m_tableSize(hash->m_tableSize),
+            m_index(begin ? 0 : m_tableSize)
+        {
+        }
+
+        const element_t &Get() const
+        {
+            return m_table[m_index];
+        }
+
+        void First()
+        {
+            if (m_index < m_tableSize)
+                if (TRAITS::IsNull(m_table[m_index]) || TRAITS::IsDeleted(m_table[m_index]))
+                    Next();
+        }
+
+        void Next()
+        {
+            if (m_index >= m_tableSize)
+                return;
+
+            for (;;)
+            {
+                m_index++;
+                if (m_index >= m_tableSize)
+                    break;
+                if (!TRAITS::IsNull(m_table[m_index]) && !TRAITS::IsDeleted(m_table[m_index]))
+                    break;
+            }
+        }
+
+        bool Equal(const Index &i) const
+        {
+            return i.m_index == m_index;
+        }
+    };
+
+
+    class Iterator : public Index, public Enumerator<Iterator>
     {
         friend class SHash_EP;
         TRAITS* _t;
 
     public:
-        Iterator & operator++()
-        { 
-            __debugbreak();
-            return *this; 
-        }
-
-        Iterator operator++(int)
-        { 
-            __debugbreak();
-            return {}; 
-        }
-
-        bool operator==(Iterator const & other) const
+        Iterator(const SHash_EP *hash, bool begin)
+          : Index(hash, begin)
         {
-            __debugbreak();
-            return false;
-        }
-
-        bool operator!=(Iterator const & other) const
-        {
-            __debugbreak();
-            return false;
-        }
-        TRAITS & operator*() 
-        {
-            __debugbreak();
-            return *_t;
-        }
-        TRAITS * operator->() const 
-        {
-            __debugbreak();
-            return _t;
         }
     };
 
     Iterator Begin() const
     {
-        __debugbreak();
-        return {}; 
+        Iterator i(this, true);
+        i.First();
+        return i;
     }
     Iterator End() const
     {
-        __debugbreak();
-        return {}; 
+        return Iterator(this, false);
     }
     
     bool AddNoThrow(const element_t &element)
@@ -268,7 +338,13 @@ class SHash_EP : public TRAITS
     }
     void RemoveAll()
     {
-        __debugbreak();
+        delete [] m_table;
+
+        m_table = NULL;
+        m_tableSize = 0;
+        m_tableCount = 0;
+        m_tableOccupied = 0;
+        m_tableMax = 0;
     }
 
     // Instance members
@@ -331,7 +407,7 @@ class SHash_EP : public TRAITS
         for (int i = 0; i < (int) (sizeof(g_shash_primes) / sizeof(g_shash_primes[0])); i++)
         {
             if (g_shash_primes[i] >= number)
-                return (typename SHash<TRAITS>::count_t)(g_shash_primes[i]);
+                return (typename SHash_EP<TRAITS>::count_t)(g_shash_primes[i]);
         }
 
         if ((number&1) == 0)

@@ -1468,9 +1468,7 @@ ep_rt_providers_validate_all_disabled (void)
 {
     STATIC_CONTRACT_NOTHROW;
     // TODO: MICROSOFT_WINDOWS_DOTNETRUNTIME_RUNDOWN_PROVIDER_DOTNET_Context and MICROSOFT_WINDOWS_DOTNETRUNTIME_PRIVATE_PROVIDER_DOTNET_Context are not available in NativeAOT
-    __debugbreak();	
-
-    return false;
+    return true;
 }
 
 static
