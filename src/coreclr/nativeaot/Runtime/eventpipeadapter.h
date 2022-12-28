@@ -444,7 +444,7 @@ public:
         uint32_t eventVersion,
         EventPipeEventLevel level,
         bool needStack,
-        BYTE *metadata = NULL,
+        uint8_t *metadata = NULL,
         uint32_t metadataLen = 0)
     {
         return ep_provider_add_event(provider, eventID, keywords, eventVersion, level, needStack, metadata, metadataLen);
@@ -452,7 +452,7 @@ public:
 
     static inline void WriteEvent(
         EventPipeEvent *ep_event,
-        BYTE *data,
+        uint8_t *data,
         uint32_t dataLen,
         const GUID * activityId,
         const GUID * relatedActivityId)
@@ -552,7 +552,7 @@ public:
         return reinterpret_cast<LPCGUID>(ep_event_instance_get_related_activity_id_cref(eventInstance));
     }
 
-    static inline const BYTE * GetEventData (EventPipeEventInstance *eventInstance)
+    static inline const uint8_t * GetEventData (EventPipeEventInstance *eventInstance)
     {
         STATIC_CONTRACT_NOTHROW;
         return ep_event_instance_get_data(eventInstance);

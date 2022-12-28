@@ -49,6 +49,10 @@ template <typename TRAITS>
 class SHash_EP : public TRAITS
 {
   public:
+    class Index;
+    friend class Index;
+    class Iterator;
+
     typedef typename TRAITS::element_t element_t;
     typedef typename TRAITS::PTR_element_t PTR_element_t;
     typedef typename TRAITS::key_t key_t;

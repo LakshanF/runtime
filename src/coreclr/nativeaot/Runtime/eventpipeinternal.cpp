@@ -14,7 +14,7 @@ struct EventPipeEventInstanceData
     LARGE_INTEGER TimeStamp;
     GUID ActivityId;
     GUID RelatedActivityId;
-    const BYTE *Payload;
+    const uint8_t *Payload;
     unsigned int PayloadLength;
 };
 
@@ -60,9 +60,9 @@ EXTERN_C NATIVEAOT_API intptr_t __cdecl RhEventPipeInternal_DefineEvent(
 {
     EventPipeEvent *pEvent = NULL;
 
-    _ASSERTE(provHandle != NULL);
+    _ASSERTE(provHandle != 0);
     EventPipeProvider *pProvider = reinterpret_cast<EventPipeProvider *>(provHandle);
-    pEvent = EventPipeAdapter::AddEvent(pProvider, eventID, keywords, eventVersion, (EventPipeEventLevel)level, /* needStack = */ true, (BYTE *)pMetadata, metadataLength);
+    pEvent = EventPipeAdapter::AddEvent(pProvider, eventID, keywords, eventVersion, (EventPipeEventLevel)level, /* needStack = */ true, (uint8_t *)pMetadata, metadataLength);
     _ASSERTE(pEvent != NULL);
 
     return reinterpret_cast<intptr_t>(pEvent);
@@ -96,7 +96,7 @@ EXTERN_C NATIVEAOT_API void __cdecl RhEventPipeInternal_WriteEventData(
     const GUID * pActivityId,
     const GUID * pRelatedActivityId)
 {
-    _ASSERTE(eventHandle != NULL);
+    _ASSERTE(eventHandle != 0);
     EventPipeEvent *pEvent = reinterpret_cast<EventPipeEvent *>(eventHandle);
     EventPipeAdapter::WriteEvent(pEvent, pEventData, eventDataCount, pActivityId, pRelatedActivityId);
 }
