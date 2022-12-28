@@ -1860,7 +1860,7 @@ int
 ep_rt_get_last_error (void)
 {
     STATIC_CONTRACT_NOTHROW;
-    return ::GetLastError ();
+    return PalGetLastError();
 }
 
 static
@@ -2155,7 +2155,9 @@ ep_rt_current_thread_get_id (void)
     STATIC_CONTRACT_NOTHROW;
 
 #ifdef TARGET_UNIX
-    return static_cast<ep_rt_thread_id_t>(::PAL_GetCurrentOSThreadId ());
+    // TODO: AOT doesn't have PAL_GetCurrentOSThreadId, as CoreCLR does.
+    __debugbreak();    
+    return static_cast<ep_rt_thread_id_t>(0);
 #else
     return static_cast<ep_rt_thread_id_t>(::GetCurrentThreadId ());
 #endif
@@ -2533,7 +2535,11 @@ ep_rt_utf8_string_dup (const ep_char8_t *str)
     if (!str)
         return NULL;
 
+#ifdef TARGET_UNIX
+    return strdup (str);
+#else
     return _strdup (str);
+#endif
 }
 
 static
@@ -2560,7 +2566,11 @@ ep_rt_utf8_string_strtok (
     ep_char8_t **context)
 {
     STATIC_CONTRACT_NOTHROW;
+#ifdef TARGET_UNIX
+    return strtok_r (str, delimiter, context);
+#else
     return strtok_s (str, delimiter, context);
+#endif    
 }
 
 // STATIC_CONTRACT_NOTHROW

@@ -202,10 +202,11 @@ ds_rt_transport_get_default_name (
     const ep_char8_t *suffix)
 {
     STATIC_CONTRACT_NOTHROW;
-
-#ifdef TARGET_UNIX
-    PAL_GetTransportName (name_len, name, prefix, id, group_id, suffix);
-#endif
+    
+    // TODO: PAL_GetTransportName is defined in coreclr\pal\inc\pal.h
+// #ifdef TARGET_UNIX
+//     PAL_GetTransportName (name_len, name, prefix, id, group_id, suffix);
+// #endif
     return true;
 }
 
