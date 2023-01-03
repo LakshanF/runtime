@@ -458,6 +458,10 @@ static void __cdecl OnProcessExit()
     // or run managed code at shutdown, so we will not try detaching it.
     Thread* currentThread = ThreadStore::RawGetCurrentThread();
     g_threadPerformingShutdown = currentThread;
+
+    EventPipeAdapter::Shutdown();
+    DiagnosticServerAdapter::Shutdown();
+
 }
 #endif
 
@@ -508,51 +512,5 @@ extern "C" bool RhInitialize()
 
     return true;
 }
-
-//
-// Currently called only from a managed executable once Main returns, this routine does whatever is needed to
-// cleanup managed state before exiting. There's not a lot here at the moment since we're always about to let
-// the OS tear the process down anyway.
-//
-// @TODO: Eventually we'll probably have a hosting API and explicit shutdown request. When that happens we'll
-// something more sophisticated here since we won't be able to rely on the OS cleaning up after us.
-//
-COOP_PINVOKE_HELPER(void, RhpShutdown, ())
-{
-    // TODO: It may be incorrect to make these calls in cooperative mode
-    EventPipeAdapter::Shutdown();
-    DiagnosticServerAdapter::Shutdown();
-    // Indicate that runtime shutdown is complete and that the caller is about to start shutting down the entire process.
-    g_threadPerformingShutdown = ThreadStore::RawGetCurrentThread();
-}
-
-#ifdef _WIN32
-EXTERN_C UInt32_BOOL WINAPI RtuDllMain(HANDLE hPalInstance, uint32_t dwReason, void* pvReserved)
-{
-    switch (dwReason)
-    {
-    case DLL_PROCESS_ATTACH:
-    {
-        STARTUP_TIMELINE_EVENT(PROCESS_ATTACH_BEGIN);
-
-        if (!InitDLL(hPalInstance))
-            return FALSE;
-
-        STARTUP_TIMELINE_EVENT(PROCESS_ATTACH_COMPLETE);
-    }
-    break;
-
-    case DLL_PROCESS_DETACH:
-        UninitDLL();
-        break;
-
-    case DLL_THREAD_DETACH:
-        DllThreadDetach();
-        break;
-    }
-
-    return TRUE;
-}
-#endif // _WIN32
 
 #endif // !DACCESS_COMPILE
