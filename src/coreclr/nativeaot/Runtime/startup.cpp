@@ -1,29 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+
 #include "common.h"
-#include "CommonTypes.h"
-#include "CommonMacros.h"
+#include "gcenv.h"
 #include "daccess.h"
-#include "PalRedhawkCommon.h"
-#include "PalRedhawk.h"
-#include "rhassert.h"
-#include "slist.h"
-#include "gcrhinterface.h"
+#include "eventpipeadapter.h"
+#include "diagnosticserveradapter.h"
 #include "varint.h"
-#include "regdisplay.h"
-#include "StackFrameIterator.h"
-#include "thread.h"
-#include "holder.h"
-#include "Crst.h"
-#include "event.h"
-#include "RWLock.h"
 #include "threadstore.h"
 #include "threadstore.inl"
-#include "RuntimeInstance.h"
-#include "rhbinder.h"
 #include "CachedInterfaceDispatch.h"
 #include "RhConfig.h"
-#include "stressLog.h"
 #include "RestrictedCallouts.h"
 #include "yieldprocessornormalized.h"
 
@@ -98,6 +85,12 @@ static bool InitDLL(HANDLE hPalInstance)
         return false;
 #endif
 
+    // Initialize EventPipe
+    EventPipeAdapter::Initialize();
+    // Initialize DS
+    DiagnosticServerAdapter::Initialize();
+    DiagnosticServerAdapter::PauseForDiagnosticsMonitor();
+
     //
     // Initialize support for registering GC and HandleTable callouts.
     //
@@ -141,6 +134,11 @@ static bool InitDLL(HANDLE hPalInstance)
         return false;
 
     STARTUP_TIMELINE_EVENT(GC_INIT_COMPLETE);
+
+    // Finish setting up rest of EventPipe - specifically enable SampleProfiler if it was requested at startup.
+    // SampleProfiler needs to cooperate with the GC which hasn't fully finished setting up in the first part of the
+    // EventPipe initialization, so this is done after the GC has been fully initialized.
+    EventPipeAdapter::FinishInitialize();
 
 #ifndef USE_PORTABLE_HELPERS
     if (!DetectCPUFeatures())
@@ -460,6 +458,10 @@ static void __cdecl OnProcessExit()
     // or run managed code at shutdown, so we will not try detaching it.
     Thread* currentThread = ThreadStore::RawGetCurrentThread();
     g_threadPerformingShutdown = currentThread;
+
+    EventPipeAdapter::Shutdown();
+    DiagnosticServerAdapter::Shutdown();
+
 }
 #endif
 
