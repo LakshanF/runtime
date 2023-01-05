@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Temporary workaround to control EventPipe in AOT
+// #define FEATURE_AOT_EVENT_PIPE
+
 #include "common.h"
 #include "gcenv.h"
 #include "daccess.h"
@@ -85,11 +88,13 @@ static bool InitDLL(HANDLE hPalInstance)
         return false;
 #endif
 
+#ifdef FEATURE_AOT_EVENT_PIPE
     // Initialize EventPipe
     EventPipeAdapter::Initialize();
     // Initialize DS
     DiagnosticServerAdapter::Initialize();
     DiagnosticServerAdapter::PauseForDiagnosticsMonitor();
+#endif
 
     //
     // Initialize support for registering GC and HandleTable callouts.
@@ -135,10 +140,12 @@ static bool InitDLL(HANDLE hPalInstance)
 
     STARTUP_TIMELINE_EVENT(GC_INIT_COMPLETE);
 
+#ifdef FEATURE_AOT_EVENT_PIPE
     // Finish setting up rest of EventPipe - specifically enable SampleProfiler if it was requested at startup.
     // SampleProfiler needs to cooperate with the GC which hasn't fully finished setting up in the first part of the
     // EventPipe initialization, so this is done after the GC has been fully initialized.
     EventPipeAdapter::FinishInitialize();
+#endif    
 
 #ifndef USE_PORTABLE_HELPERS
     if (!DetectCPUFeatures())
@@ -459,8 +466,10 @@ static void __cdecl OnProcessExit()
     Thread* currentThread = ThreadStore::RawGetCurrentThread();
     g_threadPerformingShutdown = currentThread;
 
+#ifdef FEATURE_AOT_EVENT_PIPE
     EventPipeAdapter::Shutdown();
     DiagnosticServerAdapter::Shutdown();
+#endif
 
 }
 #endif

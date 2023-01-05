@@ -4,10 +4,10 @@
   <PropertyGroup>
     <ILLinkTrimAssembly>false</ILLinkTrimAssembly>
   </PropertyGroup>
-
-  <PropertyGroup>
+<!--Temporary workaround to control EventPipe in AOT-->
+<!--  <PropertyGroup>
     <FeaturePerfTracing>true</FeaturePerfTracing>
-  </PropertyGroup>
+  </PropertyGroup>-->
 
   <PropertyGroup>
     <EnableDefaultItems>false</EnableDefaultItems>
