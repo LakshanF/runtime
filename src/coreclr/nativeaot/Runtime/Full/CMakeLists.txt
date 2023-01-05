@@ -73,7 +73,6 @@ if(CLR_CMAKE_HOST_UNIX)
   endif()
 endif(CLR_CMAKE_HOST_UNIX)
 
-# set_source_files_properties(${EVENTPIPE_SOURCES} PROPERTIES LANGUAGE CXX)
 add_definitions(-DFEATURE_PERFTRACING)
 
 if (WIN32)
