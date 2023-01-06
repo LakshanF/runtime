@@ -11,6 +11,7 @@ include_directories(${SHARED_EVENTPIPE_SOURCE_DIR})
 
 set (AOT_EVENTPIPE_SHIM_SOURCES "")
 set (AOT_EVENTPIPE_SHIM_HEADERS "")
+set (AOT_EVENTPIPE_MANAGED_TO_NATIVE_SOURCES "")
 set (SHARED_EVENTPIPE_SOURCES "")
 set (SHARED_EVENTPIPE_HEADERS "")
 set (SHARED_DIAGNOSTIC_SERVER_SOURCES "")
@@ -114,9 +115,17 @@ list(APPEND AOT_EVENTPIPE_SHIM_HEADERS
   ${AOT_EVENTPIPE_SHIM_DIR}/ep-rt-types-aot.h
 )
 
+list(APPEND AOT_EVENTPIPE_MANAGED_TO_NATIVE_SOURCES
+   ${CMAKE_CURRENT_SOURCE_DIR}/eventpipeinternal.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/eventpipeadapter.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/diagnosticserveradapter.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/AotEnabledEventPipeInterface.cpp
+)
+
 list(APPEND EVENTPIPE_SOURCES
   ${AOT_EVENTPIPE_SHIM_SOURCES}
   ${AOT_EVENTPIPE_SHIM_HEADERS}
+  ${AOT_EVENTPIPE_MANAGED_TO_NATIVE_SOURCES}
   ${SHARED_EVENTPIPE_SOURCES}
   ${SHARED_EVENTPIPE_HEADERS}
   ${SHARED_DIAGNOSTIC_SERVER_SOURCES}
@@ -135,7 +144,6 @@ set(COMMON_RUNTIME_SOURCES
     MethodTable.cpp
     EHHelpers.cpp
     event.cpp
-    eventpipeinternal.cpp
     FinalizerHelpers.cpp
     GCHelpers.cpp
     gctoclreventsink.cpp
@@ -164,9 +172,7 @@ set(COMMON_RUNTIME_SOURCES
     UniversalTransitionHelpers.cpp
     yieldprocessornormalized.cpp
 
-    # @TODO adding the EP header file here for now
-    eventpipeadapter.h
-    diagnosticserveradapter.h
+    EventPipeInterface.h
 
     ${GC_DIR}/gceventstatus.cpp
     ${GC_DIR}/gcload.cpp

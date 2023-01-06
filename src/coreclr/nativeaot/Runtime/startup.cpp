@@ -1,21 +1,33 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-// Temporary workaround to control EventPipe in AOT
-// #define FEATURE_AOT_EVENT_PIPE
-
 #include "common.h"
-#include "gcenv.h"
+#include "CommonTypes.h"
+#include "CommonMacros.h"
 #include "daccess.h"
-#include "eventpipeadapter.h"
-#include "diagnosticserveradapter.h"
+#include "PalRedhawkCommon.h"
+#include "PalRedhawk.h"
+#include "rhassert.h"
+#include "slist.h"
+#include "gcrhinterface.h"
 #include "varint.h"
+#include "regdisplay.h"
+#include "StackFrameIterator.h"
+#include "thread.h"
+#include "holder.h"
+#include "Crst.h"
+#include "event.h"
+#include "RWLock.h"
 #include "threadstore.h"
 #include "threadstore.inl"
+#include "RuntimeInstance.h"
+#include "rhbinder.h"
 #include "CachedInterfaceDispatch.h"
 #include "RhConfig.h"
+#include "stressLog.h"
 #include "RestrictedCallouts.h"
 #include "yieldprocessornormalized.h"
+#include "EventPipeInterface.h"
 
 #ifndef DACCESS_COMPILE
 
@@ -88,13 +100,11 @@ static bool InitDLL(HANDLE hPalInstance)
         return false;
 #endif
 
-#ifdef FEATURE_AOT_EVENT_PIPE
     // Initialize EventPipe
-    EventPipeAdapter::Initialize();
+    EventPipeAdapter_Initialize();
     // Initialize DS
-    DiagnosticServerAdapter::Initialize();
-    DiagnosticServerAdapter::PauseForDiagnosticsMonitor();
-#endif
+    DiagnosticServerAdapter_Initialize();
+    DiagnosticServerAdapter_PauseForDiagnosticsMonitor();
 
     //
     // Initialize support for registering GC and HandleTable callouts.
@@ -140,12 +150,10 @@ static bool InitDLL(HANDLE hPalInstance)
 
     STARTUP_TIMELINE_EVENT(GC_INIT_COMPLETE);
 
-#ifdef FEATURE_AOT_EVENT_PIPE
     // Finish setting up rest of EventPipe - specifically enable SampleProfiler if it was requested at startup.
     // SampleProfiler needs to cooperate with the GC which hasn't fully finished setting up in the first part of the
     // EventPipe initialization, so this is done after the GC has been fully initialized.
-    EventPipeAdapter::FinishInitialize();
-#endif    
+    EventPipeAdapter_FinishInitialize();
 
 #ifndef USE_PORTABLE_HELPERS
     if (!DetectCPUFeatures())
@@ -466,11 +474,8 @@ static void __cdecl OnProcessExit()
     Thread* currentThread = ThreadStore::RawGetCurrentThread();
     g_threadPerformingShutdown = currentThread;
 
-#ifdef FEATURE_AOT_EVENT_PIPE
-    EventPipeAdapter::Shutdown();
-    DiagnosticServerAdapter::Shutdown();
-#endif
-
+    EventPipeAdapter_Shutdown();
+    DiagnosticServerAdapter_Shutdown();
 }
 #endif
 
