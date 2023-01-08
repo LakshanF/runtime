@@ -51,13 +51,23 @@ namespace System.Diagnostics.Tracing
         //
         // These PInvokes are used by EventSource to interact with the EventPipe.
         //
-        internal static unsafe IntPtr CreateProvider(string providerName, Interop.Advapi32.EtwEnableCallback callbackFunc)
+
+//        private static extern unsafe IntPtr CreateProvider(string providerName, IntPtr callbackFunc, IntPtr callbackContext);
+
+        internal static unsafe IntPtr CreateProvider(string providerName,
+                    delegate* unmanaged<byte*, int, byte, long, long, Interop.Advapi32.EVENT_FILTER_DESCRIPTOR*, void*, void> callbackFunc,
+                    void* callbackContext)
+                    => CreateProvider(providerName, (IntPtr)callbackFunc, (IntPtr)callbackContext);
+        //internal static unsafe IntPtr CreateProvider(string providerName, IntPtr callbackFunc, IntPtr callbackContext);
+
+        internal static unsafe IntPtr CreateProvider(string providerName, IntPtr callbackFunc, IntPtr callbackContext)
         {
             fixed (char* pProviderName = providerName)
             {
                 return RuntimeImports.RhEventPipeInternal_CreateProvider(
                     pProviderName,
-                    Marshal.GetFunctionPointerForDelegate(callbackFunc));
+                    callbackFunc,
+                    callbackContext);
             }
         }
 

@@ -1451,11 +1451,48 @@ extern const char* PhaseEnums[];
 
 // Specify which checks should be run after each phase
 //
-enum class PhaseChecks
+// clang-format off
+enum class PhaseChecks : unsigned int
 {
-    CHECK_NONE,
-    CHECK_ALL
+    CHECK_NONE    = 0,
+    CHECK_IR      = 1 << 0, // ir flags, etc
+    CHECK_UNIQUE  = 1 << 1, // tree node uniqueness
+    CHECK_FG      = 1 << 2, // flow graph integrity
+    CHECK_EH      = 1 << 3, // eh table integrity
+    CHECK_LOOPS   = 1 << 4, // loop table integrity
+    CHECK_PROFILE = 1 << 5, // profile data integrity
 };
+
+inline constexpr PhaseChecks operator ~(PhaseChecks a)
+{
+    return (PhaseChecks)(~(unsigned int)a);
+}
+
+inline constexpr PhaseChecks operator |(PhaseChecks a, PhaseChecks b)
+{
+    return (PhaseChecks)((unsigned int)a | (unsigned int)b);
+}
+
+inline constexpr PhaseChecks operator &(PhaseChecks a, PhaseChecks b)
+{
+    return (PhaseChecks)((unsigned int)a & (unsigned int)b);
+}
+
+inline PhaseChecks& operator |=(PhaseChecks& a, PhaseChecks b)
+{
+    return a = (PhaseChecks)((unsigned int)a | (unsigned int)b);
+}
+
+inline PhaseChecks& operator &=(PhaseChecks& a, PhaseChecks b)
+{
+    return a = (PhaseChecks)((unsigned int)a & (unsigned int)b);
+}
+
+inline PhaseChecks& operator ^=(PhaseChecks& a, PhaseChecks b)
+{
+    return a = (PhaseChecks)((unsigned int)a ^ (unsigned int)b);
+}
+// clang-format on
 
 // Specify which dumps should be run after each phase
 //
@@ -1876,6 +1913,7 @@ class Compiler
     friend struct GenTree;
     friend class MorphInitBlockHelper;
     friend class MorphCopyBlockHelper;
+    friend class SharedTempsScope;
     friend class CallArgs;
     friend class IndirectCallTransformer;
 
@@ -2390,14 +2428,6 @@ public:
         genTreeOps oper, GenTree* cond, GenTree* op1, GenTree* op2, var_types type);
 
 #ifdef FEATURE_SIMD
-    GenTreeSIMD* gtNewSIMDNode(
-        var_types type, GenTree* op1, SIMDIntrinsicID simdIntrinsicID, CorInfoType simdBaseJitType, unsigned simdSize);
-    GenTreeSIMD* gtNewSIMDNode(var_types       type,
-                               GenTree*        op1,
-                               GenTree*        op2,
-                               SIMDIntrinsicID simdIntrinsicID,
-                               CorInfoType     simdBaseJitType,
-                               unsigned        simdSize);
     void SetOpLclRelatedToSIMDIntrinsic(GenTree* op);
 #endif
 
@@ -3689,7 +3719,7 @@ protected:
 
     static void impBashVarAddrsToI(GenTree* tree1, GenTree* tree2 = nullptr);
 
-    GenTree* impImplicitIorI4Cast(GenTree* tree, var_types dstTyp);
+    GenTree* impImplicitIorI4Cast(GenTree* tree, var_types dstTyp, bool zeroExtend = false);
 
     GenTree* impImplicitR4orR8Cast(GenTree* tree, var_types dstTyp);
 
@@ -4884,11 +4914,6 @@ public:
 
     void fgValueNumberArrIndexAddr(GenTreeArrAddr* arrAddr);
 
-#ifdef FEATURE_SIMD
-    // Does value-numbering for a GT_SIMD tree
-    void fgValueNumberSimd(GenTreeSIMD* tree);
-#endif // FEATURE_SIMD
-
 #ifdef FEATURE_HW_INTRINSICS
     // Does value-numbering for a GT_HWINTRINSIC tree
     void fgValueNumberHWIntrinsic(GenTreeHWIntrinsic* tree);
@@ -5633,8 +5658,8 @@ public:
     bool compCanEncodePtrArgCntMax();
 
 private:
-    hashBv* fgOutgoingArgTemps;
-    hashBv* fgCurrentlyInUseArgTemps;
+    hashBv*               fgAvailableOutgoingArgTemps;
+    ArrayStack<unsigned>* fgUsedSharedTemps;
 
     void fgSetRngChkTarget(GenTree* tree, bool delay = true);
 
@@ -8585,32 +8610,6 @@ private:
     bool areArgumentsContiguous(GenTree* op1, GenTree* op2);
     GenTree* CreateAddressNodeForSimdHWIntrinsicCreate(GenTree* tree, var_types simdBaseType, unsigned simdSize);
 
-    // Whether SIMD vector occupies part of SIMD register.
-    // SSE2: vector2f/3f are considered sub register SIMD types.
-    // AVX: vector2f, 3f and 4f are all considered sub register SIMD types.
-    bool isSubRegisterSIMDType(GenTreeSIMD* simdNode)
-    {
-        unsigned vectorRegisterByteLength;
-#if defined(TARGET_XARCH)
-        // Calling the getSIMDVectorRegisterByteLength api causes the size of Vector<T> to be recorded
-        // with the AOT compiler, so that it cannot change from aot compilation time to runtime
-        // This api does not require such fixing as it merely pertains to the size of the simd type
-        // relative to the Vector<T> size as used at compile time. (So detecting a vector length of 16 here
-        // does not preclude the code from being used on a machine with a larger vector length.)
-        if (getSIMDSupportLevel() < SIMD_AVX2_Supported)
-        {
-            vectorRegisterByteLength = 16;
-        }
-        else
-        {
-            vectorRegisterByteLength = 32;
-        }
-#else
-        vectorRegisterByteLength = getSIMDVectorRegisterByteLength();
-#endif
-        return (simdNode->GetSimdSize() < vectorRegisterByteLength);
-    }
-
     // Get the type for the hardware SIMD vector.
     // This is the maximum SIMD type supported for this target.
     var_types getSIMDVectorType()
@@ -10973,13 +10972,8 @@ public:
                 break;
             }
 
-#if defined(FEATURE_SIMD) || defined(FEATURE_HW_INTRINSICS)
-#if defined(FEATURE_SIMD)
-            case GT_SIMD:
-#endif
 #if defined(FEATURE_HW_INTRINSICS)
             case GT_HWINTRINSIC:
-#endif
                 if (TVisitor::UseExecutionOrder && node->IsReverseOp())
                 {
                     assert(node->AsMultiOp()->GetOperandCount() == 2);
@@ -11007,7 +11001,7 @@ public:
                     }
                 }
                 break;
-#endif // defined(FEATURE_SIMD) || defined(FEATURE_HW_INTRINSICS)
+#endif // defined(FEATURE_HW_INTRINSICS)
 
             case GT_SELECT:
             {

@@ -184,8 +184,8 @@ namespace System.Threading
                 _pNativeOverlapped = pNativeOverlapped;
 
 #if FEATURE_PERFTRACING
-#if !(TARGET_BROWSER && !FEATURE_WASM_THREADS)
-#if !NATIVEAOT // TODO
+#if !((TARGET_BROWSER || TARGET_WASI) && !FEATURE_WASM_THREADS)
+#if !NATIVEAOT
                 if (NativeRuntimeEventSource.Log.IsEnabled())
                     NativeRuntimeEventSource.Log.ThreadPoolIOPack(pNativeOverlapped);
 #endif
