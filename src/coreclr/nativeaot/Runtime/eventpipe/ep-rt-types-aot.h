@@ -76,7 +76,7 @@ struct _rt_aot_table_remove_internal_t {
     table_type_t *table;
 };
 
-class EventPipeCoreCLRStackHashTraits : public NoRemoveSHashTraits_EP< MapSHashTraits_EP<StackHashKey *, StackHashEntry *> >
+class EventPipeAotStackHashTraits : public NoRemoveSHashTraits_EP< MapSHashTraits_EP<StackHashKey *, StackHashEntry *> >
 {
 public:
     typedef typename MapSHashTraits_EP<StackHashKey *, StackHashEntry *>::element_t element_t;
@@ -176,10 +176,10 @@ typedef struct _rt_aot_table_remove_internal_t<EventPipeEvent *, uint32_t> ep_rt
 typedef class _rt_aot_table_remove_internal_t<EventPipeEvent *, uint32_t>::table_type_t::Iterator ep_rt_metadata_labels_hash_map_iterator_t;
 
 #undef ep_rt_stack_hash_map_t
-typedef struct _rt_aot_table_custom_internal_t<EventPipeCoreCLRStackHashTraits> ep_rt_stack_hash_map_t;
+typedef struct _rt_aot_table_custom_internal_t<EventPipeAotStackHashTraits> ep_rt_stack_hash_map_t;
 
 #undef ep_rt_stack_hash_map_iterator_t
-typedef class _rt_aot_table_custom_internal_t<EventPipeCoreCLRStackHashTraits>::table_type_t::Iterator ep_rt_stack_hash_map_iterator_t;
+typedef class _rt_aot_table_custom_internal_t<EventPipeAotStackHashTraits>::table_type_t::Iterator ep_rt_stack_hash_map_iterator_t;
 
 /*
  * EventPipeProvider.
