@@ -4,7 +4,6 @@
 #include <ep-shared-config.h>
 
 #if !defined(FEATURE_CORECLR) && !defined(FEATURE_NATIVEAOT)
-//#ifndef FEATURE_CORECLR 
 
 #include <config.h>
 
@@ -45,6 +44,7 @@
 #define DS_RT_TYPES_H "ds-rt-types-coreclr.h"
 
 #elif defined(FEATURE_NATIVEAOT)
+
 #ifndef EP_NO_RT_DEPENDENCY
 #include "common.h"
 #endif

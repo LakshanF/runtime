@@ -149,8 +149,6 @@ sample_profiler_load_dependencies (void)
 	if (_ref_count > 0)
 		return true; // Already loaded.
 
-	// __debugbreak();
-	// return false;
 #ifdef WszLoadLibrary
 	_multimedia_library_handle = WszLoadLibrary (L"winmm.dll");
 #else
@@ -172,7 +170,6 @@ static
 void
 sample_profiler_unload_dependencies (void)
 {
-//	__debugbreak();
 #ifdef HOST_WIN32
 	if (_multimedia_library_handle != NULL) {
 		FreeLibrary (_multimedia_library_handle);
