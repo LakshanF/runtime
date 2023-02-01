@@ -26,8 +26,8 @@ struct SLink_EP
     static SLink_EP* FindAndRemove(SLink_EP *pHead, SLink_EP* pLink, SLink_EP ** ppPrior)
     {
 
-	    _ASSERTE(pHead != NULL);
-	    _ASSERTE(pLink != NULL);
+	    // _ASSERTE(pHead != NULL);
+	    // _ASSERTE(pLink != NULL);
 
 	    SLink_EP* pFreeLink = NULL;
         *ppPrior = NULL;
@@ -93,7 +93,7 @@ public:
 
     void InsertTail(T *pObj)
     {
-        _ASSERTE(pObj != NULL);
+        // _ASSERTE(pObj != NULL);
         SLink_EP *pLink = GetLink(pObj);
 
         m_pTail->m_pNext = pLink;
@@ -123,14 +123,14 @@ public:
 
     static T *GetNext(T *pObj)
     {
-        _ASSERTE(pObj != NULL);
+        // _ASSERTE(pObj != NULL);
         return GetObject(GetLink(pObj)->m_pNext);
     }
 
 
     T* FindAndRemove(T *pObj)
     {
-        _ASSERTE(pObj != NULL);
+        // _ASSERTE(pObj != NULL);
 
         SLink_EP   *prior;
         SLink_EP   *ret = SLink_EP::FindAndRemove(m_pHead, GetLink(pObj), &prior);
@@ -143,7 +143,7 @@ public:
 
     void InsertHead(T *pObj)
     {
-        PalDebugBreak();
+        //PalDebugBreak();
     }
 
 
@@ -155,7 +155,7 @@ public:
     public:
         Iterator & operator++()
         { 
-            _ASSERTE(m_cur != NULL); 
+            // _ASSERTE(m_cur != NULL); 
             m_cur = SList_EP::GetNext(m_cur); 
             return *this; 
         }
@@ -175,13 +175,13 @@ public:
 
         T & operator*() 
         {
-            _ASSERTE(m_cur != NULL);
+            // _ASSERTE(m_cur != NULL);
             return *m_cur;
         }
 
         T * operator->() const 
         {
-            PalDebugBreak();
+            //PalDebugBreak();
             return m_cur;
         }
 
@@ -232,13 +232,13 @@ struct SListElem_EP
 
     ElemT const & operator*() const
     { 
-        PalDebugBreak();
+        //PalDebugBreak();
         return m_Value; 
     }
 
     ElemT & operator*()
     { 
-        PalDebugBreak();
+        //PalDebugBreak();
         return m_Value; 
     }
 
@@ -284,8 +284,8 @@ public:
 
     bool PushNoThrow(const T & value)
     {
-        if(m_curSize >= maxSize)
-            PalDebugBreak();
+        // if(m_curSize >= maxSize)
+        //     PalDebugBreak();
         m_array[m_curSize++] = value;
         return true;
     }

@@ -6,6 +6,13 @@
 
 #ifdef FEATURE_PERFTRACING
 
+#include "gcenv.h"
+#include "regdisplay.h"
+#include "StackFrameIterator.h"
+#include "thread.h"
+#include "holder.h"
+#include "SpinLock.h"
+
 struct EventPipeEventInstanceData;
 
 struct EventPipeSessionInfo;

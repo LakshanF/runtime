@@ -6,6 +6,8 @@
 
 #if defined(FEATURE_PERFTRACING)
 
+#include <Windows.h>
+
 #include <eventpipe/ep.h>
 #include <eventpipe/ep-provider.h>
 #include <eventpipe/ep-config.h>
@@ -16,6 +18,14 @@
 #include <eventpipe/ep-metadata-generator.h>
 #include <eventpipe/ep-event-payload.h>
 #include <eventpipe/ep-buffer-manager.h>
+
+#include "gcenv.h"
+#include "regdisplay.h"
+#include "StackFrameIterator.h"
+#include "thread.h"
+#include "holder.h"
+#include "SpinLock.h"
+
 
 class EventPipeAdapter final
 {

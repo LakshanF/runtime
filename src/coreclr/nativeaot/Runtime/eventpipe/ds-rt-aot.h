@@ -184,7 +184,7 @@ ds_rt_generate_core_dump (
     uint32_t flags = ds_generate_core_dump_command_payload_get_flags(payload);
     // shipping criteria: no EVENTPIPE-NATIVEAOT-TODO left in the codebase
     // TODO: Generate an exception dump
-    PalDebugBreak();
+    // PalDebugBreak();
 
     return 0;
 }
@@ -295,7 +295,7 @@ uint32_t
 ds_rt_set_environment_variable (const ep_char16_t *name, const ep_char16_t *value)
 {
      // return SetEnvironmentVariableW(reinterpret_cast<LPCWSTR>(name), reinterpret_cast<LPCWSTR>(value)) ? S_OK : HRESULT_FROM_WIN32(GetLastError());
-     PalDebugBreak();
+     // PalDebugBreak();
     return 0xffff;
 }
 
@@ -312,7 +312,7 @@ ds_rt_server_log_pause_message (void)
     const char diagPortsName[] = "DOTNET_DiagnosticPorts";
     // shipping criteria: no EVENTPIPE-NATIVEAOT-TODO left in the codebase
     // TODO: Cannot find nocache versions of RhConfig
-    PalDebugBreak();
+    // PalDebugBreak();
 }
 
 #endif /* ENABLE_PERFTRACING */
