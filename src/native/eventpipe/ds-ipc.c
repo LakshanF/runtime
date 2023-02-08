@@ -353,15 +353,15 @@ ds_ipc_stream_factory_get_next_available_stream (ds_ipc_error_callback_func call
 	bool connect_success = true;
 	uint32_t poll_attempts = 0;
 
-	dn_vector_t *ipc_poll_handles = dn_vector_alloc_capacity_t (DiagnosticsIpcPollHandle, _ds_default_poll_handle_array_size);
-	ep_raise_error_if_nok (ipc_poll_handles);
+	dn_vector_t ipc_poll_handles;
+	ep_raise_error_if_nok (dn_vector_init_capacity_t (&ipc_poll_handles, DiagnosticsIpcPollHandle, _ds_default_poll_handle_array_size));
 
 	while (!stream) {
 		connect_success = true;
 		DN_VECTOR_PTR_FOREACH_BEGIN (_ds_port_array, DiagnosticsPort *, port) {
 			DiagnosticsIpcPollHandle ipc_poll_handle;
 			if (ds_port_get_ipc_poll_handle_vcall (port, &ipc_poll_handle, callback))
-				ep_raise_error_if_nok (dn_vector_push_back (ipc_poll_handles, ipc_poll_handle));
+				ep_raise_error_if_nok (dn_vector_push_back (&ipc_poll_handles, ipc_poll_handle));
 			else
 				connect_success = false;
 		} DN_VECTOR_PTR_FOREACH_END;
@@ -371,11 +371,11 @@ ds_ipc_stream_factory_get_next_available_stream (ds_ipc_error_callback_func call
 			ipc_stream_factory_get_next_timeout (poll_timeout_ms);
 
 		int32_t ret_val;
-		if (dn_vector_size (ipc_poll_handles) > 0) {
+		if (dn_vector_size (&ipc_poll_handles) > 0) {
 			poll_attempts++;
 			DS_LOG_DEBUG_2 ("ds_ipc_stream_factory_get_next_available_stream - Poll attempt: %d, timeout: %dms.", poll_attempts, poll_timeout_ms);
-			ipc_log_poll_handles (ipc_poll_handles);
-			ret_val = ds_ipc_poll (dn_vector_data_t (ipc_poll_handles, DiagnosticsIpcPollHandle), dn_vector_size (ipc_poll_handles), poll_timeout_ms, callback);
+			ipc_log_poll_handles (&ipc_poll_handles);
+			ret_val = ds_ipc_poll (dn_vector_data_t (&ipc_poll_handles, DiagnosticsIpcPollHandle), dn_vector_size (&ipc_poll_handles), poll_timeout_ms, callback);
 		} else {
 			if (poll_timeout_ms == DS_IPC_TIMEOUT_INFINITE)
 				poll_timeout_ms = DS_IPC_POLL_TIMEOUT_MAX_MS;
@@ -388,7 +388,7 @@ ds_ipc_stream_factory_get_next_available_stream (ds_ipc_error_callback_func call
 
 		if (ret_val != 0) {
 			uint32_t connection_id = 0;
-			DN_VECTOR_FOREACH_BEGIN (ipc_poll_handles, DiagnosticsIpcPollHandle, ipc_poll_handle) {
+			DN_VECTOR_FOREACH_BEGIN (&ipc_poll_handles, DiagnosticsIpcPollHandle, ipc_poll_handle) {
 				DiagnosticsPort *port = (DiagnosticsPort *)ipc_poll_handle.user_data;
 				switch (ipc_poll_handle.events) {
 				case DS_IPC_POLL_EVENTS_HANGUP:
@@ -431,12 +431,12 @@ ds_ipc_stream_factory_get_next_available_stream (ds_ipc_error_callback_func call
 		}
 
 		// clear the view.
-		dn_vector_clear (ipc_poll_handles);
+		dn_vector_clear (&ipc_poll_handles);
 	}
 
 ep_on_exit:
 	DS_LOG_DEBUG_2 ("ds_ipc_stream_factory_get_next_available_stream - EXIT :: Poll attempt: %d, stream using handle %d.", poll_attempts, stream ? ds_ipc_stream_get_handle_int32_t (stream) : -1);
-	dn_vector_free (ipc_poll_handles);
+	dn_vector_dispose (&ipc_poll_handles);
 	return stream;
 
 ep_on_error:

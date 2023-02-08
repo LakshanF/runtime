@@ -180,7 +180,7 @@ ep_provider_alloc (
 	instance->provider_name_utf16 = ep_rt_utf8_to_utf16le_string (provider_name, -1);
 	ep_raise_error_if_nok (instance->provider_name_utf16 != NULL);
 
-	instance->event_list = dn_list_custom_alloc (DN_DEFAULT_ALLOCATOR);
+	instance->event_list = dn_list_alloc ();
 	ep_raise_error_if_nok (instance->event_list != NULL);
 
 	instance->keywords = 0;

@@ -10,10 +10,10 @@ typedef void (DN_CALLBACK_CALLTYPE *dn_queue_dispose_func_t) (void *data);
 
 typedef struct _dn_queue_t dn_queue_t;
 struct _dn_queue_t {
-	uint32_t size;
 	struct {
 		dn_list_t list;
 	} _internal;
+	uint32_t size;
 };
 
 dn_queue_t *
@@ -127,7 +127,6 @@ static inline void
 dn_queue_pop (dn_queue_t *queue)
 {
 	DN_ASSERT (queue);
-
 	dn_list_pop_front (&queue->_internal.list);
 	queue->size --;
 }
@@ -138,7 +137,6 @@ dn_queue_custom_clear (
 	dn_queue_dispose_func_t dispose_func)
 {
 	DN_ASSERT (queue);
-
 	dn_list_custom_clear (&queue->_internal.list, dispose_func);
 	queue->size = 0;
 }

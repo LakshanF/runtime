@@ -144,6 +144,7 @@ static void
 umap_rehash (dn_umap_t *map)
 {
 	uint32_t diff;
+
 	if (map->_internal._last_rehash > map->_internal._node_count)
 		diff = map->_internal._last_rehash - map->_internal._node_count;
 	else
@@ -210,7 +211,7 @@ umap_insert (
 {
 	umap_sanity_check (map);
 
-	dn_umap_result_t result = { false, { map, NULL, 0 } };
+	dn_umap_result_t result = { { map, NULL, 0 }, false };
 	dn_umap_equal_func_t equal_func = map->_internal._key_equal_func;
 
 	if (map->_internal._node_count == dn_umap_max_size (map))
@@ -372,10 +373,11 @@ _dn_umap_init (
 void
 dn_umap_free (dn_umap_t *map)
 {
-	if (map) {
-		dn_umap_dispose (map);
-		dn_allocator_free (map->_internal._allocator, map);
-	}
+	if (DN_UNLIKELY(!map))
+		return;
+
+	dn_umap_dispose (map);
+	dn_allocator_free (map->_internal._allocator, map);
 }
 
 void
@@ -521,7 +523,7 @@ dn_umap_custom_find (
 
 	for (uint32_t i = 0; i < map->_internal._bucket_count; i++) {
 		for (dn_umap_node_t *node = map->_internal._buckets [i]; node; node = node->next)
-			if (equal_func && equal_func (node->key, data)) {
+			if (equal_func (node->key, data)) {
 				found._internal._index = i;
 				found._internal._node = node;
 				return found;
@@ -535,12 +537,12 @@ void
 dn_umap_for_each (
 	dn_umap_t *map,
 	dn_umap_key_value_func_t for_each_func,
-	void *data)
+	void *user_data)
 {
 	DN_ASSERT (map && for_each_func);
 
 	DN_UMAP_FOREACH_BEGIN (map, void *, key, void *, value) {
-		for_each_func (key, value, data);
+		for_each_func (key, value, user_data);
 	} DN_UMAP_FOREACH_END;
 }
 

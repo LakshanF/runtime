@@ -590,10 +590,12 @@ buffer_manager_move_next_event_any_thread (
 
 	// Step 1 - while holding m_lock get the oldest buffer from each thread
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size * 2);
-	dn_vector_ptr_t *buffer_array = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
-	dn_vector_ptr_t *buffer_list_array = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
 
-	ep_raise_error_if_nok (buffer_array && buffer_list_array);
+	dn_vector_ptr_t buffer_array;
+	dn_vector_ptr_t buffer_list_array;
+
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&buffer_array, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&buffer_list_array, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
 
 	EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section1)
 		EventPipeBufferList *buffer_list;
@@ -602,8 +604,8 @@ buffer_manager_move_next_event_any_thread (
 			buffer_list = ep_thread_session_state_get_buffer_list (thread_session_state);
 			buffer = buffer_list->head_buffer;
 			if (buffer && ep_buffer_get_creation_timestamp (buffer) < stop_timestamp) {
-				dn_vector_ptr_push_back (buffer_list_array, buffer_list);
-				dn_vector_ptr_push_back (buffer_array, buffer);
+				dn_vector_ptr_push_back (&buffer_list_array, buffer_list);
+				dn_vector_ptr_push_back (&buffer_array, buffer);
 			}
 		} DN_LIST_FOREACH_END;
 	EP_SPIN_LOCK_EXIT (&buffer_manager->rt_lock, section1)
@@ -619,9 +621,9 @@ buffer_manager_move_next_event_any_thread (
 	EventPipeBuffer *buffer;
 	EventPipeEventInstance *next_event;
 
-	for (uint32_t i = 0; i < dn_vector_ptr_size (buffer_array) && i < dn_vector_ptr_size (buffer_list_array); ++i) {
-		buffer_list = (EventPipeBufferList *)*dn_vector_ptr_index (buffer_list_array, i);
-		head_buffer = (EventPipeBuffer *)*dn_vector_ptr_index (buffer_array, i);
+	for (uint32_t i = 0; i < dn_vector_ptr_size (&buffer_array) && i < dn_vector_ptr_size (&buffer_list_array); ++i) {
+		buffer_list = (EventPipeBufferList *)*dn_vector_ptr_index (&buffer_list_array, i);
+		head_buffer = (EventPipeBuffer *)*dn_vector_ptr_index (&buffer_array, i);
 		buffer = buffer_manager_advance_to_non_empty_buffer (buffer_manager, buffer_list, head_buffer, stop_timestamp);
 		if (buffer) {
 			// Peek the next event out of the buffer.
@@ -638,8 +640,8 @@ buffer_manager_move_next_event_any_thread (
 
 ep_on_exit:
 	ep_buffer_manager_requires_lock_not_held (buffer_manager);
-	dn_vector_ptr_free (buffer_list_array);
-	dn_vector_ptr_free (buffer_array);
+	dn_vector_ptr_dispose (&buffer_list_array);
+	dn_vector_ptr_dispose (&buffer_array);
 	return;
 
 ep_on_error:
@@ -1053,20 +1055,20 @@ ep_buffer_manager_suspend_write_event (
 
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size);
 
-	dn_vector_ptr_t *thread_vector = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
-	ep_raise_error_if_nok (thread_vector);
+	dn_vector_ptr_t thread_vector;
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&thread_vector, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
 
 	EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section1);
 		EP_ASSERT (ep_buffer_manager_ensure_consistency (buffer_manager));
 		// Find all threads that have used this buffer manager.
 		DN_LIST_FOREACH_BEGIN (buffer_manager->thread_session_state_list, EventPipeThreadSessionState *, thread_session_state) {
-			dn_vector_ptr_push_back (thread_vector, ep_thread_session_state_get_thread (thread_session_state));
+			dn_vector_ptr_push_back (&thread_vector, ep_thread_session_state_get_thread (thread_session_state));
 		} DN_LIST_FOREACH_END;
 	EP_SPIN_LOCK_EXIT (&buffer_manager->rt_lock, section1);
 
 	// Iterate through all the threads, forcing them to relinquish any buffers stored in
 	// EventPipeThread's write buffer and prevent storing new ones.
-	DN_VECTOR_PTR_FOREACH_BEGIN (thread_vector, EventPipeThread *, thread) {
+	DN_VECTOR_PTR_FOREACH_BEGIN (&thread_vector, EventPipeThread *, thread) {
 		EP_SPIN_LOCK_ENTER (ep_thread_get_rt_lock_ref (thread), section2)
 			EventPipeThreadSessionState *thread_session_state = ep_thread_get_session_state (thread, buffer_manager->session);
 			ep_thread_session_state_set_write_buffer (thread_session_state, NULL);
@@ -1075,7 +1077,7 @@ ep_buffer_manager_suspend_write_event (
 
 ep_on_exit:
 	ep_requires_lock_held ();
-	dn_vector_ptr_free (thread_vector);
+	dn_vector_ptr_dispose (&thread_vector);
 	return;
 
 ep_on_error:
@@ -1193,8 +1195,8 @@ ep_buffer_manager_write_all_buffers_to_file_v4 (
 
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size);
 
-	dn_vector_ptr_t *session_states_to_delete =  dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
-	ep_raise_error_if_nok (session_states_to_delete);
+	dn_vector_ptr_t session_states_to_delete;
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&session_states_to_delete, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
 
 	EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section1)
 		if (buffer_manager_try_peek_sequence_point (buffer_manager, &sequence_point))
@@ -1274,7 +1276,7 @@ ep_buffer_manager_write_all_buffers_to_file_v4 (
 						// because we will either not have passed the above if statement (there were events still in the buffers) or we
 						// will catch it at the next sequence point.
 						if (ep_rt_volatile_load_uint32_t_without_barrier (ep_thread_get_unregistered_ref (ep_thread_session_state_get_thread (session_state))) > 0) {
-							dn_vector_ptr_push_back (session_states_to_delete, session_state);
+							dn_vector_ptr_push_back (&session_states_to_delete, session_state);
 							dn_list_remove (buffer_manager->thread_session_state_list, session_state);
 						}
 					}
@@ -1297,12 +1299,12 @@ ep_buffer_manager_write_all_buffers_to_file_v4 (
 
 	// There are sequence points created during this flush and we've marked session states for deletion.
 	// We need to remove these from the internal maps of the subsequent Sequence Points
-	if (dn_vector_ptr_size (session_states_to_delete) > 0) {
+	if (dn_vector_ptr_size (&session_states_to_delete) > 0) {
 		EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section4)
 			if (buffer_manager_try_peek_sequence_point (buffer_manager, &sequence_point)) {
 				DN_LIST_FOREACH_BEGIN (buffer_manager->sequence_points, EventPipeSequencePoint *, current_sequence_point) {
 					// foreach (session_state in session_states_to_delete)
-					DN_VECTOR_PTR_FOREACH_BEGIN (session_states_to_delete, EventPipeThreadSessionState *, thread_session_state) {
+					DN_VECTOR_PTR_FOREACH_BEGIN (&session_states_to_delete, EventPipeThreadSessionState *, thread_session_state) {
 						dn_umap_it_t found = dn_umap_ptr_uint32_find (ep_sequence_point_get_thread_sequence_numbers (current_sequence_point), thread_session_state);
 						if (!dn_umap_it_end (found)) {
 							dn_umap_erase (found);
@@ -1317,7 +1319,7 @@ ep_buffer_manager_write_all_buffers_to_file_v4 (
 	}
 
 	// foreach (session_state in session_states_to_delete)
-	DN_VECTOR_PTR_FOREACH_BEGIN (session_states_to_delete, EventPipeThreadSessionState *, thread_session_state) {
+	DN_VECTOR_PTR_FOREACH_BEGIN (&session_states_to_delete, EventPipeThreadSessionState *, thread_session_state) {
 		EP_ASSERT (thread_session_state != NULL);
 
 		// This may be the last reference to a given EventPipeThread, so make a ref to keep it around till we're done
@@ -1335,7 +1337,7 @@ ep_buffer_manager_write_all_buffers_to_file_v4 (
 	} DN_VECTOR_PTR_FOREACH_END;
 
 ep_on_exit:
-	dn_vector_ptr_free (session_states_to_delete);
+	dn_vector_ptr_dispose (&session_states_to_delete);
 	return;
 ep_on_error:
 	ep_exit_error_handler ();
@@ -1369,8 +1371,8 @@ ep_buffer_manager_deallocate_buffers (EventPipeBufferManager *buffer_manager)
 
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size);
 
-	dn_vector_ptr_t *thread_session_states_to_remove = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
-	ep_raise_error_if_nok (thread_session_states_to_remove);
+	dn_vector_ptr_t thread_session_states_to_remove;
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&thread_session_states_to_remove, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
 
 	// Take the buffer manager manipulation lock
 	EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section1)
@@ -1393,7 +1395,7 @@ ep_buffer_manager_deallocate_buffers (EventPipeBufferManager *buffer_manager)
 			buffer_list = NULL;
 
 			// And finally queue the removal of the SessionState from the thread
-			dn_vector_ptr_push_back (thread_session_states_to_remove, thread_session_state);
+			dn_vector_ptr_push_back (&thread_session_states_to_remove, thread_session_state);
 		} DN_LIST_FOREACH_END;
 
 		// Clear thread session state list.
@@ -1402,7 +1404,7 @@ ep_buffer_manager_deallocate_buffers (EventPipeBufferManager *buffer_manager)
 	EP_SPIN_LOCK_EXIT (&buffer_manager->rt_lock, section1)
 
 	// remove and delete the session state
-	DN_VECTOR_PTR_FOREACH_BEGIN (thread_session_states_to_remove, EventPipeThreadSessionState *, thread_session_state) {
+	DN_VECTOR_PTR_FOREACH_BEGIN (&thread_session_states_to_remove, EventPipeThreadSessionState *, thread_session_state) {
 		// The strong reference from session state -> thread might be the very last reference
 		// We need to ensure the thread doesn't die until we can release the lock
 		EP_ASSERT (thread_session_state != NULL);
@@ -1417,7 +1419,7 @@ ep_buffer_manager_deallocate_buffers (EventPipeBufferManager *buffer_manager)
 	} DN_VECTOR_PTR_FOREACH_END;
 
 ep_on_exit:
-	dn_vector_ptr_free (thread_session_states_to_remove);
+	dn_vector_ptr_dispose (&thread_session_states_to_remove);
 	return;
 
 ep_on_error:

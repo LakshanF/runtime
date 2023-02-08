@@ -333,11 +333,11 @@ ep_session_suspend_write_event (EventPipeSession *session)
 
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size);
 
-	dn_vector_ptr_t *threads = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+	dn_vector_ptr_t threads;
 
-	if (threads) {
-		ep_thread_get_threads (threads);
-		DN_VECTOR_PTR_FOREACH_BEGIN (threads, EventPipeThread *, thread) {
+	if (dn_vector_ptr_custom_init_capacity (&threads, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY)) {
+		ep_thread_get_threads (&threads);
+		DN_VECTOR_PTR_FOREACH_BEGIN (&threads, EventPipeThread *, thread) {
 			if (thread) {
 				// Wait for the thread to finish any writes to this session
 				EP_YIELD_WHILE (ep_thread_get_session_write_in_progress (thread) == session->index);
@@ -348,7 +348,7 @@ ep_session_suspend_write_event (EventPipeSession *session)
 			}
 		} DN_VECTOR_PTR_FOREACH_END;
 
-		dn_vector_ptr_free (threads);
+		dn_vector_ptr_dispose (&threads);
 	}
 
 	if (session->buffer_manager)

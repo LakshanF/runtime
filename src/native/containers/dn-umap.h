@@ -48,8 +48,8 @@ struct _dn_umap_it_t
 
 typedef struct _dn_umap_result_t dn_umap_result_t;
 struct _dn_umap_result_t {
-	bool result;
 	dn_umap_it_t it;
+	bool result;
 };
 
 dn_umap_t *
@@ -190,6 +190,7 @@ dn_umap_begin (dn_umap_t *map)
 static inline dn_umap_it_t
 dn_umap_end (dn_umap_t *map)
 {
+	DN_ASSERT (map);
 	dn_umap_it_t it = { { map, NULL, 0 } };
 	return it;
 }
@@ -272,7 +273,7 @@ void
 dn_umap_for_each (
 	dn_umap_t *map,
 	dn_umap_key_value_func_t for_each_func,
-	void *data);
+	void *user_data);
 
 void
 dn_umap_rehash (

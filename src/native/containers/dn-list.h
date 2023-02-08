@@ -38,8 +38,8 @@ struct _dn_list_it_t {
 
 typedef struct _dn_list_result_t dn_list_result_t;
 struct _dn_list_result_t {
-	bool result;
 	dn_list_it_t it;
+	bool result;
 };
 
 static inline void
@@ -63,6 +63,7 @@ dn_list_it_advance (
 static inline dn_list_it_t
 dn_list_it_next (dn_list_it_t it)
 {
+	DN_ASSERT (it.it);
 	it.it = it.it->next;
 	return it;
 }
@@ -70,6 +71,7 @@ dn_list_it_next (dn_list_it_t it)
 static inline dn_list_it_t
 dn_list_it_prev (dn_list_it_t it)
 {
+	DN_ASSERT (it.it);
 	it.it = it.it->prev;
 	return it;
 }
@@ -272,18 +274,26 @@ dn_list_erase (dn_list_it_t position)
 	return dn_list_custom_erase (position, NULL);
 }
 
-bool
+static inline bool
 dn_list_push_back (
 	dn_list_t *list,
-	void *data);
+	void *data)
+{
+	DN_ASSERT (list);
+	return dn_list_insert (dn_list_end (list), data).result;
+}
 
 void
 dn_list_pop_back (dn_list_t *list);
 
-bool
+static inline bool
 dn_list_push_front (
 	dn_list_t *list,
-	void *data);
+	void *data)
+{
+	DN_ASSERT (list);
+	return dn_list_insert (dn_list_begin (list), data).result;
+}
 
 void
 dn_list_pop_front (dn_list_t *list);
@@ -352,4 +362,4 @@ dn_list_find (
 	const void *data,
 	dn_list_equal_func_t equal_func);
 
-#endif /* __DN_SLIST_H__ */
+#endif /* __DN_LIST_H__ */

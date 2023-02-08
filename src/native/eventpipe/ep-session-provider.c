@@ -101,7 +101,7 @@ ep_session_provider_list_alloc (
 	EventPipeSessionProviderList *instance = ep_rt_object_alloc (EventPipeSessionProviderList);
 	ep_raise_error_if_nok (instance != NULL);
 
-	instance->providers = dn_list_custom_alloc (DN_DEFAULT_ALLOCATOR);
+	instance->providers = dn_list_alloc ();
 	ep_raise_error_if_nok (instance->providers != NULL);
 
 	instance->catch_all_provider = NULL;

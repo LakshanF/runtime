@@ -37,8 +37,8 @@ struct _dn_fwd_list_it_t {
 
 typedef struct _dn_fwd_list_result_t dn_fwd_list_result_t;
 struct _dn_fwd_list_result_t {
-	bool result;
 	dn_fwd_list_it_t it;
+	bool result;
 };
 
 static inline void
@@ -57,6 +57,7 @@ dn_fwd_list_it_advance (
 static inline dn_fwd_list_it_t
 dn_fwd_list_it_next (dn_fwd_list_it_t it)
 {
+	DN_ASSERT (it.it);
 	it.it = it.it->next;
 	return it;
 }
@@ -242,10 +243,14 @@ dn_fwd_list_erase_after (dn_fwd_list_it_t position)
 	return dn_fwd_list_custom_erase_after (position, NULL);
 }
 
-bool
+static inline bool
 dn_fwd_list_push_front (
 	dn_fwd_list_t *list,
-	void *data);
+	void *data)
+{
+	DN_ASSERT (list);
+	return dn_fwd_list_insert_after (dn_fwd_list_before_begin (list), data).result;
+}
 
 void
 dn_fwd_list_pop_front (dn_fwd_list_t *list);

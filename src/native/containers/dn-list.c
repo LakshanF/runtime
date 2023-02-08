@@ -97,6 +97,29 @@ list_dispose_node (
 	list_free_node (allocator, node);
 }
 
+static void
+list_remove_node (
+	dn_list_t *list,
+	const void * data,
+	dn_list_equal_func_t equal_func,
+	dn_list_dispose_func_t dispose_func)
+{
+	dn_list_node_t *current = list->head;
+	dn_list_node_t *next;
+
+	while (current) {
+		next = current->next;
+		if ((equal_func && equal_func (current->data, data)) || (!equal_func && current == list->head)) {
+			if (current == list->head)
+				list->head = next;
+			if (current == list->tail)
+				list->tail = current->prev;
+			list_dispose_node (list->_internal._allocator, dispose_func, list_unlink_node (current));
+		}
+		current = next;
+	}
+}
+
 dn_list_t *
 _dn_list_alloc (dn_allocator_t *allocator)
 {
@@ -202,7 +225,7 @@ dn_list_insert (
 			list->tail = position.it;
 	}
 
-	dn_list_result_t result = { position.it != NULL, { position.it, {position._internal._list } } };
+	dn_list_result_t result = { { position.it, {position._internal._list } }, position.it != NULL };
 	return result;
 }
 
@@ -212,7 +235,7 @@ dn_list_insert_range (
 	dn_list_it_t first,
 	dn_list_it_t last)
 {
-	dn_list_result_t first_inserted = { true, { position.it, {position._internal._list } } };
+	dn_list_result_t first_inserted = { { position.it, {position._internal._list } }, true };
 
 	if (first.it == last.it)
 		return first_inserted;
@@ -261,15 +284,6 @@ dn_list_custom_erase (
 	return position;
 }
 
-bool
-dn_list_push_back (
-	dn_list_t *list,
-	void *data)
-{
-	DN_ASSERT (list);
-	return dn_list_insert (dn_list_end (list), data).result;
-}
-
 void
 dn_list_pop_back (dn_list_t *list)
 {
@@ -281,15 +295,6 @@ dn_list_pop_back (dn_list_t *list)
 	list->tail = prev;
 	if (!list->tail)
 		list->head = NULL;
-}
-
-bool
-dn_list_push_front (
-	dn_list_t *list,
-	void *data)
-{
-	DN_ASSERT (list);
-	return dn_list_insert (dn_list_begin (list), data).result;
 }
 
 void
@@ -335,7 +340,7 @@ dn_list_custom_resize (
 		current = current->next;
 	}
 
-	while (count++ < i)
+	while (i++ < count)
 		dn_list_insert (dn_list_end (list), NULL);
 
 	return true;
@@ -348,21 +353,7 @@ dn_list_custom_remove (
 	dn_list_dispose_func_t dispose_func)
 {
 	DN_ASSERT (list);
-
-	dn_list_node_t *current = list->head;
-	dn_list_node_t *next;
-
-	while (current) {
-		next = current->next;
-		if (current->data == data) {
-			if (current == list->head)
-				list->head = next;
-			if (current == list->tail)
-				list->tail = current->prev;
-			list_dispose_node (list->_internal._allocator, dispose_func, list_unlink_node (current));
-		}
-		current = next;
-	}
+	list_remove_node (list, data, NULL, dispose_func);
 }
 
 void
@@ -373,21 +364,7 @@ dn_list_custom_remove_if (
 	dn_list_dispose_func_t dispose_func)
 {
 	DN_ASSERT (list && equal_func);
-
-	dn_list_node_t *current = list->head;
-	dn_list_node_t *next;
-
-	while (current) {
-		next = current->next;
-		if (equal_func (current->data, data)) {
-			if (current == list->head)
-				list->head = next;
-			if (current == list->tail)
-				list->tail = current->prev;
-			list_dispose_node (list->_internal._allocator, dispose_func, list_unlink_node (current));
-		}
-		current = next;
-	}
+	list_remove_node (list, data, equal_func, dispose_func);
 }
 
 void
@@ -456,7 +433,7 @@ dn_list_find (
 
 	dn_list_it_t found = { NULL, { list } };
 	for (dn_list_node_t *it = list->head; it; it = it->next) {
-		if ((equal_func && equal_func (it->data, data)) || it->data == data) {
+		if ((equal_func && equal_func (it->data, data)) || (!equal_func && it->data == data)) {
 			found.it = it;
 			break;
 		}

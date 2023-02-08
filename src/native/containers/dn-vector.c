@@ -382,10 +382,7 @@ dn_vector_find (
 
 	dn_vector_it_t found = dn_vector_end (vector);
 	for (uint32_t i = 0; i < vector->size; i++) {
-		if ((equal_func && equal_func (element_offset (vector, i), value))) {
-			found.it = i;
-			break;
-		} else if (!memcmp (element_offset (vector, i), value, element_length (vector, 1))) {
+		if ((equal_func && equal_func (element_offset (vector, i), value)) || (!equal_func && !memcmp (element_offset (vector, i), value, element_length (vector, 1)))) {
 			found.it = i;
 			break;
 		}
