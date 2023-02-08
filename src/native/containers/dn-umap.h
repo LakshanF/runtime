@@ -285,21 +285,27 @@ dn_umap_reserve (
 	uint32_t count);
 
 bool
+DN_CALLBACK_CALLTYPE
 dn_direct_equal (const void *v1, const void *v2);
 
 uint32_t
+DN_CALLBACK_CALLTYPE
 dn_direct_hash (const void *v1);
 
 bool
+DN_CALLBACK_CALLTYPE
 dn_int_equal (const void *v1, const void *v2);
 
 uint32_t
+DN_CALLBACK_CALLTYPE
 dn_int_hash (const void *v1);
 
 bool
+DN_CALLBACK_CALLTYPE
 dn_str_equal (const void *v1, const void *v2);
 
 uint32_t
+DN_CALLBACK_CALLTYPE
 dn_str_hash (const void *v1);
 
 #endif /* __DN_UMAP_H__ */

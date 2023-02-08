@@ -52,7 +52,7 @@ ensure_capacity (
 		return false;
 
 	size_t realloc_size;
-	if (DN_UNLIKELY (!dn_safe_size_t_multiply (element_length (vector, 1), new_capacity, &realloc_size)))
+	if (DN_UNLIKELY (!dn_safe_size_t_multiply (element_length (vector, 1), (size_t)new_capacity, &realloc_size)))
 		return false;
 
 	uint8_t *data = (uint8_t *)dn_allocator_realloc (vector->_internal._allocator, vector->data, realloc_size);
@@ -160,7 +160,7 @@ _dn_vector_insert_range (
 	/* element_offset won't overflow since insert_offset and position is smaller than new_capacity already checked in ensure_capacity */
 	/* element_length won't overflow since size_to_move is smaller than new_capacity already checked in ensure_capacity */
 	/* element_length won't underflow since size_to_move is already verfied to be smaller or equal to vector->size */
-	memmove (element_offset (vector, insert_offset), element_offset (vector, position->it), element_length (vector, size_to_move));
+	memmove (element_offset (vector, (uint32_t)insert_offset), element_offset (vector, position->it), element_length (vector, (uint32_t)size_to_move));
 
 	/* then copy the new elements into the array */
 	/* element_offset won't overflow since position is smaller than new_capacity already checked in encure_capacity */
@@ -221,7 +221,7 @@ _dn_vector_erase (
 	/* element_offset won't overflow since insert_offset and position is smaller than current capacity */
 	/* element_length won't overflow since size_to_move is smaller than current capacity */
 	/* element_length won't underflow since size_to_move is already verfied to be 0 or larger */
-	memmove (element_offset (vector, position->it), element_offset (vector, insert_offset), element_length (vector, size_to_move));
+	memmove (element_offset (vector, position->it), element_offset (vector, (uint32_t)insert_offset), element_length (vector, (uint32_t)size_to_move));
 
 	if (check_attribute (vector, DN_VECTOR_ATTRIBUTE_INIT_MEMORY))
 		memset (element_offset(vector, vector->size - 1), 0, element_length (vector, 1));

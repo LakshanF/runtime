@@ -568,36 +568,42 @@ dn_umap_reserve (
 }
 
 bool
+DN_CALLBACK_CALLTYPE
 dn_direct_equal (const void *v1, const void *v2)
 {
 	return v1 == v2;
 }
 
 uint32_t
+DN_CALLBACK_CALLTYPE
 dn_direct_hash (const void *v1)
 {
 	return ((uint32_t)(size_t)(v1));
 }
 
 bool
+DN_CALLBACK_CALLTYPE
 dn_int_equal (const void *v1, const void *v2)
 {
 	return *(int32_t *)v1 == *(int32_t *)v2;
 }
 
 uint32_t
+DN_CALLBACK_CALLTYPE
 dn_int_hash (const void *v1)
 {
 	return *(uint32_t *)v1;
 }
 
 bool
+DN_CALLBACK_CALLTYPE
 dn_str_equal (const void *v1, const void *v2)
 {
 	return v1 == v2 || strcmp ((const char*)v1, (const char*)v2) == 0;
 }
 
 uint32_t
+DN_CALLBACK_CALLTYPE
 dn_str_hash (const void *v1)
 {
 	uint32_t hash = 0;
