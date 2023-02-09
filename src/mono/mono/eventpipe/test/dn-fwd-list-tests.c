@@ -486,6 +486,15 @@ test_fwd_list_resize (void)
 }
 
 static
+uint32_t fwd_list_size (dn_fwd_list_t *list)
+{
+	uint32_t size = 0;
+	for (dn_fwd_list_node_t *next = list->head; next; next = next->next)
+		size ++;
+	return size;
+}
+
+static
 RESULT
 test_fwd_list_remove (void)
 {
@@ -506,6 +515,9 @@ test_fwd_list_remove (void)
 	// Remove all "second"
 	dn_fwd_list_remove (list, items [1]);
 
+	if (fwd_list_size (list) != 6)
+		return FAILED ("remove failed, incorrect size #1");
+
 	DN_FWD_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [1]))
 			return FAILED ("remove failed, found removed item %s #1", item);
@@ -514,6 +526,9 @@ test_fwd_list_remove (void)
 	// Remove all "first"
 	dn_fwd_list_remove (list, items [0]);
 
+	if (fwd_list_size (list) != 4)
+		return FAILED ("remove failed, incorrect size #2");
+
 	DN_FWD_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [0]))
 			return FAILED ("remove failed, found removed item %s #2", item);
@@ -521,6 +536,9 @@ test_fwd_list_remove (void)
 
 	// Remove all "fourth"
 	dn_fwd_list_remove (list, items [3]);
+
+	if (fwd_list_size (list) != 2)
+		return FAILED ("remove failed, incorrect size #3");
 
 	DN_FWD_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [3]))
@@ -570,6 +588,9 @@ test_fwd_list_remove_if (void)
 	// Remove all "second"
 	dn_fwd_list_remove_if (list, items [1], fwd_remove_if_func);
 
+	if (fwd_list_size (list) != 6)
+		return FAILED ("remove failed, incorrect size #1");
+
 	DN_FWD_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [1]))
 			return FAILED ("remove failed, found removed item %s #1", item);
@@ -577,6 +598,9 @@ test_fwd_list_remove_if (void)
 
 	// Remove all "first"
 	dn_fwd_list_remove_if (list, items [0], fwd_remove_if_func);
+
+	if (fwd_list_size (list) != 4)
+		return FAILED ("remove failed, incorrect size #2");
 
 	DN_FWD_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [0]))
@@ -593,6 +617,9 @@ test_fwd_list_remove_if (void)
 
 	// "fourth" already removed.
 	dn_fwd_list_remove_if (list, items [3], fwd_remove_if_func);
+
+	if (fwd_list_size (list) != 2)
+		return FAILED ("remove failed, incorrect size #3");
 
 	// Validate that only "third" is left.
 	DN_FWD_LIST_FOREACH_BEGIN (list, char *, item) {

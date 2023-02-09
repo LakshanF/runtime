@@ -597,6 +597,9 @@ test_list_remove (void)
 	// Remove all "second"
 	dn_list_remove (list, items [1]);
 
+	if (dn_list_size (list) != 6)
+		return FAILED ("remove failed, incorrect size #1");
+
 	DN_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [1]))
 			return FAILED ("remove failed, found removed item %s #1", item);
@@ -605,6 +608,9 @@ test_list_remove (void)
 	// Remove all "first"
 	dn_list_remove (list, items [0]);
 
+	if (dn_list_size (list) != 4)
+		return FAILED ("remove failed, incorrect size #2");
+
 	DN_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [0]))
 			return FAILED ("remove failed, found removed item %s #2", item);
@@ -612,6 +618,9 @@ test_list_remove (void)
 
 	// Remove all "fourth"
 	dn_list_remove (list, items [3]);
+
+	if (dn_list_size (list) != 2)
+		return FAILED ("remove failed, incorrect size #3");
 
 	DN_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [3]))
@@ -661,6 +670,9 @@ test_list_remove_if (void)
 	// Remove all "second"
 	dn_list_remove_if (list, items [1], remove_if_func);
 
+	if (dn_list_size (list) != 6)
+		return FAILED ("remove failed, incorrect size #1");
+
 	DN_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [1]))
 			return FAILED ("remove failed, found removed item %s #1", item);
@@ -669,6 +681,9 @@ test_list_remove_if (void)
 	// Remove all "first"
 	dn_list_remove_if (list, items [0], remove_if_func);
 
+	if (dn_list_size (list) != 4)
+		return FAILED ("remove failed, incorrect size #2");
+
 	DN_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [0]))
 			return FAILED ("remove failed, found removed item %s #2", item);
@@ -676,6 +691,9 @@ test_list_remove_if (void)
 
 	// Remove all "fourth"
 	dn_list_remove_if (list, items [3], remove_if_func);
+
+	if (dn_list_size (list) != 2)
+		return FAILED ("remove failed, incorrect size #3");
 
 	DN_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [3]))

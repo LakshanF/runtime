@@ -109,7 +109,7 @@ list_remove_node (
 
 	while (current) {
 		next = current->next;
-		if ((equal_func && equal_func (current->data, data)) || (!equal_func && current == list->head)) {
+		if ((equal_func && equal_func (current->data, data)) || (!equal_func && current->data == data)) {
 			if (current == list->head)
 				list->head = next;
 			if (current == list->tail)
