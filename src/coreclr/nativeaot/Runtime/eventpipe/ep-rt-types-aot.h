@@ -5,10 +5,9 @@
 #include <eventpipe/ep-rt-config.h>
 
 #include <inttypes.h>
+#include "rhassert.h"
 
 #ifdef ENABLE_PERFTRACING
-
-#include "EmptyContainers.h"
 
 #ifdef TARGET_UNIX
 #define __stdcall
