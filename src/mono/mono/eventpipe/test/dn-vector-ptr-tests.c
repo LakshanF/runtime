@@ -19,6 +19,66 @@ static _CrtMemState dn_vector_ptr_memory_diff_snapshot;
 #define POINTER_TO_INT32(v) ((int32_t)(ptrdiff_t)(v))
 #define INT32_TO_POINTER(v) ((void *)(ptrdiff_t)(v))
 
+/* Don't add more than 32 items to this please */
+static const char *test_vector_ptr_items [] = {
+	"Apples", "Oranges", "Plumbs", "Goats", "Snorps", "Grapes",
+	"Tickle", "Place", "Coffee", "Cookies", "Cake", "Cheese",
+	"Tseng", "Holiday", "Avenue", "Smashing", "Water", "Toilet",
+	NULL
+};
+
+static int32_t test_vector_ptr_foreach_iterate_index = 0;
+static char *test_vector_ptr_foreach_iterate_error = NULL;
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_vector_ptr_foreach_callback (
+	void *data,
+	void *user_data)
+{
+	char *item = *((char **)data);
+	const char *item_cmp = test_vector_ptr_items [test_vector_ptr_foreach_iterate_index++];
+
+	if (test_vector_ptr_foreach_iterate_error != NULL) {
+		return;
+	}
+
+	if (item != item_cmp) {
+		test_vector_ptr_foreach_iterate_error = FAILED (
+			"expected item at %d to be %s, but it was %s",
+				test_vector_ptr_foreach_iterate_index - 1, item_cmp, item);
+	}
+}
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_vector_ptr_free_func(void *data)
+{
+	free (*(char **)data);
+}
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_vector_ptr_clear_func(void *data)
+{
+	(**((uint32_t **)data))++;
+}
+
+static
+int32_t
+DN_CALLBACK_CALLTYPE
+test_vector_ptr_sort_compare (
+	const void *a,
+	const void *b)
+{
+	char *stra = *(char **) a;
+	char *strb = *(char **) b;
+	return strcmp(stra, strb);
+}
+
 static
 RESULT
 test_vector_ptr_setup (void)
@@ -29,14 +89,6 @@ test_vector_ptr_setup (void)
 	return OK;
 }
 
-/* Don't add more than 32 items to this please */
-static const char *items [] = {
-	"Apples", "Oranges", "Plumbs", "Goats", "Snorps", "Grapes",
-	"Tickle", "Place", "Coffee", "Cookies", "Cake", "Cheese",
-	"Tseng", "Holiday", "Avenue", "Smashing", "Water", "Toilet",
-	NULL
-};
-
 static
 dn_vector_ptr_t *
 vector_ptr_alloc_and_fill (uint32_t *item_count)
@@ -44,8 +96,8 @@ vector_ptr_alloc_and_fill (uint32_t *item_count)
 	dn_vector_ptr_t *vector = dn_vector_ptr_alloc ();
 	int32_t i;
 
-	for(i = 0; items [i] != NULL; i++) {
-		dn_vector_ptr_push_back (vector, (char *)items [i]);
+	for(i = 0; test_vector_ptr_items [i] != NULL; i++) {
+		dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i]);
 	}
 
 	if (item_count != NULL) {
@@ -114,17 +166,19 @@ RESULT
 test_vector_ptr_alloc_capacity (void)
 {
 	dn_vector_ptr_t *vector = NULL;
+	dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
 
-	vector = dn_vector_ptr_alloc_capacity (ARRAY_SIZE (items));
+	params.capacity = ARRAY_SIZE (test_vector_ptr_items);
+	vector = dn_vector_ptr_custom_alloc (&params);
 	if (vector->size != 0)
 		return FAILED ("vector size didn't match");
 
-	if (dn_vector_ptr_capacity (vector) < ARRAY_SIZE (items))
+	if (dn_vector_ptr_capacity (vector) < ARRAY_SIZE (test_vector_ptr_items))
 		return FAILED ("capacity didn't match");
 
 	void **data = dn_vector_ptr_data (vector);
-	for (int32_t i = 0; i < ARRAY_SIZE (items); ++i) {
-		dn_vector_ptr_push_back (vector, (char *)items [i]);
+	for (int32_t i = 0; i < ARRAY_SIZE (test_vector_ptr_items); ++i) {
+		dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i]);
 		if (dn_vector_ptr_data (vector) != data)
 			return FAILED ("vector pre-alloc failed");
 	}
@@ -142,10 +196,10 @@ test_vector_ptr_for_iterate (void)
 	uint32_t i = 0;
 
 	DN_VECTOR_PTR_FOREACH_BEGIN (vector, char *, item) {
-		if (item != items[i]) {
+		if (item != test_vector_ptr_items [i]) {
 			return FAILED (
 				"expected item at %d to be %s, but it was %s",
-				i, items[i], item);
+				i, test_vector_ptr_items [i], item);
 		}
 		i++;
 	} DN_VECTOR_PTR_FOREACH_END;
@@ -155,44 +209,20 @@ test_vector_ptr_for_iterate (void)
 	return OK;
 }
 
-static int32_t foreach_iterate_index = 0;
-static char *foreach_iterate_error = NULL;
-
-static
-void
-DN_CALLBACK_CALLTYPE
-vector_ptr_foreach_callback (
-	void *data,
-	void *user_data)
-{
-	char *item = *((char **)data);
-	const char *item_cmp = items [foreach_iterate_index++];
-
-	if (foreach_iterate_error != NULL) {
-		return;
-	}
-
-	if (item != item_cmp) {
-		foreach_iterate_error = FAILED (
-			"expected item at %d to be %s, but it was %s",
-				foreach_iterate_index - 1, item_cmp, item);
-	}
-}
-
 static
 RESULT
 test_vector_ptr_foreach_iterate (void)
 {
 	dn_vector_ptr_t *vector = vector_ptr_alloc_and_fill (NULL);
 
-	foreach_iterate_index = 0;
-	foreach_iterate_error = NULL;
+	test_vector_ptr_foreach_iterate_index = 0;
+	test_vector_ptr_foreach_iterate_error = NULL;
 
-	dn_vector_ptr_for_each (vector, vector_ptr_foreach_callback, vector);
+	dn_vector_ptr_for_each (vector, test_vector_ptr_foreach_callback, vector);
 
 	dn_vector_ptr_free (vector);
 
-	return foreach_iterate_error;
+	return test_vector_ptr_foreach_iterate_error;
 }
 
 static
@@ -202,16 +232,16 @@ test_vector_ptr_resize (void)
 	dn_vector_ptr_t *vector= dn_vector_ptr_alloc ();
 	uint32_t i, grow_length = 50;
 
-	dn_vector_ptr_push_back (vector, (char *)items [0]);
-	dn_vector_ptr_push_back (vector, (char *)items [1]);
+	dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [0]);
+	dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [1]);
 	dn_vector_ptr_resize (vector, grow_length);
 
 	if (vector->size != grow_length) {
 		return FAILED ("vector size should be 50, it is %d", vector->size);
-	} else if (*dn_vector_ptr_index (vector, 0) != items[0]) {
-		return FAILED ("item 0 was overwritten, should be %s", items[0]);
-	} else if (*dn_vector_ptr_index (vector, 1) != items[1]) {
-		return FAILED ("item 1 was overwritten, should be %s", items[1]);
+	} else if (*dn_vector_ptr_index (vector, 0) != test_vector_ptr_items [0]) {
+		return FAILED ("item 0 was overwritten, should be %s", test_vector_ptr_items [0]);
+	} else if (*dn_vector_ptr_index (vector, 1) != test_vector_ptr_items [1]) {
+		return FAILED ("item 1 was overwritten, should be %s", test_vector_ptr_items [1]);
 	}
 
 	for (i = 2; i < vector->size; i++) {
@@ -235,16 +265,16 @@ test_vector_ptr_erase (void)
 	vector = vector_ptr_alloc_and_fill (&i);
 
 	dn_vector_ptr_erase (dn_vector_ptr_begin (vector));
-	if (*dn_vector_ptr_index (vector, 0) != items [1]) {
-		return FAILED ("first item is not %s, it is %s", items [1],
+	if (*dn_vector_ptr_index (vector, 0) != test_vector_ptr_items [1]) {
+		return FAILED ("first item is not %s, it is %s", test_vector_ptr_items [1],
 			*dn_vector_ptr_index (vector, 0));
 	}
 
 	dn_vector_ptr_erase (dn_vector_ptr_it_prev (dn_vector_ptr_end (vector)));
 
-	if (*dn_vector_ptr_index (vector, vector->size - 1) != items [vector->size]) {
+	if (*dn_vector_ptr_index (vector, vector->size - 1) != test_vector_ptr_items [vector->size]) {
 		return FAILED ("last item is not %s, it is %s",
-			items [vector->size - 2], *dn_vector_ptr_index (vector, vector->size - 1));
+			test_vector_ptr_items [vector->size - 2], *dn_vector_ptr_index (vector, vector->size - 1));
 	}
 
 	dn_vector_ptr_free (vector);
@@ -262,15 +292,15 @@ test_vector_ptr_erase_fast (void)
 	vector = vector_ptr_alloc_and_fill (&i);
 
 	dn_vector_ptr_erase_fast (dn_vector_ptr_begin (vector));
-	if (*dn_vector_ptr_index (vector, 0) != items [vector->size]) {
-		return FAILED ("first item is not %s, it is %s", items [vector->size],
+	if (*dn_vector_ptr_index (vector, 0) != test_vector_ptr_items [vector->size]) {
+		return FAILED ("first item is not %s, it is %s", test_vector_ptr_items [vector->size],
 			*dn_vector_ptr_index (vector, 0));
 	}
 
 	dn_vector_ptr_erase_fast (dn_vector_ptr_it_prev (dn_vector_ptr_end (vector)));
-	if (*dn_vector_ptr_index (vector, vector->size - 1) != items [vector->size - 1]) {
+	if (*dn_vector_ptr_index (vector, vector->size - 1) != test_vector_ptr_items [vector->size - 1]) {
 		return FAILED ("last item is not %s, it is %s",
-			items [vector->size - 1], *dn_vector_ptr_index (vector, vector->size - 1));
+			test_vector_ptr_items [vector->size - 1], *dn_vector_ptr_index (vector, vector->size - 1));
 	}
 
 	dn_vector_ptr_free (vector);
@@ -320,16 +350,19 @@ test_vector_ptr_capacity (void)
 
 	dn_vector_ptr_free (vector);
 
-	vector = dn_vector_ptr_alloc_capacity (ARRAY_SIZE (items));
+	dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+	params.capacity = ARRAY_SIZE (test_vector_ptr_items);
+
+	vector = dn_vector_ptr_custom_alloc (&params);
 	if (vector->size != 0)
 		return FAILED ("vector len didn't match");
 
-	if (dn_vector_ptr_capacity (vector) < ARRAY_SIZE (items))
+	if (dn_vector_ptr_capacity (vector) < ARRAY_SIZE (test_vector_ptr_items))
 		return FAILED ("invalid vector capacity #5");
 
 	capacity = dn_vector_ptr_capacity (vector);
-	for (int32_t i = 0; i < ARRAY_SIZE (items); ++i)
-		dn_vector_ptr_push_back (vector, (char *)items [i]);
+	for (int32_t i = 0; i < ARRAY_SIZE (test_vector_ptr_items); ++i)
+		dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i]);
 
 	if (dn_vector_ptr_capacity (vector) != capacity)
 		return FAILED ("invalid vector capacity #6");
@@ -337,22 +370,6 @@ test_vector_ptr_capacity (void)
 	dn_vector_ptr_free (vector);
 
 	return OK;
-}
-
-static
-void
-DN_CALLBACK_CALLTYPE
-vector_ptr_free_func(void *data)
-{
-	free (*(char **)data);
-}
-
-static
-void
-DN_CALLBACK_CALLTYPE
-vector_ptr_clear_func(void *data)
-{
-	(**((uint32_t **)data))++;
 }
 
 static
@@ -367,7 +384,7 @@ test_vector_ptr_custom_free (void)
 	dn_vector_ptr_push_back (vector, &count);
 	dn_vector_ptr_push_back (vector, &count);
 
-	dn_vector_ptr_custom_free (vector, vector_ptr_clear_func);
+	dn_vector_ptr_custom_free (vector, test_vector_ptr_clear_func);
 
 	if (count != 2)
 		return FAILED ("callback called incorrect number of times");
@@ -377,7 +394,7 @@ test_vector_ptr_custom_free (void)
 	dn_vector_ptr_push_back (vector, malloc (10));
 	dn_vector_ptr_push_back (vector, malloc (100));
 	
-	dn_vector_ptr_custom_free (vector, vector_ptr_free_func);
+	dn_vector_ptr_custom_free (vector, test_vector_ptr_free_func);
 
 	return OK;
 }
@@ -423,7 +440,7 @@ test_vector_ptr_custom_clear (void)
 
 	uint32_t capacity = dn_vector_ptr_capacity (vector);
 
-	dn_vector_ptr_custom_clear (vector, vector_ptr_clear_func);
+	dn_vector_ptr_custom_clear (vector, test_vector_ptr_clear_func);
 
 	if (vector->size != 0)
 		return FAILED ("vector size didn't match #2");
@@ -492,18 +509,6 @@ test_vector_ptr_foreach_rev_it (void)
 }
 
 static
-int32_t
-DN_CALLBACK_CALLTYPE
-vector_ptr_sort_compare (
-	const void *a,
-	const void *b)
-{
-	char *stra = *(char **) a;
-	char *strb = *(char **) b;
-	return strcmp(stra, strb);
-}
-
-static
 RESULT
 test_vector_ptr_sort (void)
 {
@@ -518,7 +523,7 @@ test_vector_ptr_sort (void)
 	dn_vector_ptr_push_back (vector, letters [3]);
 	dn_vector_ptr_push_back (vector, letters [4]);
 
-	dn_vector_ptr_sort (vector, vector_ptr_sort_compare);
+	dn_vector_ptr_sort (vector, test_vector_ptr_sort_compare);
 
 	for (i = 0; i < vector->size; i++) {
 		if (vector->data [i] != letters [i]) {
@@ -546,22 +551,22 @@ test_vector_ptr_find (void)
 	dn_vector_ptr_push_back (vector, letters [3]);
 	dn_vector_ptr_push_back (vector, letters [4]);
 
-	if (dn_vector_ptr_find (vector, letters [0], NULL).it == dn_vector_ptr_size (vector))
+	if (dn_vector_ptr_find (vector, letters [0]).it == dn_vector_ptr_size (vector))
 		return FAILED ("failed to find value #1");
 
-	if (dn_vector_ptr_find (vector, letters [1], NULL).it == dn_vector_ptr_size (vector))
+	if (dn_vector_ptr_find (vector, letters [1]).it == dn_vector_ptr_size (vector))
 		return FAILED ("failed to find value #2");
 
-	if (dn_vector_ptr_find (vector, letters [2], NULL).it == dn_vector_ptr_size (vector))
+	if (dn_vector_ptr_find (vector, letters [2]).it == dn_vector_ptr_size (vector))
 		return FAILED ("failed to find value #3");
 
-	if (dn_vector_ptr_find (vector, letters [3], NULL).it == dn_vector_ptr_size (vector))
+	if (dn_vector_ptr_find (vector, letters [3]).it == dn_vector_ptr_size (vector))
 		return FAILED ("failed to find value #4");
 
-	if (dn_vector_ptr_find (vector, letters [4], NULL).it == dn_vector_ptr_size (vector))
+	if (dn_vector_ptr_find (vector, letters [4]).it == dn_vector_ptr_size (vector))
 		return FAILED ("failed to find value #5");
 
-	if (dn_vector_ptr_find (vector, NULL, NULL).it != dn_vector_ptr_size (vector))
+	if (dn_vector_ptr_find (vector, NULL).it != dn_vector_ptr_size (vector))
 		return FAILED ("find failed #6");
 
 	dn_vector_ptr_free (vector);
@@ -575,21 +580,24 @@ test_vector_ptr_default_local_alloc (void)
 {
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size);
 
+	dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+
 	uint32_t init_capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
-	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc ((dn_allocator_t *)&allocator, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc");
 
 	for (uint32_t i = 0; i < init_capacity; ++i) {
-		for (uint32_t j = 0; j < ARRAY_SIZE (items); ++j) {
-			if (!dn_vector_ptr_push_back (vector, (char *)items [j]))
+		for (uint32_t j = 0; j < ARRAY_SIZE (test_vector_ptr_items); ++j) {
+			if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [j]))
 				return FAILED ("failed vector push_back using custom alloc");
 		}
 	}
 
 	for (uint32_t i = 0; i < init_capacity; ++i) {
-		for (uint32_t j = 0; j < ARRAY_SIZE (items); ++j) {
-			if (*dn_vector_ptr_index (vector, ARRAY_SIZE (items) * i + j) != items [j])
+		for (uint32_t j = 0; j < ARRAY_SIZE (test_vector_ptr_items); ++j) {
+			if (*dn_vector_ptr_index (vector, ARRAY_SIZE (test_vector_ptr_items) * i + j) != test_vector_ptr_items [j])
 				return FAILED ("vector realloc failure using default local alloc");
 		}
 	}
@@ -619,13 +627,16 @@ test_vector_ptr_local_alloc (void)
 	dn_allocator_fixed_or_malloc_init (&allocator, buffer, ARRAY_SIZE (buffer));
 	memset (buffer, 0, ARRAY_SIZE (buffer));
 
-	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc ((dn_allocator_t *)&allocator, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+	dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+
+	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc");
 
 	// All should fit in fixed allocator.
-	for (uint32_t i = 0; i < ARRAY_SIZE (items); ++i) {
-		if (!dn_vector_ptr_push_back (vector, (char *)items [i]))
+	for (uint32_t i = 0; i < ARRAY_SIZE (test_vector_ptr_items); ++i) {
+		if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i]))
 			return FAILED ("failed vector push_back using custom alloc #1");
 	}
 
@@ -634,7 +645,7 @@ test_vector_ptr_local_alloc (void)
 
 	// Make sure we run out of fixed allocator memory, should switch to dynamic allocator.
 	for (uint32_t i = 0; i < ARRAY_SIZE (buffer); ++i) {
-		if (!dn_vector_ptr_push_back (vector, (char *)items [i % ARRAY_SIZE (items)]))
+		if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i % ARRAY_SIZE (test_vector_ptr_items)]))
 			return FAILED ("failed vector push_back using custom alloc #2");
 	}
 
@@ -657,7 +668,12 @@ test_vector_ptr_local_alloc_capacity (void)
 	memset (buffer, 0, dn_vector_ptr_default_local_allocator_byte_size);
 
 	uint32_t init_capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
-	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, init_capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+
+	dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = init_capacity;
+
+	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc");
 
@@ -668,9 +684,9 @@ test_vector_ptr_local_alloc_capacity (void)
 	if (!vector_ptr_owned_by_fixed_allocator ((dn_allocator_fixed_t *)&allocator, vector))
 		return FAILED ("custom alloc using fixed allocator failed #1");
 
-	// Add pre-allocated amount of items, should fit into fixed buffer.
+	// Add pre-allocated amount of test_vector_ptr_items, should fit into fixed buffer.
 	for (uint32_t i = 0; i < dn_vector_ptr_capacity (vector); ++i) {
-		if (!dn_vector_ptr_push_back (vector, (char *)items [i % ARRAY_SIZE (items)]))
+		if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i % ARRAY_SIZE (test_vector_ptr_items)]))
 			return FAILED ("failed vector push_back using custom alloc");
 	}
 
@@ -697,25 +713,30 @@ test_vector_ptr_fixed_alloc_capacity (void)
 	memset (buffer, 0, dn_vector_ptr_default_local_allocator_byte_size);
 
 	uint32_t init_capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
-	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, init_capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+
+	dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = init_capacity;
+
+	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc");
 
-	// Add pre-allocated amount of items, should fit into fixed buffer.
+	// Add pre-allocated amount of test_vector_ptr_items, should fit into fixed buffer.
 	for (uint32_t i = 0; i < dn_vector_ptr_capacity (vector); ++i) {
-		if (!dn_vector_ptr_push_back (vector, (char *)items [i % ARRAY_SIZE (items)]))
+		if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i % ARRAY_SIZE (test_vector_ptr_items)]))
 			return FAILED ("failed vector push_back using custom alloc");
 	}
 
 	// Adding one more should hit OOM.
-	if (dn_vector_ptr_push_back (vector, (char *)items [0]))
+	if (dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [0]))
 		return FAILED ("vector push_back failed to triggered OOM");
 
 	// Make room for on more item.
 	dn_vector_ptr_pop_back (vector);
 
 	// Adding one more should not hit OOM.
-	if (!dn_vector_ptr_push_back (vector, (char *)items [0]))
+	if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [0]))
 		return FAILED ("vector push_back triggered OOM");
 
 	dn_vector_ptr_free (vector);
@@ -734,13 +755,18 @@ test_vector_ptr_fixed_or_malloc_alloc_capacity (void)
 	memset (buffer, 0, dn_vector_ptr_default_local_allocator_byte_size);
 
 	uint32_t init_capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
-	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator,init_capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+
+	dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = init_capacity;
+
+	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc");
 
-	// Add pre-allocated amount of items, should fit into fixed allocator.
+	// Add pre-allocated amount of test_vector_ptr_items, should fit into fixed allocator.
 	for (uint32_t i = 0; i < dn_vector_ptr_capacity (vector); ++i) {
-		if (!dn_vector_ptr_push_back (vector, (char *)items [i % ARRAY_SIZE (items)]))
+		if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i % ARRAY_SIZE (test_vector_ptr_items)]))
 			return FAILED ("failed vector push_back using custom alloc #1");
 	}
 
@@ -749,7 +775,7 @@ test_vector_ptr_fixed_or_malloc_alloc_capacity (void)
 		return FAILED ("custom alloc using fixed allocator failed");
 
 	// Adding one more should not hit OOM.
-	if (!dn_vector_ptr_push_back (vector, (char *)items [0]))
+	if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [0]))
 		return FAILED ("failed vector push_back using custom alloc #2");
 
 	if (dn_vector_ptr_capacity (vector) <= init_capacity)
@@ -768,7 +794,7 @@ test_vector_ptr_fixed_or_malloc_alloc_capacity (void)
 		return FAILED ("unexpected switch to fixed allocator");
 
 	// Adding one more should not hit OOM.
-	if (!dn_vector_ptr_push_back (vector, (char *)items [0]))
+	if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [0]))
 		return FAILED ("failed vector push_back using custom alloc #3");
 
 	if (dn_vector_ptr_capacity (vector) < init_capacity)
@@ -790,18 +816,23 @@ test_vector_ptr_fixed_reset_alloc_capacity (void)
 	memset (buffer, 0, dn_vector_ptr_default_local_allocator_byte_size);
 
 	uint32_t init_capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
-	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, init_capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+
+	dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = init_capacity;
+
+	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc #1");
 
-	// Add pre-allocated amount of items, should fit into fixed allocator.
+	// Add pre-allocated amount of test_vector_ptr_items, should fit into fixed allocator.
 	for (uint32_t i = 0; i < dn_vector_ptr_capacity (vector); ++i) {
-		if (!dn_vector_ptr_push_back (vector, (char *)items [i % ARRAY_SIZE (items)]))
+		if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i % ARRAY_SIZE (test_vector_ptr_items)]))
 			return FAILED ("failed vector push_back using custom alloc");
 	}
 
 	// Adding one more should hit OOM.
-	if (dn_vector_ptr_push_back (vector, (char *)items [0]))
+	if (dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [0]))
 		return FAILED ("vector push_back failed to triggered OOM");
 
 	dn_vector_ptr_free (vector);
@@ -810,13 +841,13 @@ test_vector_ptr_fixed_reset_alloc_capacity (void)
 	dn_allocator_fixed_reset (&allocator);
 	memset (buffer, 0, dn_vector_ptr_default_local_allocator_byte_size);
 
-	vector = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, init_capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+	vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc #2");
 
-	// Add pre-allocated amount of items, should fit into fixed buffer.
+	// Add pre-allocated amount of test_vector_ptr_items, should fit into fixed buffer.
 	for (uint32_t i = 0; i < dn_vector_ptr_capacity (vector); ++i) {
-		if (!dn_vector_ptr_push_back (vector, (char *)items [i % ARRAY_SIZE (items)]))
+		if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i % ARRAY_SIZE (test_vector_ptr_items)]))
 			return FAILED ("failed vector push_back using custom alloc");
 	}
 
@@ -836,18 +867,23 @@ test_vector_ptr_fixed_or_malloc_reset_alloc_capacity (void)
 	memset (buffer, 0, dn_vector_ptr_default_local_allocator_byte_size);
 
 	uint32_t init_capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
-	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, init_capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+
+	dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = init_capacity;
+
+	dn_vector_ptr_t *vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc #1");
 
-	// Add pre-allocated amount of items, should fit into fixed allocator.
+	// Add pre-allocated amount of test_vector_ptr_items, should fit into fixed allocator.
 	for (uint32_t i = 0; i < dn_vector_ptr_capacity (vector); ++i) {
-		if (!dn_vector_ptr_push_back (vector, (char *)items [i % ARRAY_SIZE (items)]))
+		if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [i % ARRAY_SIZE (test_vector_ptr_items)]))
 			return FAILED ("failed vector push_back using custom alloc #1");
 	}
 
 	// Adding one more should not hit OOM but switch to dynamic allocator.
-	if (!dn_vector_ptr_push_back (vector, (char *)items [0]))
+	if (!dn_vector_ptr_push_back (vector, (char *)test_vector_ptr_items [0]))
 		return FAILED ("failed vector push_back using custom alloc #2");
 
 	// Validate use of dynamic allocator.
@@ -856,7 +892,7 @@ test_vector_ptr_fixed_or_malloc_reset_alloc_capacity (void)
 
 	dn_vector_ptr_free (vector);
 
-	vector = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, init_capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+	vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc #2");
 
@@ -870,7 +906,7 @@ test_vector_ptr_fixed_or_malloc_reset_alloc_capacity (void)
 	dn_allocator_fixed_or_malloc_reset (&allocator);
 	memset (buffer, 0, dn_vector_ptr_default_local_allocator_byte_size);
 
-	vector = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, init_capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+	vector = dn_vector_ptr_custom_alloc (&params);
 	if (!vector)
 		return FAILED ("failed vector custom alloc #2");
 

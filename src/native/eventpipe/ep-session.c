@@ -333,9 +333,13 @@ ep_session_suspend_write_event (EventPipeSession *session)
 
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size);
 
+	dn_vector_ptr_custom_init_params_t params = DN_VECTOR_PTR_DEFAULT_INIT_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
+
 	dn_vector_ptr_t threads;
 
-	if (dn_vector_ptr_custom_init_capacity (&threads, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY)) {
+	if (dn_vector_ptr_custom_init (&threads, &params)) {
 		ep_thread_get_threads (&threads);
 		DN_VECTOR_PTR_FOREACH_BEGIN (&threads, EventPipeThread *, thread) {
 			if (thread) {

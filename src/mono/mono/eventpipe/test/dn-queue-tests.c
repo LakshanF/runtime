@@ -19,6 +19,14 @@ static _CrtMemState dn_queue_memory_diff_snapshot;
 #define INT32_TO_POINTER(v) ((void *)(ptrdiff_t)(v))
 
 static
+void
+DN_CALLBACK_CALLTYPE
+test_queue_dispose_func (void *data)
+{
+	(*(uint32_t *)data)++;
+}
+
+static
 RESULT
 test_queue_setup (void)
 {
@@ -55,14 +63,6 @@ test_queue_init (void)
 }
 
 static
-void
-DN_CALLBACK_CALLTYPE
-queue_dispose_func (void *data)
-{
-	(*(uint32_t *)data)++;
-}
-
-static
 RESULT
 test_queue_free (void)
 {
@@ -74,7 +74,7 @@ test_queue_free (void)
 	dn_queue_push (queue, &dispose_count);
 	dn_queue_push (queue, &dispose_count);
 
-	dn_queue_custom_free (queue, queue_dispose_func);
+	dn_queue_custom_free (queue, test_queue_dispose_func);
 
 	if (dispose_count != 2)
 		return FAILED ("invalid dispose count on free");
@@ -94,7 +94,7 @@ test_queue_dispose (void)
 	dn_queue_push (&queue, &dispose_count);
 	dn_queue_push (&queue, &dispose_count);
 
-	dn_queue_custom_dispose (&queue, queue_dispose_func);
+	dn_queue_custom_dispose (&queue, test_queue_dispose_func);
 
 	if (dispose_count != 2)
 		return FAILED ("invalid dispose count on free");
@@ -213,6 +213,7 @@ static
 RESULT
 test_queue_push_pop (void)
 {
+	uint32_t dispose_count = 0;
 	dn_queue_t *queue = dn_queue_alloc ();
 	if (!queue)
 		return FAILED ("failed to alloc queue");
@@ -236,6 +237,20 @@ test_queue_push_pop (void)
 
 	if (count != N_ELEMS)
 		return FAILED ("incorrect queue count");
+
+	dn_queue_clear (queue);
+
+	dn_queue_push (queue, &dispose_count);
+	dn_queue_push (queue, &dispose_count);
+	dn_queue_push (queue, &dispose_count);
+
+	dn_queue_custom_pop (queue, test_queue_dispose_func);
+	dn_queue_custom_pop (queue, test_queue_dispose_func);
+
+	if (dn_queue_size (queue) != 1)
+		return FAILED ("incorrect queue count after custom pop");
+	if (dispose_count != 2)
+		return FAILED ("incorrect dispose count after custom pop");
 
 	dn_queue_free (queue);
 
@@ -275,13 +290,13 @@ test_queue_clear (void)
 	dn_queue_push (queue, &dispose_count);
 	dn_queue_push (queue, &dispose_count);
 
-	dn_queue_custom_clear (queue, queue_dispose_func);
+	dn_queue_custom_clear (queue, test_queue_dispose_func);
 
 	if (dispose_count != 2)
 		return FAILED ("invalid dispose count on clear");
 
 	dispose_count = 0;
-	dn_queue_custom_free (queue, queue_dispose_func);
+	dn_queue_custom_free (queue, test_queue_dispose_func);
 
 	if (dispose_count != 0)
 		return FAILED ("invalid dispose count on clear/free");

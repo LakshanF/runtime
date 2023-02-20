@@ -19,6 +19,52 @@ static _CrtMemState dn_fwd_list_memory_diff_snapshot;
 #define INT32_TO_POINTER(v) ((void *)(ptrdiff_t)(v))
 
 static
+void
+DN_CALLBACK_CALLTYPE
+test_fwd_list_dispose_func (void *data)
+{
+	(*(uint32_t *)data)++;
+}
+
+static int32_t test_fwd_list_dispose_count = 0;
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_fwd_list_dispose_count_func (void *data)
+{
+	test_fwd_list_dispose_count++;
+}
+
+static
+bool
+DN_CALLBACK_CALLTYPE
+test_fwd_list_remove_if_func (const void *data, const void *user_data)
+{
+	return !strcmp ((const char *)data, (const char *)user_data);
+}
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_fwd_list_foreach_func (
+	void *data,
+	void *user_data)
+{
+	(*(uint32_t *)user_data)++;
+}
+
+static
+int32_t
+DN_CALLBACK_CALLTYPE
+test_fwd_list_sort_compare (
+	const void *p1,
+	const void *p2)
+{
+	return POINTER_TO_INT32 (p1) - POINTER_TO_INT32 (p2);
+}
+
+static
 RESULT
 test_fwd_list_setup (void)
 {
@@ -55,14 +101,6 @@ test_fwd_list_init (void)
 }
 
 static
-void
-DN_CALLBACK_CALLTYPE
-fwd_list_dispose_func (void *data)
-{
-	(*(uint32_t *)data)++;
-}
-
-static
 RESULT
 test_fwd_list_free (void)
 {
@@ -74,7 +112,7 @@ test_fwd_list_free (void)
 	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
 	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
 
-	dn_fwd_list_custom_free (list, fwd_list_dispose_func);
+	dn_fwd_list_custom_free (list, test_fwd_list_dispose_func);
 
 	if (dispose_count != 2)
 		return FAILED ("invalid dispose count on free");
@@ -94,7 +132,7 @@ test_fwd_list_dispose (void)
 	dn_fwd_list_insert_after (dn_fwd_list_end (&list), &dispose_count);
 	dn_fwd_list_insert_after (dn_fwd_list_end (&list), &dispose_count);
 
-	dn_fwd_list_custom_dispose (&list, fwd_list_dispose_func);
+	dn_fwd_list_custom_dispose (&list, test_fwd_list_dispose_func);
 
 	if (dispose_count != 2)
 		return FAILED ("invalid dispose count on free");
@@ -205,13 +243,13 @@ test_fwd_list_clear (void)
 	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
 	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
 
-	dn_fwd_list_custom_clear (list, fwd_list_dispose_func);
+	dn_fwd_list_custom_clear (list, test_fwd_list_dispose_func);
 
 	if (dispose_count != 2)
 		return FAILED ("invalid dispose count on clear");
 
 	dispose_count = 0;
-	dn_fwd_list_custom_free (list, fwd_list_dispose_func);
+	dn_fwd_list_custom_free (list, test_fwd_list_dispose_func);
 
 	if (dispose_count != 0)
 		return FAILED ("invalid dispose count on clear/free");
@@ -335,6 +373,7 @@ static
 RESULT
 test_fwd_list_erase_after (void)
 {
+	uint32_t dispose_count = 0;
 	const char *items[] = { "first", "second", "third", "fourth"};
 
 	dn_fwd_list_t *list = dn_fwd_list_alloc ();
@@ -365,6 +404,20 @@ test_fwd_list_erase_after (void)
 
 	if (!list->head || !list->head->data || strcmp (list->head->data, "second") || list->head->next)
 		return FAILED ("erase_after failed #2");
+
+	dn_fwd_list_free (list);
+
+	list = dn_fwd_list_alloc ();
+
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
+
+	dn_fwd_list_custom_erase_after (dn_fwd_list_begin (list), test_fwd_list_dispose_func);
+	dn_fwd_list_custom_erase_after (dn_fwd_list_begin (list), test_fwd_list_dispose_func);
+
+	if (dispose_count != 2)
+		return FAILED ("erase_after failed #3");
 
 	dn_fwd_list_free (list);
 
@@ -441,14 +494,14 @@ test_fwd_list_pop_front (void)
 	dn_fwd_list_push_front (&list, &dispose_count);
 	dn_fwd_list_push_front (&list, &dispose_count);
 
-	dn_fwd_list_pop_front (&list);
+	dn_fwd_list_custom_pop_front (&list, test_fwd_list_dispose_func);
 
-	if (dispose_count != 0)
+	if (dispose_count == 0)
 		return FAILED ("pop_front dispose count failed #1");
 
-	dn_fwd_list_custom_dispose (&list, fwd_list_dispose_func);
+	dn_fwd_list_custom_dispose (&list, test_fwd_list_dispose_func);
 
-	if (dispose_count != 2)
+	if (dispose_count != 3)
 		return FAILED ("pop_front dispose count failed #2");
 
 	return OK;
@@ -464,20 +517,20 @@ test_fwd_list_resize (void)
 	for (uint32_t i = 0; i < 100; i++)
 		dn_fwd_list_push_front (list, &dispose_count);
 
-	dn_fwd_list_custom_resize (list, 90, fwd_list_dispose_func);
+	dn_fwd_list_custom_resize (list, 90, test_fwd_list_dispose_func);
 
 	if (dispose_count != 10)
 		return FAILED ("failed resize #1");
 
 	dispose_count = 0;
-	dn_fwd_list_custom_resize (list, 10, fwd_list_dispose_func);
+	dn_fwd_list_custom_resize (list, 10, test_fwd_list_dispose_func);
 
 	if (dispose_count != 80)
 		return FAILED ("failed resize #2");
 
 	dispose_count = 0;
 
-	dn_fwd_list_custom_free (list, fwd_list_dispose_func);
+	dn_fwd_list_custom_free (list, test_fwd_list_dispose_func);
 
 	if (dispose_count != 10)
 		return FAILED ("failed free");
@@ -498,6 +551,7 @@ static
 RESULT
 test_fwd_list_remove (void)
 {
+	uint32_t dispose_count = 0;
 	const char *items[] = { "first", "second", "third", "fourth"};
 
 	dn_fwd_list_t *list = dn_fwd_list_alloc ();
@@ -556,15 +610,20 @@ test_fwd_list_remove (void)
 
 	dn_fwd_list_free (list);
 
-	return OK;
-}
+	list = dn_fwd_list_alloc ();
 
-static
-bool
-DN_CALLBACK_CALLTYPE
-fwd_remove_if_func (const void *data, const void *user_data)
-{
-	return !strcmp ((const char *)data, (const char *)user_data);
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), &dispose_count);
+
+	dn_fwd_list_custom_remove (list, &dispose_count, test_fwd_list_dispose_func);
+	if (dispose_count != 4)
+		return FAILED ("custom remove failed, incorrect dispose count");
+
+	dn_fwd_list_free (list);
+
+	return OK;
 }
 
 static
@@ -586,7 +645,7 @@ test_fwd_list_remove_if (void)
 	dn_fwd_list_insert_after (dn_fwd_list_end (list), (char *)items [3]);
 
 	// Remove all "second"
-	dn_fwd_list_remove_if (list, items [1], fwd_remove_if_func);
+	dn_fwd_list_remove_if (list, items [1], test_fwd_list_remove_if_func);
 
 	if (fwd_list_size (list) != 6)
 		return FAILED ("remove failed, incorrect size #1");
@@ -597,7 +656,7 @@ test_fwd_list_remove_if (void)
 	} DN_FWD_LIST_FOREACH_END;
 
 	// Remove all "first"
-	dn_fwd_list_remove_if (list, items [0], fwd_remove_if_func);
+	dn_fwd_list_remove_if (list, items [0], test_fwd_list_remove_if_func);
 
 	if (fwd_list_size (list) != 4)
 		return FAILED ("remove failed, incorrect size #2");
@@ -608,7 +667,7 @@ test_fwd_list_remove_if (void)
 	} DN_FWD_LIST_FOREACH_END;
 
 	// Remove all "fourth"
-	dn_fwd_list_remove_if (list, items [3], fwd_remove_if_func);
+	dn_fwd_list_remove_if (list, items [3], test_fwd_list_remove_if_func);
 
 	DN_FWD_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (!strcmp (item, items [3]))
@@ -616,7 +675,7 @@ test_fwd_list_remove_if (void)
 	} DN_FWD_LIST_FOREACH_END;
 
 	// "fourth" already removed.
-	dn_fwd_list_remove_if (list, items [3], fwd_remove_if_func);
+	dn_fwd_list_remove_if (list, items [3], test_fwd_list_remove_if_func);
 
 	if (fwd_list_size (list) != 2)
 		return FAILED ("remove failed, incorrect size #3");
@@ -626,6 +685,20 @@ test_fwd_list_remove_if (void)
 		if (strcmp (item, items [2]))
 			return FAILED ("remove failed, unexpected item %s #4", item);
 	} DN_FWD_LIST_FOREACH_END;
+
+	dn_fwd_list_free (list);
+
+	list = dn_fwd_list_alloc ();
+
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), (char *)items [0]);
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), (char *)items [1]);
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), (char *)items [2]);
+	dn_fwd_list_insert_after (dn_fwd_list_end (list), (char *)items [3]);
+
+	test_fwd_list_dispose_count = 0;
+	dn_fwd_list_custom_remove_if (list, items [2], test_fwd_list_remove_if_func, test_fwd_list_dispose_count_func);
+	if (test_fwd_list_dispose_count != 1)
+		return FAILED ("custom remove if failed, incorrect dispose count");
 
 	dn_fwd_list_free (list);
 
@@ -659,16 +732,6 @@ test_fwd_list_reverse (void)
 }
 
 static
-void
-DN_CALLBACK_CALLTYPE
-fwd_list_foreach_func (
-	void *data,
-	void *user_data)
-{
-	(*(uint32_t *)user_data)++;
-}
-
-static
 RESULT
 test_fwd_list_for_each (void)
 {
@@ -678,23 +741,13 @@ test_fwd_list_for_each (void)
 	for (uint32_t i = 0; i < N_ELEMS; ++i)
 		dn_fwd_list_insert_after (dn_fwd_list_before_begin (list), INT32_TO_POINTER (i));
 
-	dn_fwd_list_for_each (list, fwd_list_foreach_func, &count);
+	dn_fwd_list_for_each (list, test_fwd_list_foreach_func, &count);
 	if (count != N_ELEMS)
 		return FAILED ("for_each failed");
 
 	dn_fwd_list_free (list);
 
 	return OK;
-}
-
-static
-int32_t
-DN_CALLBACK_CALLTYPE
-fwd_list_sort_compare (
-	const void *p1,
-	const void *p2)
-{
-	return POINTER_TO_INT32 (p1) - POINTER_TO_INT32 (p2);
 }
 
 static
@@ -731,7 +784,7 @@ test_fwd_list_sort (void)
 	for (i = 0; i < N_ELEMS; ++i)
 		dn_fwd_list_push_front (list, INT32_TO_POINTER (i));
 
-	dn_fwd_list_sort (list, fwd_list_sort_compare);
+	dn_fwd_list_sort (list, test_fwd_list_sort_compare);
 	if (!fwd_list_verify_sort (list, N_ELEMS))
 		return FAILED ("decreasing list");
 
@@ -740,7 +793,7 @@ test_fwd_list_sort (void)
 	list = dn_fwd_list_alloc ();
 	for (i = 0; i < N_ELEMS; ++i)
 		dn_fwd_list_push_front (list, INT32_TO_POINTER (-i));
-	dn_fwd_list_sort (list, fwd_list_sort_compare);
+	dn_fwd_list_sort (list, test_fwd_list_sort_compare);
 	if (!fwd_list_verify_sort (list, N_ELEMS))
 		return FAILED ("increasing list");
 
@@ -753,7 +806,7 @@ test_fwd_list_sort (void)
 		dn_fwd_list_push_front (list, INT32_TO_POINTER (i));
 	}
 
-	dn_fwd_list_sort (list, fwd_list_sort_compare);
+	dn_fwd_list_sort (list, test_fwd_list_sort_compare);
 	if (!fwd_list_verify_sort (list, 2*N_ELEMS-1))
 		return FAILED ("alternating list");
 
@@ -766,7 +819,7 @@ test_fwd_list_sort (void)
 		for (j = 0; j < i; ++j)
 			dn_fwd_list_push_front (list, INT32_TO_POINTER (mul * j));
 	}
-	dn_fwd_list_sort (list, fwd_list_sort_compare);
+	dn_fwd_list_sort (list, test_fwd_list_sort_compare);
 	if (!fwd_list_verify_sort (list, (N_ELEMS*N_ELEMS - N_ELEMS)/2))
 		return FAILED ("wavering list");
 
@@ -788,12 +841,12 @@ test_fwd_list_find (void)
 	char *data = (char*)"four";
 	dn_fwd_list_insert_after (dn_fwd_list_end (list), data);
 
-	dn_fwd_list_it_t found = dn_fwd_list_find (list, data, NULL);
+	dn_fwd_list_it_t found = dn_fwd_list_find (list, data);
 
 	if (*dn_fwd_list_it_data_t (found, char *) != data)
 		return FAILED ("find failed #1");
 
-	found = dn_fwd_list_find (list, NULL, NULL);
+	found = dn_fwd_list_find (list, NULL);
 	if (found.it != dn_fwd_list_end (list).it)
 		return FAILED ("find failed #2");
 

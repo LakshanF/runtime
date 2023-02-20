@@ -349,7 +349,12 @@ ep_file_alloc (
 	instance->metadata_ids = dn_umap_alloc ();
 	ep_raise_error_if_nok (instance->metadata_ids != NULL);
 
-	instance->stack_hash = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, stack_hash_key_hash_func, stack_hash_key_equal_func, NULL, stack_hash_value_free_func);
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+	params.hash_func = stack_hash_key_hash_func;
+	params.equal_func = stack_hash_key_equal_func;
+	params.value_dispose_func = stack_hash_value_free_func;
+
+	instance->stack_hash = dn_umap_custom_alloc (&params);
 	ep_raise_error_if_nok (instance->stack_hash != NULL);
 
 	// Start at 0 - The value is always incremented prior to use, so the first ID will be 1.

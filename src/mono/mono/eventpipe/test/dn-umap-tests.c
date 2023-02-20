@@ -6,6 +6,7 @@
 
 #include <eglib/test/test.h>
 #include <containers/dn-umap.h>
+#include <containers/dn-umap-t.h>
 
 
 #ifdef _CRTDBG_MAP_ALLOC
@@ -16,6 +17,54 @@ static _CrtMemState dn_umap_memory_diff_snapshot;
 
 #define POINTER_TO_INT32(v) ((int32_t)(ptrdiff_t)(v))
 #define INT32_TO_POINTER(v) ((void *)(ptrdiff_t)(v))
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_umap_key_dispose_func (void *data)
+{
+	(*(uint32_t *)data)++;
+}
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_umap_value_dispose_func (void *data)
+{
+	(*(uint32_t *)data)++;
+}
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_umap_str_key_dispose_func (void *data)
+{
+	free (data);
+}
+
+static
+bool
+DN_CALLBACK_CALLTYPE
+test_umap_find_func (
+	const void *a,
+	const void *b)
+{
+	if (!a || !b)
+		return false;
+
+	return !strcmp ((const char *)a, (const char *)b);
+}
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_umap_for_each_func (
+	void *key,
+	void *value,
+	void *user_data)
+{
+	(*(uint32_t *)user_data)++;
+}
 
 static
 RESULT
@@ -54,27 +103,15 @@ test_umap_init (void)
 }
 
 static
-void
-DN_CALLBACK_CALLTYPE
-umap_key_dispose_func (void *data)
-{
-	(*(uint32_t *)data)++;
-}
-
-static
-void
-DN_CALLBACK_CALLTYPE
-umap_value_dispose_func (void *data)
-{
-	(*(uint32_t *)data)++;
-}
-
-static
 RESULT
 test_umap_free (void)
 {
 	uint32_t dispose_count = 0;
-	dn_umap_t *map = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, NULL, NULL, NULL, umap_value_dispose_func);
+
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+	params.value_dispose_func = test_umap_value_dispose_func;
+
+	dn_umap_t *map = dn_umap_custom_alloc (&params);
 	if (!map)
 		return FAILED ("failed to custom alloc map");
 
@@ -95,7 +132,10 @@ test_umap_dispose (void)
 {
 	uint32_t dispose_count = 0;
 	dn_umap_t map;
-	if (!dn_umap_custom_init (&map, DN_DEFAULT_ALLOCATOR, NULL, NULL, NULL, umap_value_dispose_func))
+	dn_umap_custom_init_params_t params = DN_UMAP_DEFAULT_INIT_PARAMS;
+
+	params.value_dispose_func = test_umap_value_dispose_func;
+	if (!dn_umap_custom_init (&map, &params))
 		return FAILED ("failed to custom init map");
 
 	dn_umap_insert (&map, INT32_TO_POINTER (1), &dispose_count);
@@ -183,6 +223,7 @@ RESULT
 test_umap_clear (void)
 {
 	uint32_t dispose_count = 0;
+
 	const char * items[] = { "first", "second" };
 
 	dn_umap_t *map = dn_umap_alloc ();
@@ -206,7 +247,10 @@ test_umap_clear (void)
 
 	dn_umap_free (map);
 
-	map = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, NULL, NULL, NULL, umap_value_dispose_func);
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+	params.value_dispose_func = test_umap_value_dispose_func;
+
+	map = dn_umap_custom_alloc (&params);
 
 	dn_umap_insert (map, INT32_TO_POINTER (1), &dispose_count);
 	dn_umap_insert (map, INT32_TO_POINTER (2), &dispose_count);
@@ -223,14 +267,6 @@ test_umap_clear (void)
 		return FAILED ("invalid dispose count on clear/free");
 
 	return OK;
-}
-
-static
-void
-DN_CALLBACK_CALLTYPE
-umap_str_key_dispose_func (void *data)
-{
-	free (data);
 }
 
 static
@@ -255,7 +291,13 @@ test_umap_insert (void)
 
 	dn_umap_free (map);
 
-	map = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, dn_str_hash, dn_str_equal, umap_str_key_dispose_func, NULL);
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+
+	params.hash_func = dn_str_hash;
+	params.equal_func = dn_str_equal;
+	params.key_dispose_func = test_umap_str_key_dispose_func;
+
+	map = dn_umap_custom_alloc (&params);
 	dn_umap_insert (map, strdup ("first"), (char *)items [0]);
 
 	char *exists = strdup ("first");
@@ -291,7 +333,13 @@ test_umap_insert_or_assign (void)
 
 	dn_umap_free (map);
 
-	map = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, dn_str_hash, dn_str_equal, umap_str_key_dispose_func, NULL);
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+
+	params.hash_func = dn_str_hash;
+	params.equal_func = dn_str_equal;
+	params.key_dispose_func = test_umap_str_key_dispose_func;
+
+	map = dn_umap_custom_alloc (&params);
 	dn_umap_insert_or_assign (map, strdup ("first"), (char *)items [0]);
 
 	result = dn_umap_insert_or_assign (map, (char *)"first", (char *)items [1]);
@@ -366,7 +414,13 @@ test_umap_extract (void)
 
 	uint32_t key_dispose_count = 0;
 	uint32_t value_dispose_count = 0;
-	map = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, NULL, NULL, umap_key_dispose_func, umap_value_dispose_func);
+
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+
+	params.key_dispose_func = test_umap_str_key_dispose_func;
+	params.value_dispose_func = test_umap_value_dispose_func;
+
+	map = dn_umap_custom_alloc (&params);
 
 	dn_umap_insert (map, &key_dispose_count, &value_dispose_count);
 	if (!dn_umap_extract_key (map, &key_dispose_count, NULL, NULL))
@@ -378,19 +432,6 @@ test_umap_extract (void)
 	dn_umap_free (map);
 
 	return OK;
-}
-
-static
-bool
-DN_CALLBACK_CALLTYPE
-umap_find_func (
-	const void *a,
-	const void *b)
-{
-	if (!a || !b)
-		return false;
-
-	return !strcmp ((const char *)a, (const char *)b);
 }
 
 static
@@ -409,26 +450,31 @@ test_umap_find (void)
 	dn_umap_insert (map, (char *)data, (char *)data);
 
 	dn_umap_it_t found1 = dn_umap_find (map, data);
-	dn_umap_it_t found2 = dn_umap_custom_find (map, data, umap_find_func);
+	dn_umap_it_t found2 = dn_umap_custom_find (map, data, test_umap_find_func);
 
 	if (dn_umap_it_key_t (found1, char *) != data || dn_umap_it_key_t (found2, char *) != data)
 		return FAILED ("find failed #1");
 
 	found1 = dn_umap_find (map, NULL);
-	found2 = dn_umap_custom_find (map, NULL, umap_find_func);
+	found2 = dn_umap_custom_find (map, NULL, test_umap_find_func);
 	if (!dn_umap_it_end (found1) || !dn_umap_it_end (found2))
 		return FAILED ("find failed #2");
 
 	dn_umap_free (map);
 
-	map = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, dn_str_hash, dn_str_equal, NULL, NULL);
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+
+	params.hash_func = dn_str_hash;
+	params.equal_func = dn_str_equal;
+
+	map = dn_umap_custom_alloc (&params);
 
 	dn_umap_insert (map, (char *)items [2], (char *)items [2]);
 	dn_umap_insert (map, (char *)items [1], (char *)items [1]);
 	dn_umap_insert (map, (char *)items [0], (char *)items [0]);
 
 	found1 = dn_umap_find (map, "second");
-	found2 = dn_umap_custom_find (map, "second", umap_find_func);
+	found2 = dn_umap_custom_find (map, "second", test_umap_find_func);
 
 	if (dn_umap_it_key (found1) != dn_umap_it_key (found2))
 		return FAILED ("find failed #3");
@@ -532,17 +578,6 @@ test_umap_reserve (void)
 }
 
 static
-void
-DN_CALLBACK_CALLTYPE
-umap_for_each_func (
-	void *key,
-	void *value,
-	void *user_data)
-{
-	(*(uint32_t *)user_data)++;
-}
-
-static
 RESULT
 test_umap_for_each (void)
 {
@@ -552,7 +587,7 @@ test_umap_for_each (void)
 	for (uint32_t i = 0; i < 100; ++i)
 		dn_umap_insert (map, INT32_TO_POINTER (i), INT32_TO_POINTER (i));
 
-	dn_umap_for_each (map, umap_for_each_func, &count);
+	dn_umap_for_each (map, test_umap_for_each_func, &count);
 	if (count != 100)
 		return FAILED ("for_each failed");
 
@@ -595,7 +630,12 @@ test_umap_iterator (void)
 static RESULT
 test_umap_iterator_2 (void)
 {
-	dn_umap_t *map = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, dn_direct_hash, dn_direct_equal, NULL, NULL);
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+
+	params.hash_func = dn_direct_hash;
+	params.equal_func = dn_direct_equal;
+
+	dn_umap_t *map = dn_umap_custom_alloc (&params);
 
 	uint32_t sum = 0;
 	for (uint32_t i = 0; i < 1000; i++) {
@@ -635,7 +675,11 @@ umap_for_each_str_str_func (void *key, void *value, void *user_data)
 static RESULT
 test_umap_str_str_map (void)
 {
-	dn_umap_t *map = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, dn_str_hash, dn_str_equal, NULL, NULL);
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+	params.hash_func = dn_str_hash;
+	params.equal_func = dn_str_equal;
+
+	dn_umap_t *map = dn_umap_custom_alloc (&params);
 
 	foreach_count = 0;
 	foreach_fail = 0;
@@ -676,7 +720,13 @@ test_umap_str_str_map (void)
 static RESULT
 test_umap_grow (void)
 {
-	dn_umap_t *map = dn_umap_custom_alloc (DN_DEFAULT_ALLOCATOR, dn_str_hash, dn_str_equal, free, free);
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+	params.hash_func = dn_str_hash;
+	params.equal_func = dn_str_equal;
+	params.key_dispose_func = free;
+	params.value_dispose_func = free;
+
+	dn_umap_t *map = dn_umap_custom_alloc (&params);
 
 	char buffer1 [30];
 	char buffer2 [30];
@@ -699,10 +749,143 @@ test_umap_grow (void)
 	if (dn_umap_size (map) != 1000)
 		return FAILED ("Did not find 1000 elements on the hash, found %d\n", dn_umap_size (map));
 
-	dn_umap_for_each (map, umap_for_each_func, &count);
+	dn_umap_for_each (map, test_umap_for_each_func, &count);
 	if (count != 1000){
 		return FAILED ("for each count is not 1000");
 	}
+
+	dn_umap_free (map);
+
+	return OK;
+}
+
+static
+RESULT
+test_umap_find_erase (void)
+{
+	const char *items[] = { "first", "second", "third", "fourth"};
+
+	dn_umap_t *map = dn_umap_alloc ();
+
+	dn_umap_insert (map, (char *)items [2], (char *)items [2]);
+	dn_umap_insert (map, (char *)items [1], (char *)items [1]);
+	dn_umap_insert (map, (char *)items [0], (char *)items [0]);
+
+	const char *data = items [3];
+	dn_umap_insert (map, (char *)data, (char *)data);
+
+	dn_umap_it_t found = dn_umap_find (map, data);
+
+	if (dn_umap_it_key_t (found, char *) != data)
+		return FAILED ("find failed #1");
+
+	dn_umap_erase (found);
+
+	found = dn_umap_find (map, data);
+
+	if (!dn_umap_it_end (found))
+		return FAILED ("find failed #2");
+
+	dn_umap_free (map);
+
+	return OK;
+}
+
+static
+RESULT
+test_umap_ptr_uint32_insert_or_assign (void)
+{
+	dn_umap_result_t result;
+	const char *items[] = { "first", "second" };
+
+	dn_umap_t *map = dn_umap_alloc ();
+
+	result = dn_umap_ptr_uint32_insert (map, (void *) items [0], 1);
+	if (!result.result || dn_umap_it_key_ptr (result.it) != (void *)items [0] || dn_umap_it_value_uint32_t (result.it) != 1)
+		return FAILED ("insert failed #1");
+
+	result = dn_umap_ptr_uint32_insert (map, (void *) items [1], 2);
+	if (!result.result || dn_umap_it_key_ptr (result.it) != (void *)items [1] || dn_umap_it_value_uint32_t (result.it) != 2)
+		return FAILED ("insert failed #2");
+
+	result = dn_umap_insert_or_assign (map, (void *)items [1], 0);
+	if (!result.result || dn_umap_it_key_ptr (result.it) != (void *)items [1] || dn_umap_it_value_uint32_t (result.it) != 0)
+		return FAILED ("insert_or_assign failed");
+
+	dn_umap_free (map);
+
+	return OK;
+}
+
+static
+RESULT
+test_umap_ptr_uint32_find_erase (void)
+{
+	const char *items[] = { "first", "second", "third", "fourth"};
+
+	dn_umap_t *map = dn_umap_alloc ();
+
+	dn_umap_ptr_uint32_insert (map, (void *)items [2], 3);
+	dn_umap_ptr_uint32_insert (map, (void *)items [1], 2);
+	dn_umap_ptr_uint32_insert (map, (void *)items [0], 1);
+
+	const void *data = items [3];
+	dn_umap_ptr_uint32_insert (map, (void *)data, 4);
+
+	dn_umap_it_t found = dn_umap_ptr_uint32_find (map, data);
+
+	if (dn_umap_it_key_ptr (found) != (void *)data)
+		return FAILED ("find failed #1");
+
+	dn_umap_erase (found);
+
+	found = dn_umap_find (map, data);
+
+	if (!dn_umap_it_end (found))
+		return FAILED ("find failed #2");
+
+	dn_umap_free (map);
+
+	return OK;
+}
+
+static
+RESULT
+test_umap_ptr_uint32_find_erase_insert (void)
+{
+	const char *items[] = { "first", "second", "third", "fourth"};
+
+	dn_umap_t *map = dn_umap_alloc ();
+
+	dn_umap_ptr_uint32_insert (map, (char *)items [3], 4);
+	dn_umap_ptr_uint32_insert (map, (char *)items [2], 3);
+	dn_umap_ptr_uint32_insert (map, (char *)items [1], 2);
+	dn_umap_ptr_uint32_insert (map, (char *)items [0], 1);
+
+	dn_umap_it_t found = dn_umap_ptr_uint32_find (map, items [1]);
+
+	if (dn_umap_it_end (found))
+		return FAILED ("find failed #1");
+
+	if (dn_umap_it_key_ptr (found) != (void *)items [1])
+		return FAILED ("find failed #2");
+
+	if (dn_umap_it_value_uint32_t (found) != 2)
+		return FAILED ("find failed #3");
+
+	dn_umap_erase (found);
+
+	found = dn_umap_find (map, items [1]);
+	if (!dn_umap_it_end (found))
+		return FAILED ("find failed #4");
+
+	dn_umap_result_t result = dn_umap_ptr_uint32_insert (map, (char *)items [1], 2);
+	if (!result.result || dn_umap_it_end (result.it))
+		return FAILED ("insert failed");
+
+	found = dn_umap_find (map, items [1]);
+	if (dn_umap_it_end (found))
+		return FAILED ("find failed #5");
 
 	dn_umap_free (map);
 
@@ -747,6 +930,10 @@ static Test dn_umap_tests [] = {
 	{"test_umap_iterator_2", test_umap_iterator_2},
 	{"test_umap_str_str_map", test_umap_str_str_map},
 	{"test_umap_grow", test_umap_grow},
+	{"test_umap_find_erase", test_umap_find_erase},
+	{"test_umap_ptr_uint32_insert_or_assign", test_umap_ptr_uint32_insert_or_assign},
+	{"test_umap_ptr_uint32_find_erase", test_umap_ptr_uint32_find_erase},
+	{"test_umap_ptr_uint32_find_erase_insert", test_umap_ptr_uint32_find_erase_insert},
 	{"test_umap_teardown", test_umap_teardown},
 	{NULL, NULL}
 };

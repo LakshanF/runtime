@@ -285,12 +285,14 @@ dn_list_custom_erase (
 }
 
 void
-dn_list_pop_back (dn_list_t *list)
+dn_list_custom_pop_back (
+	dn_list_t *list,
+	dn_list_dispose_func_t dispose_func)
 {
 	DN_ASSERT (list && list->tail);
 
 	dn_list_node_t *prev = list->tail->prev;
-	list_free_node (list->_internal._allocator, list_unlink_node (list->tail));
+	list_dispose_node (list->_internal._allocator, dispose_func, list_unlink_node (list->tail));
 
 	list->tail = prev;
 	if (!list->tail)
@@ -298,12 +300,14 @@ dn_list_pop_back (dn_list_t *list)
 }
 
 void
-dn_list_pop_front (dn_list_t *list)
+dn_list_custom_pop_front (
+	dn_list_t *list,
+	dn_list_dispose_func_t dispose_func)
 {
 	DN_ASSERT (list && list->head);
 
 	dn_list_node_t *next = list->head->next;
-	list_free_node (list->_internal._allocator, list_unlink_node (list->head));
+	list_dispose_node (list->_internal._allocator, dispose_func, list_unlink_node (list->head));
 
 	list->head = next;
 	if (!list->head)
@@ -424,7 +428,7 @@ dn_list_sort (
 }
 
 dn_list_it_t
-dn_list_find (
+dn_list_custom_find (
 	dn_list_t *list,
 	const void *data,
 	dn_list_equal_func_t equal_func)

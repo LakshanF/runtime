@@ -255,12 +255,14 @@ dn_fwd_list_custom_erase_after (
 }
 
 void
-dn_fwd_list_pop_front (dn_fwd_list_t *list)
+dn_fwd_list_custom_pop_front (
+	dn_fwd_list_t *list,
+	dn_fwd_list_dispose_func_t dispose_func)
 {
 	DN_ASSERT (list && list->head);
 
 	dn_fwd_list_node_t *next = list->head->next;
-	fwd_list_free_node (list->_internal._allocator, list->head);
+	fwd_list_dispose_node (list->_internal._allocator, dispose_func, list->head);
 
 	list->head = next;
 	if (!list->head)
@@ -385,7 +387,7 @@ dn_fwd_list_sort (
 }
 
 dn_fwd_list_it_t
-dn_fwd_list_find (
+dn_fwd_list_custom_find (
 	dn_fwd_list_t *list,
 	const void *data,
 	dn_fwd_list_equal_func_t equal_func)

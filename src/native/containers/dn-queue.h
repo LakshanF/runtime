@@ -124,6 +124,15 @@ dn_queue_push (
 	dn_queue_push ((queue),((void *)(ptrdiff_t)(data)))
 
 static inline void
+dn_queue_custom_pop (
+	dn_queue_t *queue,
+	dn_queue_dispose_func_t dispose_func)
+{
+	DN_ASSERT (queue);
+	dn_list_custom_pop_front (&queue->_internal.list, dispose_func);
+	queue->size --;
+}
+static inline void
 dn_queue_pop (dn_queue_t *queue)
 {
 	DN_ASSERT (queue);

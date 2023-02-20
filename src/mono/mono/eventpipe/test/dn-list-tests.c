@@ -19,6 +19,65 @@ static _CrtMemState dn_list_memory_diff_snapshot;
 #define INT32_TO_POINTER(v) ((void *)(ptrdiff_t)(v))
 
 static
+void
+DN_CALLBACK_CALLTYPE
+test_list_dispose_func (void *data)
+{
+	(*(uint32_t *)data)++;
+}
+
+static int32_t test_list_dispose_count = 0;
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_list_dispose_count_func (void *data)
+{
+	test_list_dispose_count++;
+}
+
+static
+bool
+DN_CALLBACK_CALLTYPE
+test_list_remove_if_func (const void *data, const void *user_data)
+{
+	return !strcmp ((const char *)data, (const char *)user_data);
+}
+
+static
+void
+DN_CALLBACK_CALLTYPE
+test_list_foreach_func (
+	void *data,
+	void *user_data)
+{
+	(*(uint32_t *)user_data)++;
+}
+
+static
+int32_t
+DN_CALLBACK_CALLTYPE
+test_list_sort_compare (
+	const void *p1,
+	const void *p2)
+{
+	return POINTER_TO_INT32 (p1) - POINTER_TO_INT32 (p2);
+}
+
+static
+bool
+DN_CALLBACK_CALLTYPE
+test_list_find_func (
+	const void *a,
+	const void *b)
+{
+	if (!a || !b)
+		return false;
+
+	return !strcmp ((const char *)a, (const char *)b);
+}
+
+static
 RESULT
 test_list_setup (void)
 {
@@ -55,14 +114,6 @@ test_list_init (void)
 }
 
 static
-void
-DN_CALLBACK_CALLTYPE
-list_dispose_func (void *data)
-{
-	(*(uint32_t *)data)++;
-}
-
-static
 RESULT
 test_list_free (void)
 {
@@ -74,7 +125,7 @@ test_list_free (void)
 	dn_list_insert (dn_list_end (list), &dispose_count);
 	dn_list_insert (dn_list_end (list), &dispose_count);
 
-	dn_list_custom_free (list, list_dispose_func);
+	dn_list_custom_free (list, test_list_dispose_func);
 
 	if (dispose_count != 2)
 		return FAILED ("invalid dispose count on free");
@@ -94,7 +145,7 @@ test_list_dispose (void)
 	dn_list_insert (dn_list_end (&list), &dispose_count);
 	dn_list_insert (dn_list_end (&list), &dispose_count);
 
-	dn_list_custom_dispose (&list, list_dispose_func);
+	dn_list_custom_dispose (&list, test_list_dispose_func);
 
 	if (dispose_count != 2)
 		return FAILED ("invalid dispose count on free");
@@ -204,13 +255,13 @@ test_list_clear (void)
 	dn_list_insert (dn_list_end (list), &dispose_count);
 	dn_list_insert (dn_list_end (list), &dispose_count);
 
-	dn_list_custom_clear (list, list_dispose_func);
+	dn_list_custom_clear (list, test_list_dispose_func);
 
 	if (dispose_count != 2)
 		return FAILED ("invalid dispose count on clear");
 
 	dispose_count = 0;
-	dn_list_custom_free (list, list_dispose_func);
+	dn_list_custom_free (list, test_list_dispose_func);
 
 	if (dispose_count != 0)
 		return FAILED ("invalid dispose count on clear/free");
@@ -334,6 +385,7 @@ static
 RESULT
 test_list_erase (void)
 {
+	uint32_t dispose_count = 0;
 	const char *items[] = { "first", "second", "third", "fourth"};
 
 	dn_list_t *list = dn_list_alloc ();
@@ -364,6 +416,20 @@ test_list_erase (void)
 
 	if (!list->head || !list->head->data || strcmp (list->head->data, "second") || list->head->next)
 		return FAILED ("erase failed #2");
+
+	dn_list_free (list);
+
+	list = dn_list_alloc ();
+
+	dn_list_insert (dn_list_end (list), &dispose_count);
+	dn_list_insert (dn_list_end (list), &dispose_count);
+	dn_list_insert (dn_list_end (list), &dispose_count);
+
+	dn_list_custom_erase (dn_list_begin (list), test_list_dispose_func);
+	dn_list_custom_erase (dn_list_begin (list), test_list_dispose_func);
+
+	if (dispose_count != 2)
+		return FAILED ("erase failed #3");
 
 	dn_list_free (list);
 
@@ -440,14 +506,14 @@ test_list_pop_front (void)
 	dn_list_push_front (&list, &dispose_count);
 	dn_list_push_front (&list, &dispose_count);
 
-	dn_list_pop_front (&list);
+	dn_list_custom_pop_front (&list, test_list_dispose_func);
 
-	if (dispose_count != 0)
+	if (dispose_count == 0)
 		return FAILED ("pop_front dispose count failed #1");
 
-	dn_list_custom_dispose (&list, list_dispose_func);
+	dn_list_custom_dispose (&list, test_list_dispose_func);
 
-	if (dispose_count != 2)
+	if (dispose_count != 3)
 		return FAILED ("pop_front dispose count failed #2");
 
 	return OK;
@@ -523,14 +589,14 @@ test_list_pop_back (void)
 	dn_list_push_back (&list, &dispose_count);
 	dn_list_push_back (&list, &dispose_count);
 
-	dn_list_pop_back (&list);
+	dn_list_custom_pop_back (&list, test_list_dispose_func);
 
-	if (dispose_count != 0)
+	if (dispose_count == 0)
 		return FAILED ("pop_back dispose count failed #1");
 
-	dn_list_custom_dispose (&list, list_dispose_func);
+	dn_list_custom_dispose (&list, test_list_dispose_func);
 
-	if (dispose_count != 2)
+	if (dispose_count != 3)
 		return FAILED ("pop_back dispose count failed #2");
 
 	return OK;
@@ -546,7 +612,7 @@ test_list_resize (void)
 	for (uint32_t i = 0; i < 10; i++)
 		dn_list_push_front (list, &dispose_count);
 
-	dn_list_custom_resize (list, 0, list_dispose_func);
+	dn_list_custom_resize (list, 0, test_list_dispose_func);
 
 	if (dispose_count != 10)
 		return FAILED ("failed resize #1");
@@ -555,20 +621,20 @@ test_list_resize (void)
 		dn_list_push_front (list, &dispose_count);
 	
 	dispose_count = 0;
-	dn_list_custom_resize (list, 90, list_dispose_func);
+	dn_list_custom_resize (list, 90, test_list_dispose_func);
 
 	if (dispose_count != 10)
 		return FAILED ("failed resize #2");
 
 	dispose_count = 0;
-	dn_list_custom_resize (list, 10, list_dispose_func);
+	dn_list_custom_resize (list, 10, test_list_dispose_func);
 
 	if (dispose_count != 80)
 		return FAILED ("failed resize #3");
 
 	dispose_count = 0;
 
-	dn_list_custom_free (list, list_dispose_func);
+	dn_list_custom_free (list, test_list_dispose_func);
 
 	if (dispose_count != 10)
 		return FAILED ("failed free");
@@ -580,6 +646,7 @@ static
 RESULT
 test_list_remove (void)
 {
+	uint32_t dispose_count = 0;
 	const char *items[] = { "first", "second", "third", "fourth"};
 
 	dn_list_t *list = dn_list_alloc ();
@@ -638,15 +705,20 @@ test_list_remove (void)
 
 	dn_list_free (list);
 
-	return OK;
-}
+	list = dn_list_alloc ();
 
-static
-bool
-DN_CALLBACK_CALLTYPE
-remove_if_func (const void *data, const void *user_data)
-{
-	return !strcmp ((const char *)data, (const char *)user_data);
+	dn_list_insert (dn_list_end (list), &dispose_count);
+	dn_list_insert (dn_list_end (list), &dispose_count);
+	dn_list_insert (dn_list_end (list), &dispose_count);
+	dn_list_insert (dn_list_end (list), &dispose_count);
+
+	dn_list_custom_remove (list, &dispose_count, test_list_dispose_func);
+	if (dispose_count != 4)
+		return FAILED ("custom remove failed, incorrect dispose count");
+
+	dn_list_free (list);
+
+	return OK;
 }
 
 static
@@ -668,7 +740,7 @@ test_list_remove_if (void)
 	dn_list_insert (dn_list_end (list), (char *)items [3]);
 
 	// Remove all "second"
-	dn_list_remove_if (list, items [1], remove_if_func);
+	dn_list_remove_if (list, items [1], test_list_remove_if_func);
 
 	if (dn_list_size (list) != 6)
 		return FAILED ("remove failed, incorrect size #1");
@@ -679,7 +751,7 @@ test_list_remove_if (void)
 	} DN_LIST_FOREACH_END;
 
 	// Remove all "first"
-	dn_list_remove_if (list, items [0], remove_if_func);
+	dn_list_remove_if (list, items [0], test_list_remove_if_func);
 
 	if (dn_list_size (list) != 4)
 		return FAILED ("remove failed, incorrect size #2");
@@ -690,7 +762,7 @@ test_list_remove_if (void)
 	} DN_LIST_FOREACH_END;
 
 	// Remove all "fourth"
-	dn_list_remove_if (list, items [3], remove_if_func);
+	dn_list_remove_if (list, items [3], test_list_remove_if_func);
 
 	if (dn_list_size (list) != 2)
 		return FAILED ("remove failed, incorrect size #3");
@@ -701,13 +773,27 @@ test_list_remove_if (void)
 	} DN_LIST_FOREACH_END;
 
 	// "fourth" already removed.
-	dn_list_remove_if (list, items [3], remove_if_func);
+	dn_list_remove_if (list, items [3], test_list_remove_if_func);
 
 	// Validate that only "third" is left.
 	DN_LIST_FOREACH_BEGIN (list, char *, item) {
 		if (strcmp (item, items [2]))
 			return FAILED ("remove failed, unexpected item %s #4", item);
 	} DN_LIST_FOREACH_END;
+
+	dn_list_free (list);
+
+	list = dn_list_alloc ();
+
+	dn_list_insert (dn_list_end (list), (char *)items [0]);
+	dn_list_insert (dn_list_end (list), (char *)items [1]);
+	dn_list_insert (dn_list_end (list), (char *)items [2]);
+	dn_list_insert (dn_list_end (list), (char *)items [3]);
+
+	test_list_dispose_count = 0;
+	dn_list_custom_remove_if (list, items [2], test_list_remove_if_func, test_list_dispose_count_func);
+	if (test_list_dispose_count != 1)
+		return FAILED ("custom remove if failed, incorrect dispose count");
 
 	dn_list_free (list);
 
@@ -741,16 +827,6 @@ test_list_reverse (void)
 }
 
 static
-void
-DN_CALLBACK_CALLTYPE
-list_foreach_func (
-	void *data,
-	void *user_data)
-{
-	(*(uint32_t *)user_data)++;
-}
-
-static
 RESULT
 test_list_for_each (void)
 {
@@ -760,23 +836,13 @@ test_list_for_each (void)
 	for (uint32_t i = 0; i < N_ELEMS; ++i)
 		dn_list_insert (dn_list_begin (list), INT32_TO_POINTER (i));
 
-	dn_list_for_each (list, list_foreach_func, &count);
+	dn_list_for_each (list, test_list_foreach_func, &count);
 	if (count != N_ELEMS)
 		return FAILED ("for_each failed");
 
 	dn_list_free (list);
 
 	return OK;
-}
-
-static
-int32_t
-DN_CALLBACK_CALLTYPE
-list_sort_compare (
-	const void *p1,
-	const void *p2)
-{
-	return POINTER_TO_INT32 (p1) - POINTER_TO_INT32 (p2);
 }
 
 static
@@ -813,7 +879,7 @@ test_list_sort (void)
 	for (i = 0; i < N_ELEMS; ++i)
 		dn_list_push_front (list, INT32_TO_POINTER (i));
 
-	dn_list_sort (list, list_sort_compare);
+	dn_list_sort (list, test_list_sort_compare);
 	if (!list_verify_sort (list, N_ELEMS))
 		return FAILED ("decreasing list");
 
@@ -822,7 +888,7 @@ test_list_sort (void)
 	list = dn_list_alloc ();
 	for (i = 0; i < N_ELEMS; ++i)
 		dn_list_push_front (list, INT32_TO_POINTER (-i));
-	dn_list_sort (list, list_sort_compare);
+	dn_list_sort (list, test_list_sort_compare);
 	if (!list_verify_sort (list, N_ELEMS))
 		return FAILED ("increasing list");
 
@@ -835,7 +901,7 @@ test_list_sort (void)
 		dn_list_push_front (list, INT32_TO_POINTER (i));
 	}
 
-	dn_list_sort (list, list_sort_compare);
+	dn_list_sort (list, test_list_sort_compare);
 	if (!list_verify_sort (list, 2*N_ELEMS-1))
 		return FAILED ("alternating list");
 
@@ -848,26 +914,13 @@ test_list_sort (void)
 		for (j = 0; j < i; ++j)
 			dn_list_push_front (list, INT32_TO_POINTER (mul * j));
 	}
-	dn_list_sort (list, list_sort_compare);
+	dn_list_sort (list, test_list_sort_compare);
 	if (!list_verify_sort (list, (N_ELEMS*N_ELEMS - N_ELEMS)/2))
 		return FAILED ("wavering list");
 
 	dn_list_free (list);
 
 	return OK;
-}
-
-static
-bool
-DN_CALLBACK_CALLTYPE
-list_find_func (
-	const void *a,
-	const void *b)
-{
-	if (!a || !b)
-		return false;
-
-	return !strcmp ((const char *)a, (const char *)b);
 }
 
 static
@@ -883,16 +936,50 @@ test_list_find (void)
 	char *data = (char*)"four";
 	dn_list_insert (dn_list_end (list), data);
 
-	dn_list_it_t found1 = dn_list_find (list, data, NULL);
-	dn_list_it_t found2 = dn_list_find (list, data, list_find_func);
+	dn_list_it_t found1 = dn_list_find (list, data);
+	dn_list_it_t found2 = dn_list_custom_find (list, data, test_list_find_func);
 
 	if (*dn_list_it_data_t (found1, char *) != data || *dn_list_it_data_t (found2, char *) != data)
 		return FAILED ("find failed #1");
 
-	found1 = dn_list_find (list, NULL, NULL);
-	found2 = dn_list_find (list, NULL, list_find_func);
+	found1 = dn_list_find (list, NULL);
+	found2 = dn_list_custom_find (list, NULL, test_list_find_func);
 	if (found1.it != dn_list_end (list).it || found2.it != dn_list_end (list).it)
 		return FAILED ("find failed #2");
+
+	dn_list_free (list);
+
+	return OK;
+}
+
+static
+RESULT
+test_list_find_erase (void)
+{
+	const char *items[] = { "first", "second", "third", "fourth"};
+
+	dn_list_t *list = dn_list_alloc ();
+
+	dn_list_push_front (list, items [2]);
+	dn_list_push_front (list, items [1]);
+	dn_list_push_front (list, items [0]);
+
+	dn_list_insert (dn_list_end (list), items [3]);
+
+	dn_list_it_t found = dn_list_find (list, items [1]);
+	if (dn_list_it_end (found))
+		return FAILED ("find failed #1");
+
+	if (*dn_list_it_data_t (found, char *) != items [1])
+		return FAILED ("find failed #2");
+
+	dn_list_it_t erased = dn_list_erase (found);
+	if (dn_list_it_end (erased))
+		return FAILED ("erase failed");
+
+	found = dn_list_find (list, items [1]);
+	if (!dn_list_it_end (found))
+		return FAILED ("find failed #3");
 
 	dn_list_free (list);
 
@@ -949,6 +1036,29 @@ test_list_rev_iterator (void)
 
 static
 RESULT
+test_list_iterate_remove (void)
+{
+	dn_list_t *list = dn_list_alloc ();
+
+	for (uint32_t i = 0; i < N_ELEMS; ++i)
+		dn_list_insert (dn_list_end (list), INT32_TO_POINTER (i));
+
+	for (dn_list_it_t it = dn_list_begin (list); !dn_list_it_end (it); ) {
+		void *data = *dn_list_it_data (it);
+		it = dn_list_it_next (it);
+		dn_list_remove (list, data);
+	}
+
+	if (dn_list_size (list) != 0)
+		return FAILED ("iterate remove failed");
+
+	dn_list_free (list);
+
+	return OK;
+}
+
+static
+RESULT
 test_list_teardown (void)
 {
 #ifdef _CRTDBG_MAP_ALLOC
@@ -985,8 +1095,10 @@ static Test dn_list_tests [] = {
 	{"test_list_for_each", test_list_for_each},
 	{"test_list_sort", test_list_sort},
 	{"test_list_find", test_list_find},
+	{"test_list_find_erase", test_list_find_erase},
 	{"test_list_iterator", test_list_iterator},
 	{"test_list_rev_iterator", test_list_rev_iterator},
+	{"test_list_iterate_remove", test_list_iterate_remove},
 	{"test_list_teardown", test_list_teardown},
 	{NULL, NULL}
 };

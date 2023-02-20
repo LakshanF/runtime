@@ -162,7 +162,7 @@ config_unregister_provider (
 	// The provider list should be non-NULL, but can be NULL on shutdown.
 	if (!dn_list_empty (config->provider_list)) {
 		// If we found the provider, remove it.
-		dn_list_it_t found = dn_list_find (config->provider_list, provider, NULL);
+		dn_list_it_t found = dn_list_find (config->provider_list, provider);
 		if (!dn_list_it_end (found)) {
 			dn_list_erase (found);
 			unregistered = true;
@@ -188,7 +188,7 @@ EventPipeProvider *
 config_find_provider_by_name (dn_list_t *list,
 	const ep_char8_t *name)
 {
-	dn_list_it_t found = dn_list_find (list, name, config_compare_provider_name_func);
+	dn_list_it_t found = dn_list_custom_find (list, name, config_compare_provider_name_func);
 	return (!dn_list_it_end (found)) ? *dn_list_it_data_t (found, EventPipeProvider *) : NULL;
 }
 

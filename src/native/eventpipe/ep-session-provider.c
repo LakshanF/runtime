@@ -176,7 +176,7 @@ ep_session_provider_list_find_by_name (
 	dn_list_t *list,
 	const ep_char8_t *name)
 {
-	dn_list_it_t found = dn_list_find (list, name, session_provider_compare_name_func);
+	dn_list_it_t found = dn_list_custom_find (list, name, session_provider_compare_name_func);
 	return (!dn_list_it_end (found)) ? *dn_list_it_data_t(found, EventPipeSessionProvider *) : NULL;
 }
 

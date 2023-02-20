@@ -52,6 +52,16 @@ struct _dn_umap_result_t {
 	bool result;
 };
 
+typedef struct _dn_umap_custom_params_t dn_umap_custom_alloc_params_t;
+typedef struct _dn_umap_custom_params_t dn_umap_custom_init_params_t;
+struct _dn_umap_custom_params_t {
+	dn_allocator_t *allocator;
+	dn_umap_hash_func_t hash_func;
+	dn_umap_equal_func_t equal_func;
+	dn_umap_key_dispose_func_t key_dispose_func;
+	dn_umap_value_dispose_func_t value_dispose_func;
+};
+
 dn_umap_t *
 _dn_umap_alloc (
 	dn_allocator_t *allocator,
@@ -140,15 +150,13 @@ dn_umap_it_end (dn_umap_it_t it)
 		} \
 	} while (0)
 
+#define DN_UMAP_DEFAULT_ALLOC_PARAMS { DN_DEFAULT_ALLOCATOR, NULL, NULL, NULL, NULL }
+
 static inline dn_umap_t *
-dn_umap_custom_alloc (
-	dn_allocator_t *allocator,
-	dn_umap_hash_func_t hash_func,
-	dn_umap_equal_func_t equal_func,
-	dn_umap_key_dispose_func_t key_dispose_func,
-	dn_umap_value_dispose_func_t value_dispose_func)
+dn_umap_custom_alloc (const dn_umap_custom_alloc_params_t *params)
 {
-	return _dn_umap_alloc (allocator, hash_func, equal_func, key_dispose_func, value_dispose_func);
+	DN_ASSERT (params);
+	return _dn_umap_alloc (params->allocator, params->hash_func, params->equal_func, params->key_dispose_func, params->value_dispose_func);
 }
 
 static inline dn_umap_t *
@@ -160,16 +168,15 @@ dn_umap_alloc (void)
 void
 dn_umap_free (dn_umap_t *map);
 
+#define DN_UMAP_DEFAULT_INIT_PARAMS DN_UMAP_DEFAULT_ALLOC_PARAMS
+
 static inline bool
 dn_umap_custom_init (
 	dn_umap_t *map,
-	dn_allocator_t *allocator,
-	dn_umap_hash_func_t hash_func,
-	dn_umap_equal_func_t equal_func,
-	dn_umap_key_dispose_func_t key_dispose_func,
-	dn_umap_value_dispose_func_t value_dispose_func)
+	const dn_umap_custom_init_params_t *params)
 {
-	return _dn_umap_init (map, allocator, hash_func, equal_func, key_dispose_func, value_dispose_func);
+	DN_ASSERT (params);
+	return _dn_umap_init (map, params->allocator, params->hash_func, params->equal_func, params->key_dispose_func, params->value_dispose_func);
 }
 
 static inline bool

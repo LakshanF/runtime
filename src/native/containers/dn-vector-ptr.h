@@ -8,6 +8,9 @@
 
 DN_DEFINE_VECTOR_T (ptr, void *)
 
+#define DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS { DN_DEFAULT_ALLOCATOR, sizeof (void *), 0, DN_VECTOR_ATTRIBUTE_INIT_MEMORY }
+#define DN_VECTOR_PTR_DEFAULT_INIT_PARAMS { DN_DEFAULT_ALLOCATOR, sizeof (void *), 0, DN_VECTOR_ATTRIBUTE_INIT_MEMORY }
+
 #define DN_VECTOR_PTR_FOREACH_BEGIN(vector,var_type,var_name) do { \
 	var_type var_name; \
 	DN_ASSERT (sizeof (var_type) == (vector)->_internal._element_size); \

@@ -34,6 +34,21 @@ dn_umap_ ## key_type_name ## _ ## value_type_name ## _insert_or_assign (dn_umap_
 { \
 	return dn_umap_insert_or_assign (map, ((void *)(uintptr_t)key), ((void *)(uintptr_t)value)); \
 } \
+static inline uint32_t \
+dn_umap_ ## key_type_name ## _ ## value_type_name ## _erase_key (dn_umap_t *map, key_type key) \
+{ \
+	return dn_umap_erase_key (map, ((const void *)(uintptr_t)key)); \
+} \
+static inline bool \
+dn_umap_ ## key_type_name ## _ ## value_type_name ## _extract_key (dn_umap_t *map, key_type key, key_type *out_key, value_type *out_value) \
+{ \
+	return dn_umap_extract_key (map, ((const void *)(uintptr_t)key), (void **)out_key, (void **)out_value); \
+} \
+static inline dn_umap_it_t \
+dn_umap_ ## key_type_name ## _ ## value_type_name ## _custom_find (dn_umap_t *map, key_type key, dn_umap_equal_func_t equal_func) \
+{ \
+	return dn_umap_custom_find (map, ((const void *)(uintptr_t)key), equal_func); \
+} \
 static inline dn_umap_it_t \
 dn_umap_ ## key_type_name ## _ ## value_type_name ## _find (dn_umap_t *map, key_type key) \
 { \

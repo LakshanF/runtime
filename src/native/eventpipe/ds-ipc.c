@@ -263,8 +263,12 @@ ds_ipc_stream_factory_configure (ds_ipc_error_callback_func callback)
 
 		DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size * 2);
 
-		dn_vector_ptr_t *port_configs = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
-		dn_vector_ptr_t *port_config_parts = dn_vector_ptr_custom_alloc_capacity ((dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+		dn_vector_ptr_custom_alloc_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+		params.allocator = (dn_allocator_t *)&allocator;
+		params.capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
+
+		dn_vector_ptr_t *port_configs = dn_vector_ptr_custom_alloc (&params);
+		dn_vector_ptr_t *port_config_parts = dn_vector_ptr_custom_alloc (&params);
 
 		if (port_configs && port_config_parts) {
 			ipc_stream_factory_split_port_config (ports, ";", port_configs);
@@ -353,8 +357,11 @@ ds_ipc_stream_factory_get_next_available_stream (ds_ipc_error_callback_func call
 	bool connect_success = true;
 	uint32_t poll_attempts = 0;
 
+	dn_vector_custom_alloc_params_t params = DN_VECTOR_DEFAULT_INIT_PARAMS_T (DiagnosticsIpcPollHandle);
+	params.capacity = _ds_default_poll_handle_array_size;
+
 	dn_vector_t ipc_poll_handles;
-	ep_raise_error_if_nok (dn_vector_init_capacity_t (&ipc_poll_handles, DiagnosticsIpcPollHandle, _ds_default_poll_handle_array_size));
+	ep_raise_error_if_nok (dn_vector_custom_init (&ipc_poll_handles, &params));
 
 	while (!stream) {
 		connect_success = true;

@@ -37,6 +37,14 @@ struct _ ## name ## _result_t { \
 	bool result; \
 	name ## _it_t it; \
 }; \
+typedef struct _ ## name ## _custom_params_t name ## _custom_alloc_params_t; \
+typedef struct _ ## name ## _custom_params_t name ## _custom_init_params_t; \
+struct _ ## name ## _custom_params_t { \
+	dn_allocator_t *allocator; \
+	uint32_t element_size; \
+	uint32_t capacity; \
+	uint32_t attributes; \
+};
 
 DN_DEFINE_VECTOR_T_STRUCT(dn_vector, uint8_t);
 
@@ -184,17 +192,16 @@ _dn_vector_buffer_capacity (
 	size_t buffer_size,
 	uint32_t element_size);
 
-#define dn_vector_custom_alloc_t(allocator, element_type, attributes) \
-	_dn_vector_alloc ((allocator), sizeof (element_type), (attributes));
+#define DN_VECTOR_DEFAULT_ALLOC_PARAMS_T(element_type) { DN_DEFAULT_ALLOCATOR, sizeof (element_type), 0, DN_VECTOR_ATTRIBUTE_INIT_MEMORY }
+
+static inline dn_vector_t *
+dn_vector_custom_alloc (const dn_vector_custom_alloc_params_t *params)
+{
+	return _dn_vector_alloc_capacity (params->allocator, params->element_size, params->capacity, params->attributes);
+}
 
 #define dn_vector_alloc_t(element_type) \
-	dn_vector_custom_alloc_t (DN_DEFAULT_ALLOCATOR, element_type, DN_VECTOR_ATTRIBUTE_INIT_MEMORY)
-
-#define dn_vector_custom_alloc_capacity_t(allocator, element_type, capacity, attributes) \
-	_dn_vector_alloc_capacity ((allocator), sizeof (element_type), (capacity), (attributes));
-
-#define dn_vector_alloc_capacity_t(element_type, capacity) \
-	dn_vector_custom_alloc_capacity_t (DN_DEFAULT_ALLOCATOR, element_type, capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY);
+	_dn_vector_alloc (DN_DEFAULT_ALLOCATOR, sizeof (element_type), DN_VECTOR_ATTRIBUTE_INIT_MEMORY)
 
 void
 dn_vector_custom_free (
@@ -207,17 +214,18 @@ dn_vector_free (dn_vector_t *vector)
 	dn_vector_custom_free (vector, NULL);
 }
 
-#define dn_vector_custom_init_t(vector, allocator, element_type, attributes) \
-	_dn_vector_init ((vector), (allocator), sizeof (element_type), (attributes))
+#define DN_VECTOR_DEFAULT_INIT_PARAMS_T(element_type) DN_VECTOR_DEFAULT_ALLOC_PARAMS_T (element_type)
+
+static inline bool
+dn_vector_custom_init (
+	dn_vector_t *vector,
+	const dn_vector_custom_init_params_t *params)
+{
+	return _dn_vector_init_capacity (vector, params->allocator, params->element_size, params->capacity, params->attributes);
+}
 
 #define dn_vector_init_t(vector, element_type) \
-	dn_vector_custom_init_t (vector, DN_DEFAULT_ALLOCATOR, element_type, DN_VECTOR_ATTRIBUTE_INIT_MEMORY)
-
-#define dn_vector_custom_init_capacity_t(vector, allocator, element_type, capacity, attributes) \
-	_dn_vector_init_capacity ((vector), (allocator), sizeof (element_type), (capacity), (attributes))
-
-#define dn_vector_init_capacity_t(vector, element_type, capacity) \
-	dn_vector_custom_init_capacity_t (vector, DN_DEFAULT_ALLOCATOR, element_type, capacity, DN_VECTOR_ATTRIBUTE_INIT_MEMORY)
+	_dn_vector_init (vector, DN_DEFAULT_ALLOCATOR, sizeof (element_type), DN_VECTOR_ATTRIBUTE_INIT_MEMORY)
 
 void
 dn_vector_custom_dispose (
@@ -401,15 +409,15 @@ dn_vector_clear (dn_vector_t *vector)
 #define dn_vector_push_back(vector, element) \
 	_dn_vector_append_range ((vector), (const uint8_t *)&(element), 1)
 
+void
+dn_vector_custom_pop_back (
+	dn_vector_t* vector,
+	dn_vector_dispose_func_t dispose_func);
+
 static inline void
 dn_vector_pop_back (dn_vector_t *vector)
 {
-	DN_ASSERT (vector && vector->size != 0);
-
-	if ((vector->_internal._attributes & (uint32_t)DN_VECTOR_ATTRIBUTE_INIT_MEMORY) == DN_VECTOR_ATTRIBUTE_INIT_MEMORY)
-		memset (dn_vector_back_t (vector, uint8_t), 0, vector->_internal._element_size);
-
-	vector->size --;
+	dn_vector_custom_pop_back (vector, NULL);
 }
 
 #define dn_vector_buffer_capacity_t(buffer_byte_size, type) \
@@ -427,10 +435,19 @@ dn_vector_sort (
 	dn_vector_compare_func_t compare_func);
 
 dn_vector_it_t
-dn_vector_find (
+dn_vector_custom_find (
 	dn_vector_t *vector,
 	const uint8_t *value,
 	dn_vector_equal_func_t equal_func);
+
+static inline dn_vector_it_t
+dn_vector_find (
+	dn_vector_t *vector,
+	const uint8_t *value,
+	dn_vector_equal_func_t equal_func)
+{
+	return dn_vector_custom_find (vector, value, equal_func);
+}
 
 static inline void
 _dn_vector_find_adapter (
@@ -440,7 +457,7 @@ _dn_vector_find_adapter (
 	dn_vector_it_t *found)
 {
 	DN_ASSERT (found);
-	*found = dn_vector_find (vector, data, equal_func);
+	*found = dn_vector_custom_find (vector, data, equal_func);
 }
 
 #endif /* __DN_VECTOR_H__ */

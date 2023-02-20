@@ -245,7 +245,6 @@ dn_list_custom_clear (
 	dn_list_t *list,
 	dn_list_dispose_func_t dispose_func);
 
-
 static inline void
 dn_list_clear (dn_list_t *list)
 {
@@ -284,7 +283,15 @@ dn_list_push_back (
 }
 
 void
-dn_list_pop_back (dn_list_t *list);
+dn_list_custom_pop_back (
+	dn_list_t *list,
+	dn_list_dispose_func_t dispose_func);
+
+static inline void
+dn_list_pop_back (dn_list_t *list)
+{
+	dn_list_custom_pop_back (list, NULL);
+}
 
 static inline bool
 dn_list_push_front (
@@ -296,7 +303,15 @@ dn_list_push_front (
 }
 
 void
-dn_list_pop_front (dn_list_t *list);
+dn_list_custom_pop_front (
+	dn_list_t *list,
+	dn_list_dispose_func_t dispose_func);
+
+static inline void
+dn_list_pop_front (dn_list_t *list)
+{
+	dn_list_custom_pop_front (list, NULL);
+}
 
 bool
 dn_list_custom_resize (
@@ -357,9 +372,17 @@ dn_list_sort (
 	dn_list_compare_func_t compare_func);
 
 dn_list_it_t
-dn_list_find (
+dn_list_custom_find (
 	dn_list_t *list,
 	const void *data,
 	dn_list_equal_func_t equal_func);
+
+static inline dn_list_it_t
+dn_list_find (
+	dn_list_t *list,
+	const void *data)
+{
+	return dn_list_custom_find (list, data, NULL);
+}
 
 #endif /* __DN_LIST_H__ */

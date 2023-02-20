@@ -169,7 +169,10 @@ eventpipe_collect_tracing_command_try_parse_config (
 	ep_raise_error_if_nok (ds_ipc_message_try_parse_uint32_t (buffer, buffer_len, &count_configs));
 	ep_raise_error_if_nok (count_configs <= max_count_configs);
 
-	*result = dn_vector_alloc_capacity_t (EventPipeProviderConfiguration, count_configs);
+	dn_vector_custom_alloc_params_t params = DN_VECTOR_DEFAULT_ALLOC_PARAMS_T (EventPipeProviderConfiguration);
+	params.capacity = count_configs;
+
+	*result = dn_vector_custom_alloc (&params);
 	ep_raise_error_if_nok (*result);
 
 	for (uint32_t i = 0; i < count_configs; ++i) {

@@ -126,7 +126,7 @@ _dn_vector_init_capacity (
 	vector->_internal._element_size = element_size;
 	vector->_internal._attributes = attributes;
 
-	if (DN_UNLIKELY (!ensure_capacity (vector, capacity))) {
+	if (DN_UNLIKELY (!ensure_capacity (vector, capacity != 0 ? capacity : INITIAL_CAPACITY))) {
 		dn_vector_dispose (vector);
 		return false;
 	}
@@ -348,6 +348,22 @@ dn_vector_custom_resize (
 }
 
 void
+dn_vector_custom_pop_back (
+	dn_vector_t* vector,
+	dn_vector_dispose_func_t dispose_func)
+{
+	DN_ASSERT (vector && vector->size != 0);
+
+	if (dispose_func)
+		dispose_func (dn_vector_at (vector, vector->_internal._element_size, vector->size - 1));
+
+	if ((vector->_internal._attributes & (uint32_t)DN_VECTOR_ATTRIBUTE_INIT_MEMORY) == DN_VECTOR_ATTRIBUTE_INIT_MEMORY)
+		memset (dn_vector_at (vector, vector->_internal._element_size, vector->size - 1), 0, vector->_internal._element_size);
+
+	vector->size --;
+}
+
+void
 dn_vector_for_each (
 	const dn_vector_t *vector,
 	dn_vector_for_each_func_t for_each_func,
@@ -373,7 +389,7 @@ dn_vector_sort (
 }
 
 dn_vector_it_t
-dn_vector_find (
+dn_vector_custom_find (
 	dn_vector_t *vector,
 	const uint8_t *value,
 	dn_vector_equal_func_t equal_func)

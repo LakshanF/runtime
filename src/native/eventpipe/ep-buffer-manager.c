@@ -594,8 +594,12 @@ buffer_manager_move_next_event_any_thread (
 	dn_vector_ptr_t buffer_array;
 	dn_vector_ptr_t buffer_list_array;
 
-	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&buffer_array, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
-	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&buffer_list_array, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
+	dn_vector_ptr_custom_init_params_t params = DN_VECTOR_PTR_DEFAULT_ALLOC_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
+
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init (&buffer_array, &params));
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init (&buffer_list_array, &params));
 
 	EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section1)
 		EventPipeBufferList *buffer_list;
@@ -1055,8 +1059,12 @@ ep_buffer_manager_suspend_write_event (
 
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size);
 
+	dn_vector_ptr_custom_init_params_t params = DN_VECTOR_PTR_DEFAULT_INIT_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
+
 	dn_vector_ptr_t thread_vector;
-	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&thread_vector, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init (&thread_vector, &params));
 
 	EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section1);
 		EP_ASSERT (ep_buffer_manager_ensure_consistency (buffer_manager));
@@ -1195,8 +1203,12 @@ ep_buffer_manager_write_all_buffers_to_file_v4 (
 
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size);
 
+	dn_vector_ptr_custom_init_params_t params = DN_VECTOR_PTR_DEFAULT_INIT_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
+
 	dn_vector_ptr_t session_states_to_delete;
-	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&session_states_to_delete, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init (&session_states_to_delete, &params));
 
 	EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section1)
 		if (buffer_manager_try_peek_sequence_point (buffer_manager, &sequence_point))
@@ -1249,7 +1261,7 @@ ep_buffer_manager_write_all_buffers_to_file_v4 (
 			// through the events we may have observed that a higher numbered event was recorded. If so we
 			// should adjust the sequence numbers upwards to ensure the data in the stream is consistent.
 			EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section2)
-				for (dn_list_it_t it = dn_list_begin (buffer_manager->thread_session_state_list); dn_list_it_end (it); ) {
+				for (dn_list_it_t it = dn_list_begin (buffer_manager->thread_session_state_list); !dn_list_it_end (it); ) {
 					EventPipeThreadSessionState *session_state = *dn_list_it_data_t (it, EventPipeThreadSessionState *);
 					dn_umap_it_t found = dn_umap_ptr_uint32_find (ep_sequence_point_get_thread_sequence_numbers (sequence_point), session_state);
 					uint32_t thread_sequence_number = !dn_umap_it_end (found) ? dn_umap_it_value_uint32_t (found) : 0;
@@ -1260,7 +1272,7 @@ ep_buffer_manager_write_all_buffers_to_file_v4 (
 					uint32_t last_read_delta = last_read_sequence_number - thread_sequence_number;
 					if (0 < last_read_delta && last_read_delta < 0x80000000) {
 						if (!dn_umap_it_end (found)) {
-							dn_umap_erase_key (ep_sequence_point_get_thread_sequence_numbers (sequence_point), session_state);
+							dn_umap_erase (found);
 						} else {
 							ep_thread_addref (ep_thread_holder_get_thread (ep_thread_session_state_get_thread_holder_ref (session_state)));
 						}
@@ -1371,8 +1383,12 @@ ep_buffer_manager_deallocate_buffers (EventPipeBufferManager *buffer_manager)
 
 	DN_DEFAULT_LOCAL_ALLOCATOR (allocator, dn_vector_ptr_default_local_allocator_byte_size);
 
+	dn_vector_ptr_custom_init_params_t params = DN_VECTOR_PTR_DEFAULT_INIT_PARAMS;
+	params.allocator = (dn_allocator_t *)&allocator;
+	params.capacity = dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size);
+
 	dn_vector_ptr_t thread_session_states_to_remove;
-	ep_raise_error_if_nok (dn_vector_ptr_custom_init_capacity (&thread_session_states_to_remove, (dn_allocator_t *)&allocator, dn_vector_ptr_buffer_capacity (dn_vector_ptr_default_local_allocator_byte_size), DN_VECTOR_ATTRIBUTE_INIT_MEMORY));
+	ep_raise_error_if_nok (dn_vector_ptr_custom_init (&thread_session_states_to_remove, &params));
 
 	// Take the buffer manager manipulation lock
 	EP_SPIN_LOCK_ENTER (&buffer_manager->rt_lock, section1)

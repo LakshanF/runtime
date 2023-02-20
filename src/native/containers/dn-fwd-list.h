@@ -253,7 +253,15 @@ dn_fwd_list_push_front (
 }
 
 void
-dn_fwd_list_pop_front (dn_fwd_list_t *list);
+dn_fwd_list_custom_pop_front (
+	dn_fwd_list_t *list,
+	dn_fwd_list_dispose_func_t dispose_func);
+
+static inline void
+dn_fwd_list_pop_front (dn_fwd_list_t *list)
+{
+	dn_fwd_list_custom_pop_front (list, NULL);
+}
 
 bool
 dn_fwd_list_custom_resize (
@@ -314,9 +322,17 @@ dn_fwd_list_sort (
 	dn_fwd_list_compare_func_t compare_func);
 
 dn_fwd_list_it_t
-dn_fwd_list_find (
+dn_fwd_list_custom_find (
 	dn_fwd_list_t *list,
 	const void *data,
 	dn_fwd_list_equal_func_t equal_func);
+
+static inline dn_fwd_list_it_t
+dn_fwd_list_find (
+	dn_fwd_list_t *list,
+	const void *data)
+{
+	return dn_fwd_list_custom_find (list, data, NULL);
+}
 
 #endif /* __DN_FWD_LIST_H__ */
