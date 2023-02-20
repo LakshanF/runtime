@@ -1337,10 +1337,8 @@ ep_buffer_manager_write_all_buffers_to_file_v4 (
 		// This may be the last reference to a given EventPipeThread, so make a ref to keep it around till we're done
 		EventPipeThreadHolder thread_holder;
 		if (ep_thread_holder_init (&thread_holder, ep_thread_session_state_get_thread (thread_session_state))) {
-
 			ep_rt_spin_lock_handle_t *thread_lock = ep_thread_get_rt_lock_ref (ep_thread_holder_get_thread (&thread_holder));
 			EP_SPIN_LOCK_ENTER (thread_lock, section5)
-
 				EP_ASSERT(ep_rt_volatile_load_uint32_t_without_barrier (ep_thread_get_unregistered_ref (ep_thread_session_state_get_thread (thread_session_state))) > 0);
 				ep_thread_delete_session_state (ep_thread_session_state_get_thread (thread_session_state), ep_thread_session_state_get_session (thread_session_state));
 			EP_SPIN_LOCK_EXIT (thread_lock, section5)

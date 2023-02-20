@@ -313,6 +313,11 @@ ep_file_alloc (
 	StreamWriter *stream_writer,
 	EventPipeSerializationFormat format)
 {
+	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
+	params.hash_func = stack_hash_key_hash_func;
+	params.equal_func = stack_hash_key_equal_func;
+	params.value_dispose_func = stack_hash_value_free_func;
+
 	EventPipeFile *instance = ep_rt_object_alloc (EventPipeFile);
 	ep_raise_error_if_nok (instance != NULL);
 
@@ -348,11 +353,6 @@ ep_file_alloc (
 
 	instance->metadata_ids = dn_umap_alloc ();
 	ep_raise_error_if_nok (instance->metadata_ids != NULL);
-
-	dn_umap_custom_alloc_params_t params = DN_UMAP_DEFAULT_ALLOC_PARAMS;
-	params.hash_func = stack_hash_key_hash_func;
-	params.equal_func = stack_hash_key_equal_func;
-	params.value_dispose_func = stack_hash_value_free_func;
 
 	instance->stack_hash = dn_umap_custom_alloc (&params);
 	ep_raise_error_if_nok (instance->stack_hash != NULL);

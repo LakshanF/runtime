@@ -94,6 +94,8 @@ provider_refresh_all_events (EventPipeProvider *provider)
 
 	ep_requires_lock_held ();
 
+	EP_ASSERT (provider->event_list != NULL);
+
 	DN_LIST_FOREACH_BEGIN (provider->event_list, EventPipeEvent *, current_event) {
 		provider_refresh_event_state (current_event);
 	} DN_LIST_FOREACH_END;
