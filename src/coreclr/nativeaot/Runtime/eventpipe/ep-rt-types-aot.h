@@ -69,7 +69,7 @@ typedef struct _rt_aot_event_internal_t ep_rt_wait_event_handle_t;
 typedef struct _rt_aot_lock_internal_t ep_rt_lock_handle_t;
 
 #undef ep_rt_spin_lock_handle_t
-typedef _rt_aot_spin_lock_internal_t ep_rt_spin_lock_handle_t;
+typedef struct _rt_aot_lock_internal_t ep_rt_spin_lock_handle_t;
 
 /*
  * Thread.

@@ -1,3 +1,6 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 #include <eventpipe/ep-rt-config.h>
 
 #ifdef ENABLE_PERFTRACING
@@ -19,6 +22,9 @@
 
 ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
 CrstStatic _ep_rt_aot_config_lock;
+
+ep_rt_spin_lock_handle_t _ep_rt_aot_config_spin_handle;
+CrstStatic _ep_rt_aot_config_spin;
 
 thread_local EventPipeAotThreadHolderTLS EventPipeAotThreadHolderTLS::g_threadHolderTLS;
 
@@ -348,7 +354,12 @@ ep_rt_aot_spin_lock_alloc (ep_rt_spin_lock_handle_t *spin_lock)
 {
     STATIC_CONTRACT_NOTHROW;
 
-    spin_lock->lock = new (nothrow) SpinLock ();
+    extern ep_rt_spin_lock_handle_t _ep_rt_aot_config_spin_handle;
+    extern CrstStatic _ep_rt_aot_config_spin;
+
+	spin_lock->lock = &_ep_rt_aot_config_spin;
+	spin_lock->lock->InitNoThrow (CrstType::CrstEventPipe);
+
 }
 
 void
@@ -357,7 +368,7 @@ ep_rt_aot_spin_lock_free (ep_rt_spin_lock_handle_t *spin_lock)
     STATIC_CONTRACT_NOTHROW;
 
     if (spin_lock && spin_lock->lock) {
-        delete spin_lock->lock;
+        //delete spin_lock->lock;
         spin_lock->lock = NULL;
     }
 }
@@ -497,6 +508,76 @@ ep_rt_aot_volatile_store_ptr_without_barrier (
 {
     STATIC_CONTRACT_NOTHROW;
     VolatileStoreWithoutBarrier<void *> ((void **)ptr, value);
+}
+
+void ep_rt_aot_init (void)
+{
+	extern ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
+	extern CrstStatic _ep_rt_aot_config_lock;
+
+	_ep_rt_aot_config_lock_handle.lock = &_ep_rt_aot_config_lock;
+	_ep_rt_aot_config_lock_handle.lock->InitNoThrow (CrstType::CrstEventPipe);
+}
+
+bool ep_rt_aot_lock_acquire (ep_rt_lock_handle_t *lock)
+{
+    // TODO: How does NativeAOT indicate a failure to hold a lock?
+    if (lock) {
+        CrstHolderWithState holder (lock->lock, false);
+        holder.Acquire ();
+        return true;
+    }
+    return false;
+}
+
+bool ep_rt_aot_lock_release (ep_rt_lock_handle_t *lock)
+{
+    // TODO: How does NativeAOT indicate a failure to hold a lock?
+    if (lock) {
+        // TODO: what should the value for fAcquire be here?
+        CrstHolderWithState holder (lock->lock);
+        holder.Release ();
+        return true;
+    }
+
+    return false;
+}
+
+void ep_rt_aot_lock_requires_lock_held (const ep_rt_lock_handle_t *lock)
+{
+    EP_ASSERT (((ep_rt_lock_handle_t *)lock)->lock->OwnedByCurrentThread ());
+}
+
+void ep_rt_aot_lock_requires_lock_not_held (const ep_rt_lock_handle_t *lock)
+{
+    EP_ASSERT (lock->lock == NULL || !((ep_rt_lock_handle_t *)lock)->lock->OwnedByCurrentThread ());
+}
+
+bool ep_rt_aot_spin_lock_acquire (ep_rt_spin_lock_handle_t *spin_lock)
+{
+    // shipping criteria: no EVENTPIPE-NATIVEAOT-TODO left in the codebase
+    // TODO: Implement locking (maybe by making the manual Lock and Unlock functions public)
+    // TODO NativeAOT SpinLock Lock and Unlock are private
+    if (spin_lock) {
+        CrstHolderWithState holder (spin_lock->lock, false);
+        holder.Acquire ();
+        return true;
+    }
+    return false;
+}
+
+bool ep_rt_aot_spin_lock_release (ep_rt_spin_lock_handle_t *spin_lock)
+{
+    // shipping criteria: no EVENTPIPE-NATIVEAOT-TODO left in the codebase
+    // TODO: Implement locking (maybe by making the manual Lock and Unlock functions public)
+    // TODO NativeAOT SpinLock Lock and Unlock are private
+    if (spin_lock) {
+        // TODO: what should the value for fAcquire be here?
+        CrstHolderWithState holder (spin_lock->lock);
+        holder.Release ();
+        return true;
+    }
+    return false;
 }
 
 #endif /* ENABLE_PERFTRACING */

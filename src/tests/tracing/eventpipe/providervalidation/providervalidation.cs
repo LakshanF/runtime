@@ -35,7 +35,7 @@ namespace Tracing.Tests.ProviderValidation
                 new EventPipeProvider("Microsoft-DotNETCore-SampleProfiler", EventLevel.Verbose)
             };
 
-            var ret = IpcTraceTest.RunAndValidateEventCounts(_expectedEventCounts, _eventGeneratingAction, providers, 1024);
+            var ret = IpcTraceTest.RunAndValidateEventCounts(_expectedEventCounts, _eventGeneratingAction, providers, 1024, enableRundownProvider:false);
             if (ret < 0)
                 return ret;
             else
