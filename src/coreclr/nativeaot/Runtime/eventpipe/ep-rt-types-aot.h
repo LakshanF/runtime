@@ -43,10 +43,6 @@ struct _rt_aot_lock_internal_t {
     CrstStatic *lock;
 };
 
-class SpinLock;
-struct _rt_aot_spin_lock_internal_t {
-    SpinLock *lock;
-};
 
 /*
  * EventPipe.

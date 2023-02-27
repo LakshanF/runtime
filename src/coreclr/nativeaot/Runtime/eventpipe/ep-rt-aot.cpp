@@ -20,10 +20,13 @@
 #include "holder.h"
 #include "SpinLock.h"
 
+// Uses _rt_aot_lock_internal_t that has CrstStatic as a field
+// This is initialized at the beginning and EventPipe library requires the lock handle to be maintained by the runtime
 ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
 CrstStatic _ep_rt_aot_config_lock;
 
-ep_rt_spin_lock_handle_t _ep_rt_aot_config_spin_handle;
+// Uses _rt_aot_lock_internal_t that has CrstStatic as a field
+// EventPipe library will intialize using thread, EventPipeBufferManager instances
 CrstStatic _ep_rt_aot_config_spin;
 
 thread_local EventPipeAotThreadHolderTLS EventPipeAotThreadHolderTLS::g_threadHolderTLS;
@@ -354,7 +357,6 @@ ep_rt_aot_spin_lock_alloc (ep_rt_spin_lock_handle_t *spin_lock)
 {
     STATIC_CONTRACT_NOTHROW;
 
-    extern ep_rt_spin_lock_handle_t _ep_rt_aot_config_spin_handle;
     extern CrstStatic _ep_rt_aot_config_spin;
 
 	spin_lock->lock = &_ep_rt_aot_config_spin;
@@ -521,10 +523,8 @@ void ep_rt_aot_init (void)
 
 bool ep_rt_aot_lock_acquire (ep_rt_lock_handle_t *lock)
 {
-    // TODO: How does NativeAOT indicate a failure to hold a lock?
     if (lock) {
-        CrstHolderWithState holder (lock->lock, false);
-        holder.Acquire ();
+        lock->lock->Enter();
         return true;
     }
     return false;
@@ -532,14 +532,10 @@ bool ep_rt_aot_lock_acquire (ep_rt_lock_handle_t *lock)
 
 bool ep_rt_aot_lock_release (ep_rt_lock_handle_t *lock)
 {
-    // TODO: How does NativeAOT indicate a failure to hold a lock?
     if (lock) {
-        // TODO: what should the value for fAcquire be here?
-        CrstHolderWithState holder (lock->lock);
-        holder.Release ();
+        lock->lock->Leave();
         return true;
     }
-
     return false;
 }
 
@@ -559,8 +555,7 @@ bool ep_rt_aot_spin_lock_acquire (ep_rt_spin_lock_handle_t *spin_lock)
     // TODO: Implement locking (maybe by making the manual Lock and Unlock functions public)
     // TODO NativeAOT SpinLock Lock and Unlock are private
     if (spin_lock) {
-        CrstHolderWithState holder (spin_lock->lock, false);
-        holder.Acquire ();
+       spin_lock->lock->Enter();
         return true;
     }
     return false;
@@ -572,9 +567,7 @@ bool ep_rt_aot_spin_lock_release (ep_rt_spin_lock_handle_t *spin_lock)
     // TODO: Implement locking (maybe by making the manual Lock and Unlock functions public)
     // TODO NativeAOT SpinLock Lock and Unlock are private
     if (spin_lock) {
-        // TODO: what should the value for fAcquire be here?
-        CrstHolderWithState holder (spin_lock->lock);
-        holder.Release ();
+       spin_lock->lock->Leave();
         return true;
     }
     return false;
