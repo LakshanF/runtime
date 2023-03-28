@@ -354,7 +354,7 @@ static
 void
 ep_rt_init_providers_and_events (void)
 {
-//    InitProvidersAndEvents ();
+   InitProvidersAndEvents ();
 }
 
 static
