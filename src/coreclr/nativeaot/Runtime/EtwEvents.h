@@ -36,67 +36,6 @@ struct RH_ETW_CONTEXT
     uint8_t                     Reserve;
 };
 
-// ULONG EventPipeWriteEventGCStart_V2(
-//     const unsigned int Count,
-//     const unsigned int Depth,
-//     const unsigned int Reason,
-//     const unsigned int Type,
-//     const unsigned short ClrInstanceID,
-//     const unsigned __int64 ClientSequenceNumber,
-//     const GUID * ActivityId,
-//     const GUID * RelatedActivityId)
-// {
-//     // if (!EventPipeEventEnabledGCStart_V2())
-//     //     return ERROR_SUCCESS;
-
-//     // size_t size = 32;
-//     // BYTE stackBuffer[32];
-//     // BYTE *buffer = stackBuffer;
-//     // size_t offset = 0;
-//     // bool fixedBuffer = true;
-//     // bool success = true;
-
-//     // success &= WriteToBuffer(Count, buffer, offset, size, fixedBuffer);
-//     // success &= WriteToBuffer(Depth, buffer, offset, size, fixedBuffer);
-//     // success &= WriteToBuffer(Reason, buffer, offset, size, fixedBuffer);
-//     // success &= WriteToBuffer(Type, buffer, offset, size, fixedBuffer);
-//     // success &= WriteToBuffer(ClrInstanceID, buffer, offset, size, fixedBuffer);
-//     // success &= WriteToBuffer(ClientSequenceNumber, buffer, offset, size, fixedBuffer);
-
-//     // if (!success)
-//     // {
-//     //     if (!fixedBuffer)
-//     //         delete[] buffer;
-//     //     return ERROR_WRITE_FAULT;
-//     // }
-
-//     // EventPipeAdapter::WriteEvent(EventPipeEventGCStart_V2, (BYTE *)buffer, (unsigned int)offset, ActivityId, RelatedActivityId);
-
-//     // if (!fixedBuffer)
-//     //     delete[] buffer;
-
-
-//     return ERROR_SUCCESS;
-// }
-
-
-// inline ULONG FireEtwGCStart_V2(
-//     const unsigned int  Count,
-//     const unsigned int  Depth,
-//     const unsigned int  Reason,
-//     const unsigned int  Type,
-//     const unsigned short  ClrInstanceID,
-//     const unsigned __int64  ClientSequenceNumber,
-//     const GUID * ActivityId = nullptr,
-//     const GUID * RelatedActivityId = nullptr
-// )
-// {
-//     // ULONG status = EventPipeWriteEventGCStart_V2(Count,Depth,Reason,Type,ClrInstanceID,ClientSequenceNumber,ActivityId,RelatedActivityId);
-//     // status &= FireEtXplatGCStart_V2(Count,Depth,Reason,Type,ClrInstanceID,ClientSequenceNumber);
-//     // return status;
-//     return 0;
-// }
-
 
 // uint32_t EtwCallback(uint32_t IsEnabled, RH_ETW_CONTEXT * CallbackContext);
 
