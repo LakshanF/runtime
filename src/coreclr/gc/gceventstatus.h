@@ -64,10 +64,9 @@ public:
     {
         assert(level >= GCEventLevel_None && level < GCEventLevel_Max);
 
-        // size_t index = static_cast<size_t>(provider);
-        // return (enabledLevels[index].LoadWithoutBarrier() >= level)
-        //   && (enabledKeywords[index].LoadWithoutBarrier() & keyword);
-        return true;
+        size_t index = static_cast<size_t>(provider);
+        return (enabledLevels[index].LoadWithoutBarrier() >= level)
+          && (enabledKeywords[index].LoadWithoutBarrier() & keyword);
     }
 
     /*

@@ -6075,70 +6075,70 @@ BOOL EventPipeEventEnabledMethodJitInliningSucceeded(void)
     return EventPipeAdapter::EventIsEnabled(EventPipeEventMethodJitInliningSucceeded);
 }
 
-// ULONG EventPipeWriteEventMethodJitInliningSucceeded(
-//     wchar_t* MethodBeingCompiledNamespace,
-//     wchar_t* MethodBeingCompiledName,
-//     wchar_t* MethodBeingCompiledNameSignature,
-//     wchar_t* InlinerNamespace,
-//     wchar_t* InlinerName,
-//     wchar_t* InlinerNameSignature,
-//     wchar_t* InlineeNamespace,
-//     wchar_t* InlineeName,
-//     wchar_t* InlineeNameSignature,
-//     const unsigned short ClrInstanceID,
-//     const GUID * ActivityId,
-//     const GUID * RelatedActivityId)
-// {
-//     if (!EventPipeEventEnabledMethodJitInliningSucceeded())
-//         return ERROR_SUCCESS;
+ULONG EventPipeWriteEventMethodJitInliningSucceeded(
+    wchar_t* MethodBeingCompiledNamespace,
+    wchar_t* MethodBeingCompiledName,
+    wchar_t* MethodBeingCompiledNameSignature,
+    wchar_t* InlinerNamespace,
+    wchar_t* InlinerName,
+    wchar_t* InlinerNameSignature,
+    wchar_t* InlineeNamespace,
+    wchar_t* InlineeName,
+    wchar_t* InlineeNameSignature,
+    const unsigned short ClrInstanceID,
+    const GUID * ActivityId,
+    const GUID * RelatedActivityId)
+{
+    if (!EventPipeEventEnabledMethodJitInliningSucceeded())
+        return ERROR_SUCCESS;
 
-//     size_t size = 578;
-//     BYTE stackBuffer[578];
-//     BYTE *buffer = stackBuffer;
-//     size_t offset = 0;
-//     bool fixedBuffer = true;
-//     bool success = true;
+    size_t size = 578;
+    BYTE stackBuffer[578];
+    BYTE *buffer = stackBuffer;
+    size_t offset = 0;
+    bool fixedBuffer = true;
+    bool success = true;
 
-//     if (!MethodBeingCompiledNamespace) { MethodBeingCompiledNamespace = W("NULL"); }
-//     if (!MethodBeingCompiledName) { MethodBeingCompiledName = W("NULL"); }
-//     if (!MethodBeingCompiledNameSignature) { MethodBeingCompiledNameSignature = W("NULL"); }
-//     if (!InlinerNamespace) { InlinerNamespace = W("NULL"); }
-//     if (!InlinerName) { InlinerName = W("NULL"); }
-//     if (!InlinerNameSignature) { InlinerNameSignature = W("NULL"); }
-//     if (!InlineeNamespace) { InlineeNamespace = W("NULL"); }
-//     if (!InlineeName) { InlineeName = W("NULL"); }
-//     if (!InlineeNameSignature) { InlineeNameSignature = W("NULL"); }
-//     success &= WriteToBuffer(MethodBeingCompiledNamespace, buffer, offset, size, fixedBuffer);
-//     success &= WriteToBuffer(MethodBeingCompiledName, buffer, offset, size, fixedBuffer);
-//     success &= WriteToBuffer(MethodBeingCompiledNameSignature, buffer, offset, size, fixedBuffer);
-//     success &= WriteToBuffer(InlinerNamespace, buffer, offset, size, fixedBuffer);
-//     success &= WriteToBuffer(InlinerName, buffer, offset, size, fixedBuffer);
-//     success &= WriteToBuffer(InlinerNameSignature, buffer, offset, size, fixedBuffer);
-//     success &= WriteToBuffer(InlineeNamespace, buffer, offset, size, fixedBuffer);
-//     success &= WriteToBuffer(InlineeName, buffer, offset, size, fixedBuffer);
-//     success &= WriteToBuffer(InlineeNameSignature, buffer, offset, size, fixedBuffer);
-//     success &= WriteToBuffer(ClrInstanceID, buffer, offset, size, fixedBuffer);
+    if (!MethodBeingCompiledNamespace) { wcscpy(MethodBeingCompiledNamespace, L"NULL"); }
+    if (!MethodBeingCompiledName) { wcscpy(MethodBeingCompiledName, L"NULL"); }
+    if (!MethodBeingCompiledNameSignature) { wcscpy(MethodBeingCompiledNameSignature, L"NULL"); }
+    if (!InlinerNamespace) { wcscpy(InlinerNamespace, L"NULL"); }
+    if (!InlinerName) { wcscpy(InlinerName, L"NULL"); }
+    if (!InlinerNameSignature) { wcscpy(InlinerNameSignature, L"NULL"); }
+    if (!InlineeNamespace) { wcscpy(InlineeNamespace, L"NULL"); }
+    if (!InlineeName) { wcscpy(InlineeName, L"NULL"); }
+    if (!InlineeNameSignature) { wcscpy(InlineeNameSignature, L"NULL"); }
+    success &= WriteToBuffer(MethodBeingCompiledNamespace, buffer, offset, size, fixedBuffer);
+    success &= WriteToBuffer(MethodBeingCompiledName, buffer, offset, size, fixedBuffer);
+    success &= WriteToBuffer(MethodBeingCompiledNameSignature, buffer, offset, size, fixedBuffer);
+    success &= WriteToBuffer(InlinerNamespace, buffer, offset, size, fixedBuffer);
+    success &= WriteToBuffer(InlinerName, buffer, offset, size, fixedBuffer);
+    success &= WriteToBuffer(InlinerNameSignature, buffer, offset, size, fixedBuffer);
+    success &= WriteToBuffer(InlineeNamespace, buffer, offset, size, fixedBuffer);
+    success &= WriteToBuffer(InlineeName, buffer, offset, size, fixedBuffer);
+    success &= WriteToBuffer(InlineeNameSignature, buffer, offset, size, fixedBuffer);
+    success &= WriteToBuffer(ClrInstanceID, buffer, offset, size, fixedBuffer);
 
-//     if (!success)
-//     {
-//         if (!fixedBuffer)
-//             delete[] buffer;
-//         return ERROR_WRITE_FAULT;
-//     }
+    if (!success)
+    {
+        if (!fixedBuffer)
+            delete[] buffer;
+        return ERROR_WRITE_FAULT;
+    }
 
-//     EventPipeAdapter::WriteEvent(EventPipeEventMethodJitInliningSucceeded, (BYTE *)buffer, (unsigned int)offset, ActivityId, RelatedActivityId);
+    EventPipeAdapter::WriteEvent(EventPipeEventMethodJitInliningSucceeded, (BYTE *)buffer, (unsigned int)offset, ActivityId, RelatedActivityId);
 
-//     if (!fixedBuffer)
-//         delete[] buffer;
+    if (!fixedBuffer)
+        delete[] buffer;
 
 
-//     return ERROR_SUCCESS;
-// }
+    return ERROR_SUCCESS;
+}
 
-// BOOL EventPipeEventEnabledMethodJitInliningFailedAnsi(void)
-// {
-//     return EventPipeAdapter::EventIsEnabled(EventPipeEventMethodJitInliningFailedAnsi);
-// }
+BOOL EventPipeEventEnabledMethodJitInliningFailedAnsi(void)
+{
+    return EventPipeAdapter::EventIsEnabled(EventPipeEventMethodJitInliningFailedAnsi);
+}
 
 // ULONG EventPipeWriteEventMethodJitInliningFailedAnsi(
 //     wchar_t* MethodBeingCompiledNamespace,
