@@ -23,18 +23,18 @@
 #define RH_ETW_INLINE __declspec(noinline) __inline
 #endif
 
-// struct RH_ETW_CONTEXT
-// {
-//     TRACEHANDLE               RegistrationHandle;
-//     TRACEHANDLE               Logger;
-//     uint64_t                    MatchAnyKeyword;
-//     uint64_t                    MatchAllKeyword;
-//     EVENT_FILTER_DESCRIPTOR * FilterData;
-//     uint32_t                    Flags;
-//     uint32_t                    IsEnabled;
-//     uint8_t                     Level;
-//     uint8_t                     Reserve;
-// };
+struct RH_ETW_CONTEXT
+{
+    TRACEHANDLE               RegistrationHandle;
+    TRACEHANDLE               Logger;
+    uint64_t                    MatchAnyKeyword;
+    uint64_t                    MatchAllKeyword;
+    EVENT_FILTER_DESCRIPTOR * FilterData;
+    uint32_t                    Flags;
+    uint32_t                    IsEnabled;
+    uint8_t                     Level;
+    uint8_t                     Reserve;
+};
 
 // ULONG EventPipeWriteEventGCStart_V2(
 //     const unsigned int Count,
@@ -411,7 +411,7 @@
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR SetGCHandle = {0x1e, 0x0, 0x10, 0x4, 0x21, 0x1, 0x8000000000000002};
 
 // extern "C" __declspec(selectany) REGHANDLE Microsoft_Windows_Redhawk_GC_PublicHandle;
-// extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context;
+extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context;
 
 // #define RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Public() do { PalEventRegister(&MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER, RhEtwControlCallback, &MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context, &Microsoft_Windows_Redhawk_GC_PublicHandle); } while (false)
 // #define RH_ETW_UNREGISTER_Microsoft_Windows_Redhawk_GC_Public() do { PalEventUnregister(Microsoft_Windows_Redhawk_GC_PublicHandle); } while (false)

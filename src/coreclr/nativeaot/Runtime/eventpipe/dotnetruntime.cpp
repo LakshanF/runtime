@@ -22,52 +22,12 @@ This file is generated using the logic from <root>/src/scripts/genEventPipe.py
 #define ERROR_WRITE_FAULT 29L
 #endif
 
-// typedef struct _MCGEN_TRACE_CONTEXT
-// {
-//     TRACEHANDLE            RegistrationHandle;
-//     TRACEHANDLE            Logger;      // Used as pointer to provider traits.
-//     ULONGLONG              MatchAnyKeyword;
-//     ULONGLONG              MatchAllKeyword;
-//     ULONG                  Flags;
-//     ULONG                  IsEnabled;
-//     unsigned char          Level;
-//     unsigned char          Reserve;
-//     unsigned short                 EnableBitsCount;
-//     ULONG *                 EnableBitMask;
-//     const ULONGLONG*       EnableKeyWords;
-//     const unsigned char*   EnableLevel;
-// } MCGEN_TRACE_CONTEXT, *PMCGEN_TRACE_CONTEXT;
-
-
-// #if !defined(EVENTPIPE_TRACE_CONTEXT_DEF)
-// #define EVENTPIPE_TRACE_CONTEXT_DEF
-// typedef struct _EVENTPIPE_TRACE_CONTEXT
-// {
-//     const WCHAR * Name;
-//     unsigned char Level;
-//     bool IsEnabled;
-//     ULONGLONG EnabledKeywordsBitmask;
-// } EVENTPIPE_TRACE_CONTEXT, *PEVENTPIPE_TRACE_CONTEXT;
-// #endif // EVENTPIPE_TRACE_CONTEXT_DEF
-
-// #if !defined(DOTNET_TRACE_CONTEXT_DEF)
-// #define DOTNET_TRACE_CONTEXT_DEF
-// typedef struct _DOTNET_TRACE_CONTEXT
-// {
-//     PMCGEN_TRACE_CONTEXT EtwProvider;
-//     EVENTPIPE_TRACE_CONTEXT EventPipeProvider;
-// } DOTNET_TRACE_CONTEXT, *PDOTNET_TRACE_CONTEXT;
-// #endif // DOTNET_TRACE_CONTEXT_DEF
-
-
 
 bool ResizeBuffer(uint8_t *&buffer, size_t& size, size_t currLen, size_t newSize, bool &fixedBuffer);
 
 void InitProvidersAndEvents(void);
 void InitDotNETRuntime(void);
 
-// bool WriteToBuffer(wchar_t* str, BYTE *&buffer, size_t& offset, size_t& size, bool &fixedBuffer);
-// bool WriteToBuffer(const char *str, BYTE *&buffer, size_t& offset, size_t& size, bool &fixedBuffer);
 bool WriteToBuffer(const BYTE *src, size_t len, BYTE *&buffer, size_t& offset, size_t& size, bool &fixedBuffer);
 
 
@@ -98,37 +58,6 @@ bool WriteToBuffer(const BYTE *src, size_t len, BYTE *&buffer, size_t& offset, s
     offset += len;
     return true;
 }
-
-// bool WriteToBuffer(const wchar_t* str, BYTE *&buffer, size_t& offset, size_t& size, bool &fixedBuffer)
-// {
-//     if (!str) return true;
-//     size_t byteCount = (wcslen(str) + 1) * sizeof(*str);
-
-//     if (offset + byteCount > size)
-//     {
-//         if (!ResizeBuffer(buffer, size, offset, size + byteCount, fixedBuffer))
-//             return false;
-//     }
-
-//     memcpy(buffer + offset, str, byteCount);
-//     offset += byteCount;
-//     return true;
-// }
-
-// bool WriteToBuffer(const char *str, BYTE *&buffer, size_t& offset, size_t& size, bool &fixedBuffer)
-// {
-//     if (!str) return true;
-//     size_t len = strlen(str) + 1;
-//     if (offset + len > size)
-//     {
-//         if (!ResizeBuffer(buffer, size, offset, size + len, fixedBuffer))
-//             return false;
-//     }
-
-//     memcpy(buffer + offset, str, len);
-//     offset += len;
-//     return true;
-// }
 
 bool ResizeBuffer(BYTE *&buffer, size_t& size, size_t currLen, size_t newSize, bool &fixedBuffer)
 {
@@ -451,10 +380,11 @@ ULONG EventPipeWriteEventGCStart_V1(
     return ERROR_SUCCESS;
 }
 
-// BOOL EventPipeEventEnabledGCStart_V2(void)
-// {
-//     return EventPipeAdapter::EventIsEnabled(EventPipeEventGCStart_V2);
-// }
+BOOL EventPipeEventEnabledGCStart_V2(void)
+{
+    return EventPipeAdapter::EventIsEnabled(EventPipeEventGCStart_V2);
+}
+
 
 ULONG EventPipeWriteEventGCStart_V2(
     const unsigned int Count,
@@ -466,8 +396,8 @@ ULONG EventPipeWriteEventGCStart_V2(
     const GUID * ActivityId,
     const GUID * RelatedActivityId)
 {
-    // if (!EventPipeEventEnabledGCStart_V2())
-    //     return ERROR_SUCCESS;
+    if (!EventPipeEventEnabledGCStart_V2())
+        return ERROR_SUCCESS;
 
     size_t size = 32;
     BYTE stackBuffer[32];

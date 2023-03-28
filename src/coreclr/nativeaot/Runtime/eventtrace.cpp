@@ -466,32 +466,29 @@ void ETW::GCLog::GCSettingsEvent()
 
 BOOL ETW::GCLog::ShouldWalkHeapObjectsForEtw()
 {
-    // LIMITED_METHOD_CONTRACT;
-    // return ETW_TRACING_CATEGORY_ENABLED(
-    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-    //     TRACE_LEVEL_INFORMATION,
-    //     CLR_GCHEAPDUMP_KEYWORD);
-    return FALSE;
+    LIMITED_METHOD_CONTRACT;
+    return ETW_TRACING_CATEGORY_ENABLED(
+        MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
+        TRACE_LEVEL_INFORMATION,
+        CLR_GCHEAPDUMP_KEYWORD);
 }
 
 BOOL ETW::GCLog::ShouldWalkHeapRootsForEtw()
 {
-    // LIMITED_METHOD_CONTRACT;
-    // return ETW_TRACING_CATEGORY_ENABLED(
-    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-    //     TRACE_LEVEL_INFORMATION,
-    //     CLR_GCHEAPDUMP_KEYWORD);
-    return FALSE;
+    LIMITED_METHOD_CONTRACT;
+    return ETW_TRACING_CATEGORY_ENABLED(
+        MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
+        TRACE_LEVEL_INFORMATION,
+        CLR_GCHEAPDUMP_KEYWORD);
 }
 
 BOOL ETW::GCLog::ShouldTrackMovementForEtw()
 {
-    // LIMITED_METHOD_CONTRACT;
-    // return ETW_TRACING_CATEGORY_ENABLED(
-    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-    //     TRACE_LEVEL_INFORMATION,
-    //     CLR_GCHEAPSURVIVALANDMOVEMENT_KEYWORD);
-    return FALSE;
+    LIMITED_METHOD_CONTRACT;
+    return ETW_TRACING_CATEGORY_ENABLED(
+        MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
+        TRACE_LEVEL_INFORMATION,
+        CLR_GCHEAPSURVIVALANDMOVEMENT_KEYWORD);
 }
 
 BOOL ETW::GCLog::ShouldWalkStaticsAndCOMForEtw()
@@ -713,12 +710,12 @@ void ETW::GCLog::MovedReference(
         // If buffer is now full, empty it into ETW
         if (pContext->cBulkMovedObjectRanges == _countof(pContext->rgGCBulkMovedObjectRanges))
         {
-            // FireEtwGCBulkMovedObjectRanges(
-            //     pContext->iCurBulkMovedObjectRanges,
-            //     pContext->cBulkMovedObjectRanges,
-            //     GetClrInstanceId(),
-            //     sizeof(pContext->rgGCBulkMovedObjectRanges[0]),
-            //     &pContext->rgGCBulkMovedObjectRanges[0]);
+            FireEtwGCBulkMovedObjectRanges(
+                pContext->iCurBulkMovedObjectRanges,
+                pContext->cBulkMovedObjectRanges,
+                GetClrInstanceId(),
+                sizeof(pContext->rgGCBulkMovedObjectRanges[0]),
+                &pContext->rgGCBulkMovedObjectRanges[0]);
 
             pContext->iCurBulkMovedObjectRanges++;
             pContext->Clear();

@@ -356,16 +356,16 @@ ULONG EventPipeWriteEventGCStart_V2(
 //     const GUID * ActivityId = nullptr,
 //     const GUID * RelatedActivityId = nullptr
 // );
-// BOOL EventPipeEventEnabledGCBulkMovedObjectRanges(void);
-// ULONG EventPipeWriteEventGCBulkMovedObjectRanges(
-//     const unsigned int  Index,
-//     const unsigned int  Count,
-//     const unsigned short  ClrInstanceID,
-//     int Values_ElementSize,
-//     const void* Values,
-//     const GUID * ActivityId = nullptr,
-//     const GUID * RelatedActivityId = nullptr
-// );
+BOOL EventPipeEventEnabledGCBulkMovedObjectRanges(void);
+ULONG EventPipeWriteEventGCBulkMovedObjectRanges(
+    const unsigned int  Index,
+    const unsigned int  Count,
+    const unsigned short  ClrInstanceID,
+    int Values_ElementSize,
+    const void* Values,
+    const GUID * ActivityId = nullptr,
+    const GUID * RelatedActivityId = nullptr
+);
 // BOOL EventPipeEventEnabledGCGenerationRange(void);
 // ULONG EventPipeWriteEventGCGenerationRange(
 //     const unsigned char  Generation,

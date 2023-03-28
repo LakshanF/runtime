@@ -676,20 +676,20 @@ inline ULONG FireEtwGCStart_V2(
 
 // inline BOOL EventEnabledGCBulkMovedObjectRanges(void) {return EventPipeEventEnabledGCBulkMovedObjectRanges() || EventXplatEnabledGCBulkMovedObjectRanges();}
 
-// inline ULONG FireEtwGCBulkMovedObjectRanges(
-//     const unsigned int  Index,
-//     const unsigned int  Count,
-//     const unsigned short  ClrInstanceID,
-//     int Values_ElementSize,
-//     const void* Values,
-//     const GUID * ActivityId = nullptr,
-//     const GUID * RelatedActivityId = nullptr
-// )
-// {
-//     ULONG status = EventPipeWriteEventGCBulkMovedObjectRanges(Index,Count,ClrInstanceID,Values_ElementSize, Values,ActivityId,RelatedActivityId);
-//     status &= FireEtXplatGCBulkMovedObjectRanges(Index,Count,ClrInstanceID,Values_ElementSize, Values);
-//     return status;
-// }
+inline ULONG FireEtwGCBulkMovedObjectRanges(
+    const unsigned int  Index,
+    const unsigned int  Count,
+    const unsigned short  ClrInstanceID,
+    int Values_ElementSize,
+    const void* Values,
+    const GUID * ActivityId = nullptr,
+    const GUID * RelatedActivityId = nullptr
+)
+{
+    ULONG status = EventPipeWriteEventGCBulkMovedObjectRanges(Index,Count,ClrInstanceID,Values_ElementSize, Values,ActivityId,RelatedActivityId);
+    // status &= FireEtXplatGCBulkMovedObjectRanges(Index,Count,ClrInstanceID,Values_ElementSize, Values);
+    return 0;
+}
 
 // inline BOOL EventEnabledGCGenerationRange(void) {return EventPipeEventEnabledGCGenerationRange() || EventXplatEnabledGCGenerationRange();}
 
