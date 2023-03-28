@@ -92,38 +92,38 @@ RhConfig * g_pRhConfig = &g_sRhConfig;
 
 uint32_t EtwCallback(uint32_t IsEnabled, RH_ETW_CONTEXT * pContext)
 {
-    GCHeapUtilities::RecordEventStateChange(!!(pContext->RegistrationHandle == Microsoft_Windows_Redhawk_GC_PublicHandle),
-                                            static_cast<GCEventKeyword>(pContext->MatchAnyKeyword),
-                                            static_cast<GCEventLevel>(pContext->Level));
+    // GCHeapUtilities::RecordEventStateChange(!!(pContext->RegistrationHandle == Microsoft_Windows_Redhawk_GC_PublicHandle),
+    //                                         static_cast<GCEventKeyword>(pContext->MatchAnyKeyword),
+    //                                         static_cast<GCEventLevel>(pContext->Level));
 
-    if (IsEnabled &&
-        (pContext->RegistrationHandle == Microsoft_Windows_Redhawk_GC_PrivateHandle) &&
-        GCHeapUtilities::IsGCHeapInitialized())
-    {
-        FireEtwGCSettings(GCHeapUtilities::GetGCHeap()->GetValidSegmentSize(FALSE),
-                          GCHeapUtilities::GetGCHeap()->GetValidSegmentSize(TRUE),
-                          GCHeapUtilities::IsServerHeap());
-        GCHeapUtilities::GetGCHeap()->DiagTraceGCSegments();
-    }
+    // if (IsEnabled &&
+    //     (pContext->RegistrationHandle == Microsoft_Windows_Redhawk_GC_PrivateHandle) &&
+    //     GCHeapUtilities::IsGCHeapInitialized())
+    // {
+    //     FireEtwGCSettings(GCHeapUtilities::GetGCHeap()->GetValidSegmentSize(FALSE),
+    //                       GCHeapUtilities::GetGCHeap()->GetValidSegmentSize(TRUE),
+    //                       GCHeapUtilities::IsServerHeap());
+    //     GCHeapUtilities::GetGCHeap()->DiagTraceGCSegments();
+    // }
 
-    // Special check for the runtime provider's GCHeapCollectKeyword.  Profilers
-    // flick this to force a full GC.
-    if (IsEnabled &&
-        (pContext->RegistrationHandle == Microsoft_Windows_Redhawk_GC_PublicHandle) &&
-        GCHeapUtilities::IsGCHeapInitialized() &&
-        ((pContext->MatchAnyKeyword & CLR_GCHEAPCOLLECT_KEYWORD) != 0))
-    {
-        // Profilers may (optionally) specify extra data in the filter parameter
-        // to log with the GCStart event.
-        LONGLONG l64ClientSequenceNumber = 0;
-        if ((pContext->FilterData != NULL) &&
-            (pContext->FilterData->Type == 1) &&
-            (pContext->FilterData->Size == sizeof(l64ClientSequenceNumber)))
-        {
-            l64ClientSequenceNumber = *(LONGLONG *) (pContext->FilterData->Ptr);
-        }
-        ETW::GCLog::ForceGC(l64ClientSequenceNumber);
-    }
+    // // Special check for the runtime provider's GCHeapCollectKeyword.  Profilers
+    // // flick this to force a full GC.
+    // if (IsEnabled &&
+    //     (pContext->RegistrationHandle == Microsoft_Windows_Redhawk_GC_PublicHandle) &&
+    //     GCHeapUtilities::IsGCHeapInitialized() &&
+    //     ((pContext->MatchAnyKeyword & CLR_GCHEAPCOLLECT_KEYWORD) != 0))
+    // {
+    //     // Profilers may (optionally) specify extra data in the filter parameter
+    //     // to log with the GCStart event.
+    //     LONGLONG l64ClientSequenceNumber = 0;
+    //     if ((pContext->FilterData != NULL) &&
+    //         (pContext->FilterData->Type == 1) &&
+    //         (pContext->FilterData->Size == sizeof(l64ClientSequenceNumber)))
+    //     {
+    //         l64ClientSequenceNumber = *(LONGLONG *) (pContext->FilterData->Ptr);
+    //     }
+    //     ETW::GCLog::ForceGC(l64ClientSequenceNumber);
+    // }
 
     return 0;
 }
@@ -152,15 +152,15 @@ MethodTable g_FreeObjectEEType;
 bool RedhawkGCInterface::InitializeSubsystems()
 {
 #ifdef FEATURE_ETW
-    MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_Context.IsEnabled = FALSE;
-    MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled = FALSE;
+    // MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_Context.IsEnabled = FALSE;
+    // MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled = FALSE;
 
-    // Register the Redhawk event provider with the system.
-    RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Private();
-    RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Public();
+    // // Register the Redhawk event provider with the system.
+    // RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Private();
+    // RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Public();
 
-    MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_Context.RegistrationHandle = Microsoft_Windows_Redhawk_GC_PrivateHandle;
-    MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.RegistrationHandle = Microsoft_Windows_Redhawk_GC_PublicHandle;
+    // MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_Context.RegistrationHandle = Microsoft_Windows_Redhawk_GC_PrivateHandle;
+    // MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.RegistrationHandle = Microsoft_Windows_Redhawk_GC_PublicHandle;
 #endif // FEATURE_ETW
 
     // Initialize the special MethodTable used to mark free list entries in the GC heap.
@@ -635,18 +635,18 @@ void GCToEEInterface::SuspendEE(SUSPEND_REASON reason)
         (uint32_t)GCHeapUtilities::GetGCHeap()->GetGcCount() : (uint32_t)-1);
 #endif // FEATURE_EVENT_TRACE
 
-    FireEtwGCSuspendEEBegin_V1(Info.SuspendEE.Reason, Info.SuspendEE.GcCount, GetClrInstanceId());
+    // FireEtwGCSuspendEEBegin_V1(Info.SuspendEE.Reason, Info.SuspendEE.GcCount, GetClrInstanceId());
 
     GetThreadStore()->LockThreadStore();
     GCHeapUtilities::GetGCHeap()->SetGCInProgress(TRUE);
     GetThreadStore()->SuspendAllThreads(true);
 
-    FireEtwGCSuspendEEEnd_V1(GetClrInstanceId());
+    // FireEtwGCSuspendEEEnd_V1(GetClrInstanceId());
 }
 
 void GCToEEInterface::RestartEE(bool /*bFinishedGC*/)
 {
-    FireEtwGCRestartEEBegin_V1(GetClrInstanceId());
+    // FireEtwGCRestartEEBegin_V1(GetClrInstanceId());
 
 #if defined(TARGET_ARM) || defined(TARGET_ARM64)
     // Flush the store buffers on all CPUs, to ensure that they all see changes made
@@ -664,7 +664,7 @@ void GCToEEInterface::RestartEE(bool /*bFinishedGC*/)
     GCHeapUtilities::GetGCHeap()->SetGCInProgress(FALSE);
     GetThreadStore()->UnlockThreadStore();
 
-    FireEtwGCRestartEEEnd_V1(GetClrInstanceId());
+    // FireEtwGCRestartEEEnd_V1(GetClrInstanceId());
 }
 
 void GCToEEInterface::GcStartWork(int condemned, int /*max_gen*/)

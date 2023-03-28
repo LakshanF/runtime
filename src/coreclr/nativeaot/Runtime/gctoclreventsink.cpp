@@ -19,7 +19,7 @@ void GCToCLREventSink::FireDynamicEvent(const char* eventName, void* payload, ui
         return;
     }
 
-    FireEtwGCDynamicEvent(wideEventName, payloadSize, (const BYTE*)payload, GetClrInstanceId());
+    // FireEtwGCDynamicEvent(wideEventName, payloadSize, (const BYTE*)payload, GetClrInstanceId());
 #endif // !FEATURE_NATIVEAOT
 }
 
@@ -41,14 +41,14 @@ void GCToCLREventSink::FireGCGenerationRange(uint8_t generation, void* rangeStar
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCGenerationRange(generation, rangeStart, rangeUsedLength, rangeReservedLength, GetClrInstanceId());
+//     FireEtwGCGenerationRange(generation, rangeStart, rangeUsedLength, rangeReservedLength, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCEnd_V1(uint32_t count, uint32_t depth)
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCEnd_V1(count, depth, GetClrInstanceId());
+    // FireEtwGCEnd_V1(count, depth, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCHeapStats_V2(
@@ -71,59 +71,59 @@ void GCToCLREventSink::FireGCHeapStats_V2(
     LIMITED_METHOD_CONTRACT;
 
     // TODO: FireEtwGCHeapStats_V2
-    FireEtwGCHeapStats_V1(generationSize0, totalPromotedSize0, generationSize1, totalPromotedSize1,
-                          generationSize2, totalPromotedSize2, generationSize3, totalPromotedSize3,
-                          finalizationPromotedSize, finalizationPromotedCount, pinnedObjectCount,
-                          sinkBlockCount, gcHandleCount, GetClrInstanceId());
+    // FireEtwGCHeapStats_V1(generationSize0, totalPromotedSize0, generationSize1, totalPromotedSize1,
+    //                       generationSize2, totalPromotedSize2, generationSize3, totalPromotedSize3,
+    //                       finalizationPromotedSize, finalizationPromotedCount, pinnedObjectCount,
+    //                       sinkBlockCount, gcHandleCount, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCCreateSegment_V1(void* address, size_t size, uint32_t type)
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCCreateSegment_V1((uint64_t)address, static_cast<uint64_t>(size), type, GetClrInstanceId());
+    // FireEtwGCCreateSegment_V1((uint64_t)address, static_cast<uint64_t>(size), type, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCFreeSegment_V1(void* address)
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCFreeSegment_V1((uint64_t)address, GetClrInstanceId());
+    // FireEtwGCFreeSegment_V1((uint64_t)address, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCCreateConcurrentThread_V1()
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCCreateConcurrentThread_V1(GetClrInstanceId());
+    // FireEtwGCCreateConcurrentThread_V1(GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCTerminateConcurrentThread_V1()
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCTerminateConcurrentThread_V1(GetClrInstanceId());
+    // FireEtwGCTerminateConcurrentThread_V1(GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCTriggered(uint32_t reason)
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCTriggered(reason, GetClrInstanceId());
+    // FireEtwGCTriggered(reason, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCMarkWithType(uint32_t heapNum, uint32_t type, uint64_t bytes)
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCMarkWithType(heapNum, GetClrInstanceId(), type, bytes);
+    // FireEtwGCMarkWithType(heapNum, GetClrInstanceId(), type, bytes);
 }
 
 void GCToCLREventSink::FireGCJoin_V2(uint32_t heap, uint32_t joinTime, uint32_t joinType, uint32_t joinId)
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCJoin_V2(heap, joinTime, joinType, GetClrInstanceId(), joinId);
+    // FireEtwGCJoin_V2(heap, joinTime, joinType, GetClrInstanceId(), joinId);
 }
 
 void GCToCLREventSink::FireGCGlobalHeapHistory_V4(uint64_t finalYoungestDesired,
@@ -143,15 +143,15 @@ void GCToCLREventSink::FireGCGlobalHeapHistory_V4(uint64_t finalYoungestDesired,
     LIMITED_METHOD_CONTRACT;
 
     // TODO: FireEtwGCGlobalHeapHistory_V4
-    FireEtwGCGlobalHeapHistory_V2(finalYoungestDesired, numHeaps, condemnedGeneration, gen0reductionCount, reason,
-        globalMechanisms, GetClrInstanceId(), pauseMode, memoryPressure);
+    // FireEtwGCGlobalHeapHistory_V2(finalYoungestDesired, numHeaps, condemnedGeneration, gen0reductionCount, reason,
+    //     globalMechanisms, GetClrInstanceId(), pauseMode, memoryPressure);
 }
 
 void GCToCLREventSink::FireGCAllocationTick_V1(uint32_t allocationAmount, uint32_t allocationKind)
 {
     LIMITED_METHOD_CONTRACT;
 
-    FireEtwGCAllocationTick_V1(allocationAmount, allocationKind, GetClrInstanceId());
+    // FireEtwGCAllocationTick_V1(allocationAmount, allocationKind, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCAllocationTick_V4(uint64_t allocationAmount,
@@ -165,17 +165,17 @@ void GCToCLREventSink::FireGCAllocationTick_V4(uint64_t allocationAmount,
     void * typeId = RedhawkGCInterface::GetLastAllocEEType();
     const WCHAR * name = nullptr;
 
-    if (typeId != nullptr)
-    {
-        FireEtwGCAllocationTick_V3(static_cast<uint32_t>(allocationAmount),
-            allocationKind,
-            GetClrInstanceId(),
-            allocationAmount,
-            typeId,
-            name,
-            heapIndex,
-            objectAddress);
-    }
+    // if (typeId != nullptr)
+    // {
+    //     FireEtwGCAllocationTick_V3(static_cast<uint32_t>(allocationAmount),
+    //         allocationKind,
+    //         GetClrInstanceId(),
+    //         allocationAmount,
+    //         typeId,
+    //         name,
+    //         heapIndex,
+    //         objectAddress);
+    // }
 }
 
 void GCToCLREventSink::FirePinObjectAtGCTime(void* object, uint8_t** ppObject)
@@ -202,7 +202,7 @@ void GCToCLREventSink::FireGCFitBucketInfo(uint16_t bucketKind, size_t size, uin
 
 void GCToCLREventSink::FirePinPlugAtGCTime(uint8_t* plugStart, uint8_t* plugEnd, uint8_t* gapBeforeSize)
 {
-    FireEtwPinPlugAtGCTime(plugStart, plugEnd, gapBeforeSize, GetClrInstanceId());
+    // FireEtwPinPlugAtGCTime(plugStart, plugEnd, gapBeforeSize, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCPerHeapHistory_V3(void *freeListAllocated,
@@ -222,40 +222,40 @@ void GCToCLREventSink::FireGCPerHeapHistory_V3(void *freeListAllocated,
                                                uint32_t valuesLen,
                                                void *values)
 {
-    FireEtwGCPerHeapHistory_V3(GetClrInstanceId(),
-                               freeListAllocated,
-                               freeListRejected,
-                               endOfSegAllocated,
-                               condemnedAllocated,
-                               pinnedAllocated,
-                               pinnedAllocatedAdvance,
-                               runningFreeListEfficiency,
-                               condemnReasons0,
-                               condemnReasons1,
-                               compactMechanisms,
-                               expandMechanisms,
-                               heapIndex,
-                               extraGen0Commit,
-                               count,
-                               valuesLen,
-                               values);
+    // FireEtwGCPerHeapHistory_V3(GetClrInstanceId(),
+    //                            freeListAllocated,
+    //                            freeListRejected,
+    //                            endOfSegAllocated,
+    //                            condemnedAllocated,
+    //                            pinnedAllocated,
+    //                            pinnedAllocatedAdvance,
+    //                            runningFreeListEfficiency,
+    //                            condemnReasons0,
+    //                            condemnReasons1,
+    //                            compactMechanisms,
+    //                            expandMechanisms,
+    //                            heapIndex,
+    //                            extraGen0Commit,
+    //                            count,
+    //                            valuesLen,
+    //                            values);
 }
 
 
 
 void GCToCLREventSink::FireBGCBegin()
 {
-    FireEtwBGCBegin(GetClrInstanceId());
+    // FireEtwBGCBegin(GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGC1stNonConEnd()
 {
-    FireEtwBGC1stNonConEnd(GetClrInstanceId());
+    // FireEtwBGC1stNonConEnd(GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGC1stConEnd()
 {
-    FireEtwBGC1stConEnd(GetClrInstanceId());
+    // FireEtwBGC1stConEnd(GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGC1stSweepEnd(uint32_t genNumber)
@@ -265,71 +265,71 @@ void GCToCLREventSink::FireBGC1stSweepEnd(uint32_t genNumber)
 
 void GCToCLREventSink::FireBGC2ndNonConBegin()
 {
-    FireEtwBGC2ndNonConBegin(GetClrInstanceId());
+    // FireEtwBGC2ndNonConBegin(GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGC2ndNonConEnd()
 {
-    FireEtwBGC2ndNonConEnd(GetClrInstanceId());
+    // FireEtwBGC2ndNonConEnd(GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGC2ndConBegin()
 {
-    FireEtwBGC2ndConBegin(GetClrInstanceId());
+    // FireEtwBGC2ndConBegin(GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGC2ndConEnd()
 {
-    FireEtwBGC2ndConEnd(GetClrInstanceId());
+    // FireEtwBGC2ndConEnd(GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGCDrainMark(uint64_t objects)
 {
-    FireEtwBGCDrainMark(objects, GetClrInstanceId());
+    // FireEtwBGCDrainMark(objects, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGCRevisit(uint64_t pages, uint64_t objects, uint32_t isLarge)
 {
-    FireEtwBGCRevisit(pages, objects, isLarge, GetClrInstanceId());
+    // FireEtwBGCRevisit(pages, objects, isLarge, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGCOverflow_V1(uint64_t min, uint64_t max, uint64_t objects, uint32_t isLarge, uint32_t genNumber)
 {
     // TODO: FireBGCOverflow_V1
-    FireEtwBGCOverflow(min, max, objects, isLarge, GetClrInstanceId());
+    // FireEtwBGCOverflow(min, max, objects, isLarge, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGCAllocWaitBegin(uint32_t reason)
 {
-    FireEtwBGCAllocWaitBegin(reason, GetClrInstanceId());
+    // FireEtwBGCAllocWaitBegin(reason, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireBGCAllocWaitEnd(uint32_t reason)
 {
-    FireEtwBGCAllocWaitEnd(reason, GetClrInstanceId());
+    // FireEtwBGCAllocWaitEnd(reason, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireGCFullNotify_V1(uint32_t genNumber, uint32_t isAlloc)
 {
-    FireEtwGCFullNotify_V1(genNumber, isAlloc, GetClrInstanceId());
+    // FireEtwGCFullNotify_V1(genNumber, isAlloc, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireSetGCHandle(void* handleID, void* objectID, uint32_t kind, uint32_t generation)
 {
-    FireEtwSetGCHandle(handleID, objectID, kind, generation, -1, GetClrInstanceId());
+    // FireEtwSetGCHandle(handleID, objectID, kind, generation, -1, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FirePrvSetGCHandle(void* handleID, void* objectID, uint32_t kind, uint32_t generation)
 {
-    FireEtwPrvSetGCHandle(handleID, objectID, kind, generation, -1, GetClrInstanceId());
+    // FireEtwPrvSetGCHandle(handleID, objectID, kind, generation, -1, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FireDestroyGCHandle(void *handleID)
 {
-    FireEtwDestroyGCHandle(handleID, GetClrInstanceId());
+    // FireEtwDestroyGCHandle(handleID, GetClrInstanceId());
 }
 
 void GCToCLREventSink::FirePrvDestroyGCHandle(void *handleID)
 {
-    FireEtwPrvDestroyGCHandle(handleID, GetClrInstanceId());
+    // FireEtwPrvDestroyGCHandle(handleID, GetClrInstanceId());
 }
