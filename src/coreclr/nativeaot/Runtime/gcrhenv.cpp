@@ -90,8 +90,8 @@ RhConfig * g_pRhConfig = &g_sRhConfig;
 // function whenever the system enables or disables tracing for this provider.
 //
 
-uint32_t EtwCallback(uint32_t IsEnabled, RH_ETW_CONTEXT * pContext)
-{
+// uint32_t EtwCallback(uint32_t IsEnabled, RH_ETW_CONTEXT * pContext)
+// {
     // GCHeapUtilities::RecordEventStateChange(!!(pContext->RegistrationHandle == Microsoft_Windows_Redhawk_GC_PublicHandle),
     //                                         static_cast<GCEventKeyword>(pContext->MatchAnyKeyword),
     //                                         static_cast<GCEventLevel>(pContext->Level));
@@ -125,8 +125,8 @@ uint32_t EtwCallback(uint32_t IsEnabled, RH_ETW_CONTEXT * pContext)
     //     ETW::GCLog::ForceGC(l64ClientSequenceNumber);
     // }
 
-    return 0;
-}
+//     return 0;
+// }
 #endif // FEATURE_ETW
 
 //

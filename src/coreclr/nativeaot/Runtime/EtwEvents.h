@@ -23,79 +23,79 @@
 #define RH_ETW_INLINE __declspec(noinline) __inline
 #endif
 
-struct RH_ETW_CONTEXT
-{
-    TRACEHANDLE               RegistrationHandle;
-    TRACEHANDLE               Logger;
-    uint64_t                    MatchAnyKeyword;
-    uint64_t                    MatchAllKeyword;
-    EVENT_FILTER_DESCRIPTOR * FilterData;
-    uint32_t                    Flags;
-    uint32_t                    IsEnabled;
-    uint8_t                     Level;
-    uint8_t                     Reserve;
-};
+// struct RH_ETW_CONTEXT
+// {
+//     TRACEHANDLE               RegistrationHandle;
+//     TRACEHANDLE               Logger;
+//     uint64_t                    MatchAnyKeyword;
+//     uint64_t                    MatchAllKeyword;
+//     EVENT_FILTER_DESCRIPTOR * FilterData;
+//     uint32_t                    Flags;
+//     uint32_t                    IsEnabled;
+//     uint8_t                     Level;
+//     uint8_t                     Reserve;
+// };
 
-ULONG EventPipeWriteEventGCStart_V2(
-    const unsigned int Count,
-    const unsigned int Depth,
-    const unsigned int Reason,
-    const unsigned int Type,
-    const unsigned short ClrInstanceID,
-    const unsigned __int64 ClientSequenceNumber,
-    const GUID * ActivityId,
-    const GUID * RelatedActivityId)
-{
-    // if (!EventPipeEventEnabledGCStart_V2())
-    //     return ERROR_SUCCESS;
+// ULONG EventPipeWriteEventGCStart_V2(
+//     const unsigned int Count,
+//     const unsigned int Depth,
+//     const unsigned int Reason,
+//     const unsigned int Type,
+//     const unsigned short ClrInstanceID,
+//     const unsigned __int64 ClientSequenceNumber,
+//     const GUID * ActivityId,
+//     const GUID * RelatedActivityId)
+// {
+//     // if (!EventPipeEventEnabledGCStart_V2())
+//     //     return ERROR_SUCCESS;
 
-    // size_t size = 32;
-    // BYTE stackBuffer[32];
-    // BYTE *buffer = stackBuffer;
-    // size_t offset = 0;
-    // bool fixedBuffer = true;
-    // bool success = true;
+//     // size_t size = 32;
+//     // BYTE stackBuffer[32];
+//     // BYTE *buffer = stackBuffer;
+//     // size_t offset = 0;
+//     // bool fixedBuffer = true;
+//     // bool success = true;
 
-    // success &= WriteToBuffer(Count, buffer, offset, size, fixedBuffer);
-    // success &= WriteToBuffer(Depth, buffer, offset, size, fixedBuffer);
-    // success &= WriteToBuffer(Reason, buffer, offset, size, fixedBuffer);
-    // success &= WriteToBuffer(Type, buffer, offset, size, fixedBuffer);
-    // success &= WriteToBuffer(ClrInstanceID, buffer, offset, size, fixedBuffer);
-    // success &= WriteToBuffer(ClientSequenceNumber, buffer, offset, size, fixedBuffer);
+//     // success &= WriteToBuffer(Count, buffer, offset, size, fixedBuffer);
+//     // success &= WriteToBuffer(Depth, buffer, offset, size, fixedBuffer);
+//     // success &= WriteToBuffer(Reason, buffer, offset, size, fixedBuffer);
+//     // success &= WriteToBuffer(Type, buffer, offset, size, fixedBuffer);
+//     // success &= WriteToBuffer(ClrInstanceID, buffer, offset, size, fixedBuffer);
+//     // success &= WriteToBuffer(ClientSequenceNumber, buffer, offset, size, fixedBuffer);
 
-    // if (!success)
-    // {
-    //     if (!fixedBuffer)
-    //         delete[] buffer;
-    //     return ERROR_WRITE_FAULT;
-    // }
+//     // if (!success)
+//     // {
+//     //     if (!fixedBuffer)
+//     //         delete[] buffer;
+//     //     return ERROR_WRITE_FAULT;
+//     // }
 
-    // EventPipeAdapter::WriteEvent(EventPipeEventGCStart_V2, (BYTE *)buffer, (unsigned int)offset, ActivityId, RelatedActivityId);
+//     // EventPipeAdapter::WriteEvent(EventPipeEventGCStart_V2, (BYTE *)buffer, (unsigned int)offset, ActivityId, RelatedActivityId);
 
-    // if (!fixedBuffer)
-    //     delete[] buffer;
-
-
-    return ERROR_SUCCESS;
-}
+//     // if (!fixedBuffer)
+//     //     delete[] buffer;
 
 
-inline ULONG FireEtwGCStart_V2(
-    const unsigned int  Count,
-    const unsigned int  Depth,
-    const unsigned int  Reason,
-    const unsigned int  Type,
-    const unsigned short  ClrInstanceID,
-    const unsigned __int64  ClientSequenceNumber,
-    const GUID * ActivityId = nullptr,
-    const GUID * RelatedActivityId = nullptr
-)
-{
-    ULONG status = EventPipeWriteEventGCStart_V2(Count,Depth,Reason,Type,ClrInstanceID,ClientSequenceNumber,ActivityId,RelatedActivityId);
-    // status &= FireEtXplatGCStart_V2(Count,Depth,Reason,Type,ClrInstanceID,ClientSequenceNumber);
-    // return status;
-    return 0;
-}
+//     return ERROR_SUCCESS;
+// }
+
+
+// inline ULONG FireEtwGCStart_V2(
+//     const unsigned int  Count,
+//     const unsigned int  Depth,
+//     const unsigned int  Reason,
+//     const unsigned int  Type,
+//     const unsigned short  ClrInstanceID,
+//     const unsigned __int64  ClientSequenceNumber,
+//     const GUID * ActivityId = nullptr,
+//     const GUID * RelatedActivityId = nullptr
+// )
+// {
+//     // ULONG status = EventPipeWriteEventGCStart_V2(Count,Depth,Reason,Type,ClrInstanceID,ClientSequenceNumber,ActivityId,RelatedActivityId);
+//     // status &= FireEtXplatGCStart_V2(Count,Depth,Reason,Type,ClrInstanceID,ClientSequenceNumber);
+//     // return status;
+//     return 0;
+// }
 
 
 // uint32_t EtwCallback(uint32_t IsEnabled, RH_ETW_CONTEXT * CallbackContext);
@@ -406,12 +406,12 @@ inline ULONG FireEtwGCStart_V2(
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCSuspendEEBegin_V1 = {0x9, 0x1, 0x10, 0x4, 0xa, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCSuspendEEEnd_V1 = {0x8, 0x1, 0x10, 0x4, 0x89, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCTerminateConcurrentThread_V1 = {0xc, 0x1, 0x10, 0x4, 0xd, 0x1, 0x8000000000010001};
-extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCTriggered = {0x23, 0x0, 0x10, 0x4, 0x23, 0x1, 0x8000000000000001};
+// extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCTriggered = {0x23, 0x0, 0x10, 0x4, 0x23, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR ModuleLoad_V2 = {0x98, 0x2, 0x10, 0x4, 0x21, 0xa, 0x8000000020000008};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR SetGCHandle = {0x1e, 0x0, 0x10, 0x4, 0x21, 0x1, 0x8000000000000002};
 
-extern "C" __declspec(selectany) REGHANDLE Microsoft_Windows_Redhawk_GC_PublicHandle;
-extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context;
+// extern "C" __declspec(selectany) REGHANDLE Microsoft_Windows_Redhawk_GC_PublicHandle;
+// extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context;
 
 // #define RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Public() do { PalEventRegister(&MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER, RhEtwControlCallback, &MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context, &Microsoft_Windows_Redhawk_GC_PublicHandle); } while (false)
 // #define RH_ETW_UNREGISTER_Microsoft_Windows_Redhawk_GC_Public() do { PalEventUnregister(Microsoft_Windows_Redhawk_GC_PublicHandle); } while (false)
@@ -486,7 +486,7 @@ extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_P
 
 // #define FireEtwGCTerminateConcurrentThread_V1(ClrInstanceID) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCTerminateConcurrentThread_V1)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCTerminateConcurrentThread(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCTerminateConcurrentThread_V1, ClrInstanceID) : 0
 
-#define FireEtwGCTriggered(Reason, ClrInstanceID) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCTriggered)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCTriggered(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCTriggered, Reason, ClrInstanceID) : 0
+// #define FireEtwGCTriggered(Reason, ClrInstanceID) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCTriggered)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCTriggered(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCTriggered, Reason, ClrInstanceID) : 0
 
 // #define FireEtwModuleLoad_V2(ModuleID, AssemblyID, ModuleFlags, Reserved1, ModuleILPath, ModuleNativePath, ClrInstanceID, ManagedPdbSignature, ManagedPdbAge, ManagedPdbBuildPath, NativePdbSignature, NativePdbAge, NativePdbBuildPath) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PublicHandle, &ModuleLoad_V2)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_ModuleLoadUnload_V2(Microsoft_Windows_Redhawk_GC_PublicHandle, &ModuleLoad_V2, ModuleID, AssemblyID, ModuleFlags, Reserved1, ModuleILPath, ModuleNativePath, ClrInstanceID, ManagedPdbSignature, ManagedPdbAge, ManagedPdbBuildPath, NativePdbSignature, NativePdbAge, NativePdbBuildPath) : 0
 
@@ -842,14 +842,14 @@ extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_P
 //     return PalEventWrite(RegHandle, Descriptor, 1, EventData);
 // }
 
-RH_ETW_INLINE uint32_t
-Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCTriggered(REGHANDLE RegHandle, const EVENT_DESCRIPTOR * Descriptor, uint32_t Reason, uint16_t ClrInstanceID)
-{
-    EVENT_DATA_DESCRIPTOR EventData[2];
-    EventDataDescCreate(&EventData[0], &Reason, sizeof(uint32_t));
-    EventDataDescCreate(&EventData[1], &ClrInstanceID, sizeof(uint16_t));
-    return PalEventWrite(RegHandle, Descriptor, 2, EventData);
-}
+// RH_ETW_INLINE uint32_t
+// Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCTriggered(REGHANDLE RegHandle, const EVENT_DESCRIPTOR * Descriptor, uint32_t Reason, uint16_t ClrInstanceID)
+// {
+//     EVENT_DATA_DESCRIPTOR EventData[2];
+//     EventDataDescCreate(&EventData[0], &Reason, sizeof(uint32_t));
+//     EventDataDescCreate(&EventData[1], &ClrInstanceID, sizeof(uint16_t));
+//     return PalEventWrite(RegHandle, Descriptor, 2, EventData);
+// }
 
 // RH_ETW_INLINE uint32_t
 // Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_ModuleLoadUnload_V2(REGHANDLE RegHandle, const EVENT_DESCRIPTOR * Descriptor, uint64_t ModuleID, uint64_t AssemblyID, uint32_t ModuleFlags, uint32_t Reserved1, LPCWSTR ModuleILPath, LPCWSTR ModuleNativePath, uint16_t ClrInstanceID, const GUID* ManagedPdbSignature, uint32_t ManagedPdbAge, LPCWSTR ManagedPdbBuildPath, const GUID* NativePdbSignature, uint32_t NativePdbAge, LPCWSTR NativePdbBuildPath)
@@ -957,7 +957,7 @@ Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCTriggered(REGHANDLE Re
 // #define FireEtwGCSuspendEEBegin_V1(Reason, Count, ClrInstanceID)
 // #define FireEtwGCSuspendEEEnd_V1(ClrInstanceID)
 // #define FireEtwGCTerminateConcurrentThread_V1(ClrInstanceID)
-#define FireEtwGCTriggered(Reason, ClrInstanceID)
+// #define FireEtwGCTriggered(Reason, ClrInstanceID)
 // #define FireEtwModuleLoad_V2(ModuleID, AssemblyID, ModuleFlags, Reserved1, ModuleILPath, ModuleNativePath, ClrInstanceID, ManagedPdbSignature, ManagedPdbAge, ManagedPdbBuildPath, NativePdbSignature, NativePdbAge, NativePdbBuildPath)
 // #define FireEtwSetGCHandle(HandleID, ObjectID, Kind, Generation, AppDomainID, ClrInstanceID)
 
