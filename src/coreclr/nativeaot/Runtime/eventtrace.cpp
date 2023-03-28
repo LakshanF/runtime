@@ -735,12 +735,12 @@ void ETW::GCLog::MovedReference(
         // If buffer is now full, empty it into ETW
         if (pContext->cBulkSurvivingObjectRanges == _countof(pContext->rgGCBulkSurvivingObjectRanges))
         {
-            FireEtwGCBulkSurvivingObjectRanges(
-                pContext->iCurBulkSurvivingObjectRanges,
-                pContext->cBulkSurvivingObjectRanges,
-                GetClrInstanceId(),
-                sizeof(pContext->rgGCBulkSurvivingObjectRanges[0]),
-                &pContext->rgGCBulkSurvivingObjectRanges[0]);
+            // FireEtwGCBulkSurvivingObjectRanges(
+            //     pContext->iCurBulkSurvivingObjectRanges,
+            //     pContext->cBulkSurvivingObjectRanges,
+            //     GetClrInstanceId(),
+            //     sizeof(pContext->rgGCBulkSurvivingObjectRanges[0]),
+            //     &pContext->rgGCBulkSurvivingObjectRanges[0]);
 
             pContext->iCurBulkSurvivingObjectRanges++;
             pContext->Clear();
@@ -822,25 +822,25 @@ void ETW::GCLog::EndMovedReferences(size_t profilingContext,
 
     // Flush any remaining moved or surviving range data
 
-    if (pContext->cBulkMovedObjectRanges > 0)
-    {
-        FireEtwGCBulkMovedObjectRanges(
-            pContext->iCurBulkMovedObjectRanges,
-            pContext->cBulkMovedObjectRanges,
-            GetClrInstanceId(),
-            sizeof(pContext->rgGCBulkMovedObjectRanges[0]),
-            &pContext->rgGCBulkMovedObjectRanges[0]);
-    }
+    // if (pContext->cBulkMovedObjectRanges > 0)
+    // {
+    //     FireEtwGCBulkMovedObjectRanges(
+    //         pContext->iCurBulkMovedObjectRanges,
+    //         pContext->cBulkMovedObjectRanges,
+    //         GetClrInstanceId(),
+    //         sizeof(pContext->rgGCBulkMovedObjectRanges[0]),
+    //         &pContext->rgGCBulkMovedObjectRanges[0]);
+    // }
 
-    if (pContext->cBulkSurvivingObjectRanges > 0)
-    {
-        FireEtwGCBulkSurvivingObjectRanges(
-            pContext->iCurBulkSurvivingObjectRanges,
-            pContext->cBulkSurvivingObjectRanges,
-            GetClrInstanceId(),
-            sizeof(pContext->rgGCBulkSurvivingObjectRanges[0]),
-            &pContext->rgGCBulkSurvivingObjectRanges[0]);
-    }
+    // if (pContext->cBulkSurvivingObjectRanges > 0)
+    // {
+    //     FireEtwGCBulkSurvivingObjectRanges(
+    //         pContext->iCurBulkSurvivingObjectRanges,
+    //         pContext->cBulkSurvivingObjectRanges,
+    //         GetClrInstanceId(),
+    //         sizeof(pContext->rgGCBulkSurvivingObjectRanges[0]),
+    //         &pContext->rgGCBulkSurvivingObjectRanges[0]);
+    // }
 
     pCtxForEtwAndProfapi->pctxEtw = NULL;
     delete pContext;
@@ -898,11 +898,11 @@ void ETW::GCLog::FireGcStart(ETW_GC_INFO* pGcInfo)
 
 #if !defined(FEATURE_PAL) || defined(FEATURE_DTRACE)
 
-    if (ETW_TRACING_CATEGORY_ENABLED(
-        MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-        TRACE_LEVEL_INFORMATION,
-        CLR_GC_KEYWORD))
-    {
+    // if (ETW_TRACING_CATEGORY_ENABLED(
+    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
+    //     TRACE_LEVEL_INFORMATION,
+    //     CLR_GC_KEYWORD))
+    // {
 #if !defined(FEATURE_PAL)
         // If the controller specified a client sequence number for us to log with this
         // GCStart, then retrieve it
@@ -925,7 +925,7 @@ void ETW::GCLog::FireGcStart(ETW_GC_INFO* pGcInfo)
 #elif defined(FEATURE_DTRACE)
         FireEtwGCStart(pGcInfo->GCStart.Count, pGcInfo->GCStart.Reason);
 #endif
-    }
+    // }
 
 #endif // defined(FEATURE_PAL) || defined(FEATURE_DTRACE)
 }
@@ -1146,7 +1146,7 @@ void BulkTypeEventLogger::FireBulkTypeEvent()
         }
     }
 
-    Win32EventWrite(Microsoft_Windows_DotNETRuntimeHandle, &BulkType, iDesc, EventData);
+    // Win32EventWrite(Microsoft_Windows_DotNETRuntimeHandle, &BulkType, iDesc, EventData);
 
     // Reset state
     m_nBulkTypeValueCount = 0;
@@ -1706,12 +1706,12 @@ void ETW::GCLog::RootReference(
         if (pContext->cGCBulkRootConditionalWeakTableElementEdges ==
             _countof(pContext->rgGCBulkRootConditionalWeakTableElementEdges))
         {
-            FireEtwGCBulkRootConditionalWeakTableElementEdge(
-                pContext->iCurBulkRootConditionalWeakTableElementEdge,
-                pContext->cGCBulkRootConditionalWeakTableElementEdges,
-                GetClrInstanceId(),
-                sizeof(pContext->rgGCBulkRootConditionalWeakTableElementEdges[0]),
-                &pContext->rgGCBulkRootConditionalWeakTableElementEdges[0]);
+            // FireEtwGCBulkRootConditionalWeakTableElementEdge(
+            //     pContext->iCurBulkRootConditionalWeakTableElementEdge,
+            //     pContext->cGCBulkRootConditionalWeakTableElementEdges,
+            //     GetClrInstanceId(),
+            //     sizeof(pContext->rgGCBulkRootConditionalWeakTableElementEdges[0]),
+            //     &pContext->rgGCBulkRootConditionalWeakTableElementEdges[0]);
 
             pContext->iCurBulkRootConditionalWeakTableElementEdge++;
             pContext->ClearRootConditionalWeakTableElementEdges();
@@ -1730,12 +1730,12 @@ void ETW::GCLog::RootReference(
         // If root edge buffer is now full, empty it into ETW
         if (pContext->cGcBulkRootEdges == _countof(pContext->rgGcBulkRootEdges))
         {
-            FireEtwGCBulkRootEdge(
-                pContext->iCurBulkRootEdge,
-                pContext->cGcBulkRootEdges,
-                GetClrInstanceId(),
-                sizeof(pContext->rgGcBulkRootEdges[0]),
-                &pContext->rgGcBulkRootEdges[0]);
+            // FireEtwGCBulkRootEdge(
+            //     pContext->iCurBulkRootEdge,
+            //     pContext->cGcBulkRootEdges,
+            //     GetClrInstanceId(),
+            //     sizeof(pContext->rgGcBulkRootEdges[0]),
+            //     &pContext->rgGcBulkRootEdges[0]);
 
             pContext->iCurBulkRootEdge++;
             pContext->ClearRootEdges();
@@ -1800,12 +1800,12 @@ void ETW::GCLog::ObjectReference(
     // If Node buffer is now full, empty it into ETW
     if (pContext->cGcBulkNodeValues == _countof(pContext->rgGcBulkNodeValues))
     {
-        FireEtwGCBulkNode(
-            pContext->iCurBulkNodeEvent,
-            pContext->cGcBulkNodeValues,
-            GetClrInstanceId(),
-            sizeof(pContext->rgGcBulkNodeValues[0]),
-            &pContext->rgGcBulkNodeValues[0]);
+        // FireEtwGCBulkNode(
+        //     pContext->iCurBulkNodeEvent,
+        //     pContext->cGcBulkNodeValues,
+        //     GetClrInstanceId(),
+        //     sizeof(pContext->rgGcBulkNodeValues[0]),
+        //     &pContext->rgGcBulkNodeValues[0]);
 
         pContext->iCurBulkNodeEvent++;
         pContext->ClearNodes();
@@ -1850,12 +1850,12 @@ void ETW::GCLog::ObjectReference(
         // If Edge buffer is now full, empty it into ETW
         if (pContext->cGcBulkEdgeValues == _countof(pContext->rgGcBulkEdgeValues))
         {
-            FireEtwGCBulkEdge(
-                pContext->iCurBulkEdgeEvent,
-                pContext->cGcBulkEdgeValues,
-                GetClrInstanceId(),
-                sizeof(pContext->rgGcBulkEdgeValues[0]),
-                &pContext->rgGcBulkEdgeValues[0]);
+            // FireEtwGCBulkEdge(
+            //     pContext->iCurBulkEdgeEvent,
+            //     pContext->cGcBulkEdgeValues,
+            //     GetClrInstanceId(),
+            //     sizeof(pContext->rgGcBulkEdgeValues[0]),
+            //     &pContext->rgGcBulkEdgeValues[0]);
 
             pContext->iCurBulkEdgeEvent++;
             pContext->ClearEdges();
@@ -1886,57 +1886,57 @@ void ETW::GCLog::EndHeapDump(ProfilerWalkHeapContext* profilerWalkHeapContext)
         return;
 
     // If the GC events are enabled, flush any remaining root, node, and / or edge data
-    if (ETW_TRACING_CATEGORY_ENABLED(
-        MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-        TRACE_LEVEL_INFORMATION,
-        CLR_GCHEAPDUMP_KEYWORD))
+    // if (ETW_TRACING_CATEGORY_ENABLED(
+    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
+    //     TRACE_LEVEL_INFORMATION,
+    //     CLR_GCHEAPDUMP_KEYWORD))
     {
-        if (pContext->cGcBulkRootEdges > 0)
-        {
-            FireEtwGCBulkRootEdge(
-                pContext->iCurBulkRootEdge,
-                pContext->cGcBulkRootEdges,
-                GetClrInstanceId(),
-                sizeof(pContext->rgGcBulkRootEdges[0]),
-                &pContext->rgGcBulkRootEdges[0]);
-        }
+        // if (pContext->cGcBulkRootEdges > 0)
+        // {
+        //     FireEtwGCBulkRootEdge(
+        //         pContext->iCurBulkRootEdge,
+        //         pContext->cGcBulkRootEdges,
+        //         GetClrInstanceId(),
+        //         sizeof(pContext->rgGcBulkRootEdges[0]),
+        //         &pContext->rgGcBulkRootEdges[0]);
+        // }
 
-        if (pContext->cGCBulkRootConditionalWeakTableElementEdges > 0)
-        {
-            FireEtwGCBulkRootConditionalWeakTableElementEdge(
-                pContext->iCurBulkRootConditionalWeakTableElementEdge,
-                pContext->cGCBulkRootConditionalWeakTableElementEdges,
-                GetClrInstanceId(),
-                sizeof(pContext->rgGCBulkRootConditionalWeakTableElementEdges[0]),
-                &pContext->rgGCBulkRootConditionalWeakTableElementEdges[0]);
-        }
+        // if (pContext->cGCBulkRootConditionalWeakTableElementEdges > 0)
+        // {
+        //     FireEtwGCBulkRootConditionalWeakTableElementEdge(
+        //         pContext->iCurBulkRootConditionalWeakTableElementEdge,
+        //         pContext->cGCBulkRootConditionalWeakTableElementEdges,
+        //         GetClrInstanceId(),
+        //         sizeof(pContext->rgGCBulkRootConditionalWeakTableElementEdges[0]),
+        //         &pContext->rgGCBulkRootConditionalWeakTableElementEdges[0]);
+        // }
 
-        if (pContext->cGcBulkNodeValues > 0)
-        {
-            FireEtwGCBulkNode(
-                pContext->iCurBulkNodeEvent,
-                pContext->cGcBulkNodeValues,
-                GetClrInstanceId(),
-                sizeof(pContext->rgGcBulkNodeValues[0]),
-                &pContext->rgGcBulkNodeValues[0]);
-        }
+        // if (pContext->cGcBulkNodeValues > 0)
+        // {
+        //     FireEtwGCBulkNode(
+        //         pContext->iCurBulkNodeEvent,
+        //         pContext->cGcBulkNodeValues,
+        //         GetClrInstanceId(),
+        //         sizeof(pContext->rgGcBulkNodeValues[0]),
+        //         &pContext->rgGcBulkNodeValues[0]);
+        // }
 
-        if (pContext->cGcBulkEdgeValues > 0)
-        {
-            FireEtwGCBulkEdge(
-                pContext->iCurBulkEdgeEvent,
-                pContext->cGcBulkEdgeValues,
-                GetClrInstanceId(),
-                sizeof(pContext->rgGcBulkEdgeValues[0]),
-                &pContext->rgGcBulkEdgeValues[0]);
-        }
+        // if (pContext->cGcBulkEdgeValues > 0)
+        // {
+        //     FireEtwGCBulkEdge(
+        //         pContext->iCurBulkEdgeEvent,
+        //         pContext->cGcBulkEdgeValues,
+        //         GetClrInstanceId(),
+        //         sizeof(pContext->rgGcBulkEdgeValues[0]),
+        //         &pContext->rgGcBulkEdgeValues[0]);
+        // }
     }
 
     // Ditto for type events
-    if (ETW_TRACING_CATEGORY_ENABLED(
-        MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-        TRACE_LEVEL_INFORMATION,
-        CLR_TYPE_KEYWORD))
+    // if (ETW_TRACING_CATEGORY_ENABLED(
+    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
+    //     TRACE_LEVEL_INFORMATION,
+    //     CLR_TYPE_KEYWORD))
     {
         pContext->bulkTypeEventLogger.FireBulkTypeEvent();
         pContext->bulkTypeEventLogger.Cleanup();

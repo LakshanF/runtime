@@ -39,13 +39,13 @@
 
 void BulkTypeEventLogger::LogTypeAndParameters(uint64_t thAsAddr, ETW::TypeSystemLog::TypeLogBehavior typeLogBehavior)
 {
-    if (!ETW_TRACING_CATEGORY_ENABLED(
-        MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-        TRACE_LEVEL_INFORMATION,
-        CLR_TYPE_KEYWORD))
-    {
-        return;
-    }
+    // if (!ETW_TRACING_CATEGORY_ENABLED(
+    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
+    //     TRACE_LEVEL_INFORMATION,
+    //     CLR_TYPE_KEYWORD))
+    // {
+    //     return;
+    // }
 
     MethodTable * pEEType = (MethodTable *) thAsAddr;
 
@@ -345,13 +345,13 @@ void ETW::TypeSystemLog::LogTypeAndParametersIfNecessary(BulkTypeEventLogger * p
 {
 #if defined(FEATURE_EVENT_TRACE)
 
-    if (!ETW_TRACING_CATEGORY_ENABLED(
-        MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-        TRACE_LEVEL_INFORMATION,
-        CLR_TYPE_KEYWORD))
-    {
-        return;
-    }
+    // if (!ETW_TRACING_CATEGORY_ENABLED(
+    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
+    //     TRACE_LEVEL_INFORMATION,
+    //     CLR_TYPE_KEYWORD))
+    // {
+    //     return;
+    // }
 
     _ASSERTE(pLogger != NULL);
     pLogger->LogTypeAndParameters(thAsAddr, typeLogBehavior);
@@ -361,12 +361,12 @@ void ETW::TypeSystemLog::LogTypeAndParametersIfNecessary(BulkTypeEventLogger * p
 
 COOP_PINVOKE_HELPER(void, RhpEtwExceptionThrown, (LPCWSTR exceptionTypeName, LPCWSTR exceptionMessage, void* faultingIP, HRESULT hresult))
 {
-    FireEtwExceptionThrown_V1(exceptionTypeName,
-        exceptionMessage,
-        faultingIP,
-        hresult,
-        0,
-        GetClrInstanceId());
+    // FireEtwExceptionThrown_V1(exceptionTypeName,
+    //     exceptionMessage,
+    //     faultingIP,
+    //     hresult,
+    //     0,
+    //     GetClrInstanceId());
 }
 
 
