@@ -14,10 +14,10 @@ using Microsoft.Diagnostics.NETCore.Client;
 
 namespace Tracing.Tests.SimpleProviderValidation
 {
-    public sealed class MyEventSource : EventSource
+    public sealed class LaksDemoEventSource : EventSource
     {
-        private MyEventSource() {}
-        public static MyEventSource Log = new MyEventSource();
+        private LaksDemoEventSource() {}
+        public static LaksDemoEventSource Log = new LaksDemoEventSource();
         public void MyEvent() { WriteEvent(1, "MyEvent"); }
     }
 
@@ -31,10 +31,13 @@ namespace Tracing.Tests.SimpleProviderValidation
 
             var providers = new List<EventPipeProvider>()
             {
-                new EventPipeProvider("MyEventSource", EventLevel.Verbose),
+                new EventPipeProvider("LaksDemoEventSource", EventLevel.Verbose),
                 new EventPipeProvider("Microsoft-DotNETCore-SampleProfiler", EventLevel.Verbose),
                 new EventPipeProvider("Microsoft-Windows-DotNETRuntime", EventLevel.Verbose, 1)
             };
+
+            Console.WriteLine("Waiting 10 seconds to client to get the PID");
+            Thread.Sleep(10*1000);
 
             var ret = IpcTraceTest.RunAndValidateEventCounts(_expectedEventCounts, _eventGeneratingAction, providers, 1024, enableRundownProvider:false);
             if (ret < 0)
@@ -45,7 +48,7 @@ namespace Tracing.Tests.SimpleProviderValidation
 
         private static Dictionary<string, ExpectedEventCount> _expectedEventCounts = new Dictionary<string, ExpectedEventCount>()
         {
-            { "MyEventSource", 100 },
+            { "LaksDemoEventSource", 100 },
             { "Microsoft-DotNETCore-EventPipe", 1},
             { "Microsoft-Windows-DotNETRuntime", -1 }
         };
@@ -57,7 +60,7 @@ namespace Tracing.Tests.SimpleProviderValidation
             {                
                 if (i % 10 == 0)
                     Console.WriteLine($"Fired MyEvent {i:N0}/100,000 times...");
-                MyEventSource.Log.MyEvent();
+                LaksDemoEventSource.Log.MyEvent();
             }
             GC.Collect();
         };

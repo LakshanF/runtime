@@ -10,6 +10,7 @@ This file is generated using the logic from <root>/src/scripts/genEventing.py
 ******************************************************************/
 #include "clrxplatevents.h"
 #include "clreventpipewriteevents.h"
+#include "EtwEvents.h"
 
 typedef struct _MCGEN_TRACE_CONTEXT
 {
@@ -61,22 +62,22 @@ typedef struct _DOTNET_TRACE_CONTEXT
 //     return status;
 // }
 
-// inline BOOL EventEnabledGCStart_V1(void) {return EventPipeEventEnabledGCStart_V1() || EventXplatEnabledGCStart_V1();}
+inline BOOL EventEnabledGCStart_V1(void) {return EventPipeEventEnabledGCStart_V1();}// || EventXplatEnabledGCStart_V1();}
 
-// inline ULONG FireEtwGCStart_V1(
-//     const unsigned int  Count,
-//     const unsigned int  Depth,
-//     const unsigned int  Reason,
-//     const unsigned int  Type,
-//     const unsigned short  ClrInstanceID,
-//     const GUID * ActivityId = nullptr,
-//     const GUID * RelatedActivityId = nullptr
-// )
-// {
-//     ULONG status = EventPipeWriteEventGCStart_V1(Count,Depth,Reason,Type,ClrInstanceID,ActivityId,RelatedActivityId);
-//     status &= FireEtXplatGCStart_V1(Count,Depth,Reason,Type,ClrInstanceID);
-//     return status;
-// }
+inline ULONG FireEtwGCStart_V1(
+    const unsigned int  Count,
+    const unsigned int  Depth,
+    const unsigned int  Reason,
+    const unsigned int  Type,
+    const unsigned short  ClrInstanceID,
+    const GUID * ActivityId = nullptr,
+    const GUID * RelatedActivityId = nullptr
+)
+{
+    ULONG status = EventPipeWriteEventGCStart_V1(Count,Depth,Reason,Type,ClrInstanceID,ActivityId,RelatedActivityId);
+//    status &= FireEtXplatGCStart_V1(Count,Depth,Reason,Type,ClrInstanceID);
+    return status;
+}
 
 inline BOOL EventEnabledGCStart_V2(void) {return EventPipeEventEnabledGCStart_V2();}
 
@@ -92,7 +93,7 @@ inline ULONG FireEtwGCStart_V2(
 )
 {
     ULONG status = EventPipeWriteEventGCStart_V2(Count,Depth,Reason,Type,ClrInstanceID,ClientSequenceNumber,ActivityId,RelatedActivityId);
-    //status &= FireEtXplatGCStart_V2(Count,Depth,Reason,Type,ClrInstanceID,ClientSequenceNumber);
+    status &= FireEtXplatGCStart_V2(Count,Depth,Reason,Type,ClrInstanceID,ClientSequenceNumber);
     return status;
 }
 

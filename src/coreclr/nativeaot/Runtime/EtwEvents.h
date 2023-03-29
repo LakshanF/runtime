@@ -36,22 +36,21 @@ struct RH_ETW_CONTEXT
     uint8_t                     Reserve;
 };
 
+uint32_t EtwCallback(uint32_t IsEnabled, RH_ETW_CONTEXT * CallbackContext);
 
-// uint32_t EtwCallback(uint32_t IsEnabled, RH_ETW_CONTEXT * CallbackContext);
-
-// __declspec(noinline) __inline void __stdcall
-// RhEtwControlCallback(GUID * /*SourceId*/, uint32_t IsEnabled, uint8_t Level, uint64_t MatchAnyKeyword, uint64_t MatchAllKeyword, EVENT_FILTER_DESCRIPTOR * FilterData, void * CallbackContext)
-// {
-//     RH_ETW_CONTEXT * Ctx = (RH_ETW_CONTEXT*)CallbackContext;
-//     if (Ctx == NULL)
-//         return;
-//     Ctx->Level = Level;
-//     Ctx->MatchAnyKeyword = MatchAnyKeyword;
-//     Ctx->MatchAllKeyword = MatchAllKeyword;
-//     Ctx->FilterData = FilterData;
-//     Ctx->IsEnabled = IsEnabled;
-//     EtwCallback(IsEnabled, (RH_ETW_CONTEXT*)CallbackContext);
-// }
+__declspec(noinline) __inline void __stdcall
+RhEtwControlCallback(GUID * /*SourceId*/, uint32_t IsEnabled, uint8_t Level, uint64_t MatchAnyKeyword, uint64_t MatchAllKeyword, EVENT_FILTER_DESCRIPTOR * FilterData, void * CallbackContext)
+{
+    RH_ETW_CONTEXT * Ctx = (RH_ETW_CONTEXT*)CallbackContext;
+    if (Ctx == NULL)
+        return;
+    Ctx->Level = Level;
+    Ctx->MatchAnyKeyword = MatchAnyKeyword;
+    Ctx->MatchAllKeyword = MatchAllKeyword;
+    Ctx->FilterData = FilterData;
+    Ctx->IsEnabled = IsEnabled;
+    EtwCallback(IsEnabled, (RH_ETW_CONTEXT*)CallbackContext);
+}
 
 // __declspec(noinline) __inline bool __stdcall
 //  RhEventTracingEnabled(RH_ETW_CONTEXT * EnableInfo,
@@ -71,7 +70,7 @@ struct RH_ETW_CONTEXT
 
 // #define ETW_EVENT_ENABLED(Context, EventDescriptor) (Context.IsEnabled && RhEventTracingEnabled(&Context, &EventDescriptor))
 
-// extern "C" __declspec(selectany) const GUID MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER = {0x1095638c, 0x8748, 0x4c7a, {0xb3, 0x9e, 0xba, 0xea, 0x27, 0xb9, 0xc5, 0x89}};
+extern "C" __declspec(selectany) const GUID MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER = {0x1095638c, 0x8748, 0x4c7a, {0xb3, 0x9e, 0xba, 0xea, 0x27, 0xb9, 0xc5, 0x89}};
 
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR BGC1stConEnd = {0xd, 0x0, 0x10, 0x4, 0x1b, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR BGC1stNonConEnd = {0xc, 0x0, 0x10, 0x4, 0x1a, 0x1, 0x8000000000000001};
@@ -101,10 +100,10 @@ struct RH_ETW_CONTEXT
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR PrvGCMarkStackRoots_V1 = {0x7, 0x1, 0x10, 0x4, 0x15, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR PrvSetGCHandle = {0xc2, 0x0, 0x10, 0x5, 0x2a, 0x1, 0x8000000000004000};
 
-// extern "C" __declspec(selectany) REGHANDLE Microsoft_Windows_Redhawk_GC_PrivateHandle;
-// extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_Context;
+extern "C" __declspec(selectany) REGHANDLE Microsoft_Windows_Redhawk_GC_PrivateHandle;
+extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_Context;
 
-// #define RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Private() do { PalEventRegister(&MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER, RhEtwControlCallback, &MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_Context, &Microsoft_Windows_Redhawk_GC_PrivateHandle); } while (false)
+#define RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Private() do { PalEventRegister(&MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER, RhEtwControlCallback, &MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_Context, &Microsoft_Windows_Redhawk_GC_PrivateHandle); } while (false)
 // #define RH_ETW_UNREGISTER_Microsoft_Windows_Redhawk_GC_Private() do { PalEventUnregister(Microsoft_Windows_Redhawk_GC_PrivateHandle); } while (false)
 
 // #define FireEtwBGC1stConEnd(ClrInstanceID) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PrivateHandle, &BGC1stConEnd)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PRIVATE_PROVIDER_GCNoUserData(Microsoft_Windows_Redhawk_GC_PrivateHandle, &BGC1stConEnd, ClrInstanceID) : 0
@@ -308,7 +307,7 @@ struct RH_ETW_CONTEXT
 //     return PalEventWrite(RegHandle, Descriptor, 6, EventData);
 // }
 
-// extern "C" __declspec(selectany) const GUID MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER = {0x47c3ba0c, 0x77f1, 0x4eb0, {0x8d, 0x4d, 0xae, 0xf4, 0x47, 0xf1, 0x6a, 0x85}};
+extern "C" __declspec(selectany) const GUID MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER = {0x47c3ba0c, 0x77f1, 0x4eb0, {0x8d, 0x4d, 0xae, 0xf4, 0x47, 0xf1, 0x6a, 0x85}};
 
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR BulkType = {0xf, 0x0, 0x10, 0x4, 0xa, 0x15, 0x8000000000080000};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR DestroyGCHandle = {0x1f, 0x0, 0x10, 0x4, 0x22, 0x1, 0x8000000000000002};
@@ -341,7 +340,7 @@ struct RH_ETW_CONTEXT
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCRestartEEBegin_V1 = {0x7, 0x1, 0x10, 0x4, 0x88, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCRestartEEEnd_V1 = {0x3, 0x1, 0x10, 0x4, 0x84, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCStart_V1 = {0x1, 0x1, 0x10, 0x4, 0x1, 0x1, 0x8000000000000001};
-// extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCStart_V2 = {0x1, 0x2, 0x10, 0x4, 0x1, 0x1, 0x8000000000000001};
+extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCStart_V2 = {0x1, 0x2, 0x10, 0x4, 0x1, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCSuspendEEBegin_V1 = {0x9, 0x1, 0x10, 0x4, 0xa, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCSuspendEEEnd_V1 = {0x8, 0x1, 0x10, 0x4, 0x89, 0x1, 0x8000000000000001};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR GCTerminateConcurrentThread_V1 = {0xc, 0x1, 0x10, 0x4, 0xd, 0x1, 0x8000000000010001};
@@ -349,11 +348,11 @@ struct RH_ETW_CONTEXT
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR ModuleLoad_V2 = {0x98, 0x2, 0x10, 0x4, 0x21, 0xa, 0x8000000020000008};
 // extern "C" __declspec(selectany) const EVENT_DESCRIPTOR SetGCHandle = {0x1e, 0x0, 0x10, 0x4, 0x21, 0x1, 0x8000000000000002};
 
-// extern "C" __declspec(selectany) REGHANDLE Microsoft_Windows_Redhawk_GC_PublicHandle;
+extern "C" __declspec(selectany) REGHANDLE Microsoft_Windows_Redhawk_GC_PublicHandle;
 extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context;
 
-// #define RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Public() do { PalEventRegister(&MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER, RhEtwControlCallback, &MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context, &Microsoft_Windows_Redhawk_GC_PublicHandle); } while (false)
-// #define RH_ETW_UNREGISTER_Microsoft_Windows_Redhawk_GC_Public() do { PalEventUnregister(Microsoft_Windows_Redhawk_GC_PublicHandle); } while (false)
+#define RH_ETW_REGISTER_Microsoft_Windows_Redhawk_GC_Public() do { PalEventRegister(&MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER, RhEtwControlCallback, &MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context, &Microsoft_Windows_Redhawk_GC_PublicHandle); } while (false)
+#define RH_ETW_UNREGISTER_Microsoft_Windows_Redhawk_GC_Public() do { PalEventUnregister(Microsoft_Windows_Redhawk_GC_PublicHandle); } while (false)
 
 // #define FireEtwBulkType(Count, ClrInstanceID, Values_Len_, Values) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PublicHandle, &BulkType)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_BulkType(Microsoft_Windows_Redhawk_GC_PublicHandle, &BulkType, Count, ClrInstanceID, Values_Len_, Values) : 0
 
@@ -417,7 +416,8 @@ extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_P
 
 // #define FireEtwGCStart_V1(Count, Depth, Reason, Type, ClrInstanceID) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCStart_V1)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCStart_V1(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCStart_V1, Count, Depth, Reason, Type, ClrInstanceID) : 0
 
-// #define FireEtwGCStart_V2(Count, Depth, Reason, Type, ClrInstanceID, ClientSequenceNumber) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCStart_V2)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCStart_V2(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCStart_V2, Count, Depth, Reason, Type, ClrInstanceID, ClientSequenceNumber) : 0
+//#define FireEtXplatGCStart_V2(Count, Depth, Reason, Type, ClrInstanceID, ClientSequenceNumber) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCStart_V2)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCStart_V2(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCStart_V2, Count, Depth, Reason, Type, ClrInstanceID, ClientSequenceNumber) : 0
+#define FireEtXplatGCStart_V2(Count, Depth, Reason, Type, ClrInstanceID, ClientSequenceNumber) Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCStart_V2(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCStart_V2, Count, Depth, Reason, Type, ClrInstanceID, ClientSequenceNumber)
 
 // #define FireEtwGCSuspendEEBegin_V1(Reason, Count, ClrInstanceID) (MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_Context.IsEnabled && PalEventEnabled(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCSuspendEEBegin_V1)) ? Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCSuspendEE_V1(Microsoft_Windows_Redhawk_GC_PublicHandle, &GCSuspendEEBegin_V1, Reason, Count, ClrInstanceID) : 0
 
@@ -750,18 +750,18 @@ extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_P
 //     return PalEventWrite(RegHandle, Descriptor, 5, EventData);
 // }
 
-// RH_ETW_INLINE uint32_t
-// Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCStart_V2(REGHANDLE RegHandle, const EVENT_DESCRIPTOR * Descriptor, uint32_t Count, uint32_t Depth, uint32_t Reason, uint32_t Type, uint16_t ClrInstanceID, uint64_t ClientSequenceNumber)
-// {
-//     EVENT_DATA_DESCRIPTOR EventData[6];
-//     EventDataDescCreate(&EventData[0], &Count, sizeof(uint32_t));
-//     EventDataDescCreate(&EventData[1], &Depth, sizeof(uint32_t));
-//     EventDataDescCreate(&EventData[2], &Reason, sizeof(uint32_t));
-//     EventDataDescCreate(&EventData[3], &Type, sizeof(uint32_t));
-//     EventDataDescCreate(&EventData[4], &ClrInstanceID, sizeof(uint16_t));
-//     EventDataDescCreate(&EventData[5], &ClientSequenceNumber, sizeof(uint64_t));
-//     return PalEventWrite(RegHandle, Descriptor, 6, EventData);
-// }
+RH_ETW_INLINE uint32_t
+Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCStart_V2(REGHANDLE RegHandle, const EVENT_DESCRIPTOR * Descriptor, uint32_t Count, uint32_t Depth, uint32_t Reason, uint32_t Type, uint16_t ClrInstanceID, uint64_t ClientSequenceNumber)
+{
+    EVENT_DATA_DESCRIPTOR EventData[6];
+    EventDataDescCreate(&EventData[0], &Count, sizeof(uint32_t));
+    EventDataDescCreate(&EventData[1], &Depth, sizeof(uint32_t));
+    EventDataDescCreate(&EventData[2], &Reason, sizeof(uint32_t));
+    EventDataDescCreate(&EventData[3], &Type, sizeof(uint32_t));
+    EventDataDescCreate(&EventData[4], &ClrInstanceID, sizeof(uint16_t));
+    EventDataDescCreate(&EventData[5], &ClientSequenceNumber, sizeof(uint64_t));
+    return PalEventWrite(RegHandle, Descriptor, 6, EventData);
+}
 
 // RH_ETW_INLINE uint32_t
 // Template_MICROSOFT_WINDOWS_NATIVEAOT_GC_PUBLIC_PROVIDER_GCSuspendEE_V1(REGHANDLE RegHandle, const EVENT_DESCRIPTOR * Descriptor, uint32_t Reason, uint32_t Count, uint16_t ClrInstanceID)
@@ -892,7 +892,7 @@ extern "C" __declspec(selectany) RH_ETW_CONTEXT MICROSOFT_WINDOWS_NATIVEAOT_GC_P
 // #define FireEtwGCRestartEEBegin_V1(ClrInstanceID)
 // #define FireEtwGCRestartEEEnd_V1(ClrInstanceID)
 // #define FireEtwGCStart_V1(Count, Depth, Reason, Type, ClrInstanceID)
-// #define FireEtwGCStart_V2(Count, Depth, Reason, Type, ClrInstanceID, ClientSequenceNumber)
+// #define FireEtXplatGCStart_V2(Count, Depth, Reason, Type, ClrInstanceID, ClientSequenceNumber)
 // #define FireEtwGCSuspendEEBegin_V1(Reason, Count, ClrInstanceID)
 // #define FireEtwGCSuspendEEEnd_V1(ClrInstanceID)
 // #define FireEtwGCTerminateConcurrentThread_V1(ClrInstanceID)

@@ -16,16 +16,16 @@ This file is generated using the logic from <root>/src/scripts/genEventing.py
 //     const GUID * ActivityId = nullptr,
 //     const GUID * RelatedActivityId = nullptr
 // );
-// BOOL EventPipeEventEnabledGCStart_V1(void);
-// ULONG EventPipeWriteEventGCStart_V1(
-//     const unsigned int  Count,
-//     const unsigned int  Depth,
-//     const unsigned int  Reason,
-//     const unsigned int  Type,
-//     const unsigned short  ClrInstanceID,
-//     const GUID * ActivityId = nullptr,
-//     const GUID * RelatedActivityId = nullptr
-// );
+BOOL EventPipeEventEnabledGCStart_V1(void);
+ULONG EventPipeWriteEventGCStart_V1(
+    const unsigned int  Count,
+    const unsigned int  Depth,
+    const unsigned int  Reason,
+    const unsigned int  Type,
+    const unsigned short  ClrInstanceID,
+    const GUID * ActivityId = nullptr,
+    const GUID * RelatedActivityId = nullptr
+);
 BOOL EventPipeEventEnabledGCStart_V2(void);
 ULONG EventPipeWriteEventGCStart_V2(
     const unsigned int  Count,
