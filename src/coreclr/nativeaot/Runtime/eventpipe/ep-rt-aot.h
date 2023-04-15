@@ -6,6 +6,9 @@
 #define __EVENTPIPE_RT_AOT_H__
 
 #include <ctype.h>  // For isspace
+#ifdef TARGET_UNIX
+#include <pthread.h>
+#endif
 
 #include <eventpipe/ep-rt-config.h>
 #ifdef ENABLE_PERFTRACING
@@ -41,6 +44,10 @@
 
 #undef EP_ALIGN_UP
 #define EP_ALIGN_UP(val,align) _rt_aot_align_up(val,align)
+
+#ifdef TARGET_UNIX
+extern pthread_key_t eventpipe_tls_key;
+#endif
 
 // shipping criteria: no EVENTPIPE-NATIVEAOT-TODO left in the codebase
 // TODO: The NativeAOT ALIGN_UP is defined in a tangled manner that generates linker errors if
@@ -1535,12 +1542,52 @@ ep_rt_thread_setup (void)
 
 static
 inline
+EventPipeThreadHolder *
+pthread_getThreadHolder (void)
+{
+    void *value = pthread_getspecific(eventpipe_tls_key);
+    if (value) {
+        EventPipeThreadHolder *thread_holder = static_cast<EventPipeThreadHolder*>(value);    
+        return thread_holder;
+    }
+    return NULL;
+}
+
+static
+inline
+EventPipeThreadHolder *
+pthread_createThreadHolder (void)
+{
+    void *value = pthread_getspecific(eventpipe_tls_key);
+    if (value) {
+        // we need to do the unallocation here
+        EventPipeThreadHolder *thread_holder_old = static_cast<EventPipeThreadHolder*>(value);    
+        ep_thread_unregister (ep_thread_holder_get_thread (thread_holder_old));
+        ep_thread_holder_free (thread_holder_old);
+
+        value = NULL;
+    }
+    EventPipeThreadHolder *instance = ep_thread_holder_alloc (ep_thread_alloc());
+    if (instance){
+        ep_thread_register (ep_thread_holder_get_thread (instance));
+        // we need to let pthread know
+        pthread_setspecific(eventpipe_tls_key, instance);
+    }
+
+    return instance;
+}
+
+static
+inline
 EventPipeThread *
 ep_rt_thread_get (void)
 {
     STATIC_CONTRACT_NOTHROW;
-
+#ifdef TARGET_UNIX
+    EventPipeThreadHolder *thread_holder = pthread_getThreadHolder ();
+#else
     EventPipeThreadHolder *thread_holder = EventPipeAotThreadHolderTLS::getThreadHolder ();
+#endif    
     return thread_holder ? ep_thread_holder_get_thread (thread_holder) : NULL;
 }
 
@@ -1551,9 +1598,15 @@ ep_rt_thread_get_or_create (void)
 {
     STATIC_CONTRACT_NOTHROW;
 
-    EventPipeThreadHolder *thread_holder = EventPipeAotThreadHolderTLS::getThreadHolder ();
+#ifdef TARGET_UNIX
+    EventPipeThreadHolder *thread_holder = pthread_getThreadHolder ();
+    if (!thread_holder)
+        thread_holder = pthread_createThreadHolder ();
+#else
+    EventPipeThreadHolder *thread_holder = EventPipeAotThreadHolderTLS::getThreadHolder ();    
     if (!thread_holder)
         thread_holder = EventPipeAotThreadHolderTLS::createThreadHolder ();
+#endif        
 
     return ep_thread_holder_get_thread (thread_holder);
 }
