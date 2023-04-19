@@ -1041,7 +1041,40 @@ ep_rt_temp_path_get (
     STATIC_CONTRACT_NOTHROW;
 //    EP_UNREACHABLE ("Can not reach here");
 
+#ifdef TARGET_UNIX
+
+	// EP_ASSERT (buffer != NULL);
+	// EP_ASSERT (buffer_len > 0);
+
+    const ep_char8_t *path = getenv ("TMPDIR");
+    if (path == NULL){
+        path = getenv ("TMP");
+        if (path == NULL){
+            path = getenv ("TEMP");
+            if (path == NULL)
+                path = "/tmp/";
+        }
+    }
+
+	int32_t result = snprintf (buffer, buffer_len, "%s", path);
+	if (result <= 0 || result > buffer_len)
+		ep_raise_error ();
+
+	if (buffer [result - 1] != '/') {
+		buffer [result++] = '/';
+		buffer [result] = '\0';
+	}
+
+ep_on_exit:
+	return result;
+
+ep_on_error:
+	result = 0;
+	ep_exit_error_handler ();
+
+#else
     return 0;
+#endif    
 }
 
 static
