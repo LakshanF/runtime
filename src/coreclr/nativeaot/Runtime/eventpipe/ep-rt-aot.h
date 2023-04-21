@@ -1571,6 +1571,7 @@ ep_rt_thread_setup (void)
     // EP_ASSERT (thread_handle != NULL);
 }
 
+#ifdef TARGET_UNIX
 static
 inline
 EventPipeThreadHolder *
@@ -1604,9 +1605,9 @@ pthread_createThreadHolder (void)
         // we need to let pthread know
         pthread_setspecific(eventpipe_tls_key, instance);
     }
-
     return instance;
 }
+#endif
 
 static
 inline
