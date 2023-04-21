@@ -19,11 +19,12 @@ include (${SHARED_EVENTPIPE_SOURCE_PATH}/eventpipe.cmake)
 include (${SHARED_CONTAINERS_SOURCE_PATH}/containers.cmake)
 
 list(APPEND SHARED_DIAGNOSTIC_SERVER_SOURCES
-    ds-ipc-pal-namedpipe.c
+    # TODO - need to handle windows here
+    ds-ipc-pal-socket.c
 )
 
 list(APPEND SHARED_DIAGNOSTIC_SERVER_HEADERS
-    ds-ipc-pal-namedpipe.h
+    ds-ipc-pal-socket.h
 )
 
 list(APPEND EVENTPIPE_SOURCES

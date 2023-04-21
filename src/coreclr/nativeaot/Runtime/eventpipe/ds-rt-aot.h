@@ -195,7 +195,62 @@ ds_rt_transport_get_default_name (
     
     // shipping criteria: no EVENTPIPE-NATIVEAOT-TODO left in the codebase
     // TODO: PAL_GetTransportName is defined in coreclr\pal\inc\pal.h
+    // TODO: CoreCLR has dependency on PAL_GetTransportName (defined in coreclr\pal\inc\pal.h) and mono one looks simpler
+    // Copying ds_rt_mono_transport_get_default_name here to unblock testing
+#ifdef TARGET_UNIX
+
+	// EP_ASSERT (name != NULL);
+	// EP_ASSERT (name > 0);
+
+	bool result = false;
+	int32_t format_result = 0;
+	uint64_t disambiguation_key = 0;
+	ep_char8_t *format_buffer = NULL;
+
+	*name = '\0';
+
+	format_buffer = (ep_char8_t *)malloc (name_len + 1);
+	ep_raise_error_if_nok (format_buffer != NULL);
+
+	*format_buffer = '\0';
+
+	// If ipc_get_process_id_disambiguation_key failed for some reason, it should set the value
+	// to 0. We expect that anyone else making the pipe name will also fail and thus will
+	// also try to use 0 as the value.
+	// if (!ipc_get_process_id_disambiguation_key (id, &disambiguation_key))
+	// 	EP_ASSERT (disambiguation_key == 0);
+	// {
+		// Get a temp file location
+    disambiguation_key = id;
+    format_result = ep_rt_temp_path_get (format_buffer, name_len);
+    if (format_result == 0) {
+        DS_LOG_ERROR_0 ("ep_rt_temp_path_get failed");
+        ep_raise_error ();
+    }
+
+    // EP_ASSERT (format_result <= name_len);
+	// }
+
+	format_result = snprintf(name, name_len, "%s%s-%d-%llu-%s", format_buffer, prefix, id, (unsigned long long)disambiguation_key, suffix);
+	if (format_result <= 0 || (uint32_t)format_result > name_len) {
+		DS_LOG_ERROR_0 ("name buffer to small");
+		ep_raise_error ();
+	}
+
+	result = true;
+
+ep_on_exit:
+	free (format_buffer);
+	return result;
+
+ep_on_error:
+	// EP_ASSERT (!result);
+	name [0] = '\0';
+	ep_exit_error_handler ();
+
+#else
     return true;
+#endif
 }
 
 /*
