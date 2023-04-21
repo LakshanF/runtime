@@ -50,6 +50,7 @@ namespace RuntimeEventCounterTests
 
         protected override void OnEventSourceCreated(EventSource source)
         {
+            Console.WriteLine($"OnEventSourceCreated - {source.Name}");
             if (source.Name.Equals("System.Runtime"))
             {
                 Dictionary<string, string> refreshInterval = new Dictionary<string, string>();
@@ -63,6 +64,7 @@ namespace RuntimeEventCounterTests
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
 
+            Console.WriteLine($"OnEventWritten - {eventData.Payload.Count}");
             for (int i = 0; i < eventData.Payload.Count; i++)
             {
                 IDictionary<string, object> eventPayload = eventData.Payload[i] as IDictionary<string, object>;
@@ -70,6 +72,7 @@ namespace RuntimeEventCounterTests
                 {
                     foreach (KeyValuePair<string, object> payload in eventPayload)
                     {
+                        Console.WriteLine($"OnEventWritten - KeyValuePair<string, object> - {payload.Key} - {payload.Value.ToString()}");
                         if (payload.Key.Equals("Name"))
                             observedRuntimeCounters[payload.Value.ToString()] = true;
                     }
@@ -81,6 +84,7 @@ namespace RuntimeEventCounterTests
         {
             foreach (string counterName in observedRuntimeCounters.Keys)
             {
+                Console.WriteLine($"Verify - {counterName}");
                 if (!observedRuntimeCounters[counterName])
                 {
                     Console.WriteLine($"Did not see {counterName}");
@@ -99,6 +103,7 @@ namespace RuntimeEventCounterTests
     {
         public static int Main()
         {
+            Console.WriteLine(Environment.IsPrivilegedProcess);
             // Create an EventListener.
             using (RuntimeCounterListener myListener = new RuntimeCounterListener())
             {

@@ -27,6 +27,9 @@ namespace System
         {
             get
             {
+                //Hack to check if dotnet-counters work
+                System.Diagnostics.Tracing.RuntimeEventSource.Initialize();
+
                 sbyte privilegedProcess = s_privilegedProcess;
                 if (privilegedProcess == 0)
                 {
