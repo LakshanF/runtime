@@ -687,6 +687,21 @@ ipc_stream_write_func (
 		&written,           // number of bytes written
 		overlap) != FALSE;  // overlapped I/O
 
+	FILE *fp;
+	errno_t err = fopen_s(&fp, "C:\\work\\core\\LakshanF\\CSharp\\src\\aot\\experiments\\Diagnostics\\Logging\\PortEventPipe\\investigate\\linux\\out\\win_2.txt", "a");
+	if (err == 0) {
+		fprintf(fp, "----------\n");
+		fprintf(fp, "bytes_to_write: %d\n", (int)bytes_to_write);
+		//fwrite(&bytes_to_write, sizeof(bytes_to_write), 1, fp);
+		fprintf(fp, "----------\n");
+		for (uint32_t i = 0; i < bytes_to_write; i++) {
+			fprintf(fp, "%x ", buffer[i]);
+		}
+		// fwrite(buffer, sizeof(buffer), 1, fp);
+		fprintf(fp, "----------\n");
+		fclose(fp);
+	}
+
 	if (!success) {
 		DWORD error = GetLastError ();
 		if (error == ERROR_IO_PENDING) {

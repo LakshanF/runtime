@@ -914,10 +914,28 @@ ep_rt_system_time_get (EventPipeSystemTime *system_time)
     	value.wMinute,
     	value.wSecond,
     	value.wMilliseconds);
-#else
+#elif TARGET_UNIX
     // shipping criteria: no EVENTPIPE-NATIVEAOT-TODO left in the codebase
     // TODO: Get System time
     // PalDebugBreak();
+    // @TODO Copying from mono but doesn't have their full implementation
+	time_t tt;
+	tt = time (NULL);
+	struct tm *ut_ptr;
+    ut_ptr = gmtime (&tt);
+	uint16_t milliseconds = 0;
+
+	ep_system_time_set (
+		system_time,
+		(uint16_t)(1900 + ut_ptr->tm_year),
+		(uint16_t)ut_ptr->tm_mon + 1,
+		(uint16_t)ut_ptr->tm_wday,
+		(uint16_t)ut_ptr->tm_mday,
+		(uint16_t)ut_ptr->tm_hour,
+		(uint16_t)ut_ptr->tm_min,
+		(uint16_t)ut_ptr->tm_sec,
+		milliseconds);
+
 #endif
 
 }
