@@ -143,6 +143,34 @@ ep_event_payload_copy_data (
 			EventData *event_data = event_payload->event_data;
 			for (uint32_t i = 0; i < event_payload->event_data_len; ++i) {
 				EP_ASSERT ((offset + ep_event_data_get_size (&event_data[i])) <= event_payload->size);
+				#ifdef TARGET_UNIX
+					FILE *fp = fopen("/home/lakshanf/currentwork/lin_named_event_payload.txt", "a");
+					if (fp != NULL) {
+						fprintf(fp, "----------\n");
+						fprintf(fp, "event_payload->event_data_len (incorrect methodology used if more than 1): %d, event_data->size: %d\n", (int)event_payload->event_data_len, (int)event_data->size);
+						fprintf(fp, "----------\n");
+						uint8_t * buffer = (uint8_t *)event_data->ptr;
+						for (uint32_t i = 0; i < event_data->size; i++) {
+							fprintf(fp, "%x ", buffer[i]);
+						}
+						fprintf(fp, "----------\n");
+						fclose(fp);
+					}
+				#else
+					FILE *fp;
+					errno_t err = fopen_s(&fp, "C:\\work\\core\\LakshanF\\CSharp\\src\\aot\\experiments\\Diagnostics\\Logging\\PortEventPipe\\investigate\\linux\\out\\win_event_payload.txt", "a");
+					if (err == 0) {
+						fprintf(fp, "----------\n");
+						fprintf(fp, "event_payload->event_data_len (incorrect methodology used if more than 1): %d, event_data->size: %d\n", (int)event_payload->event_data_len, (int)event_data->size);
+						fprintf(fp, "----------\n");
+						uint8_t * buffer = (uint8_t *)event_data->ptr;
+						for (uint32_t i = 0; i < event_data->size; i++) {
+							fprintf(fp, "%x ", buffer[i]);
+						}
+						fprintf(fp, "----------\n");
+						fclose(fp);
+					}
+				#endif
 				memcpy (dst + offset, (uint8_t *)(uintptr_t)ep_event_data_get_ptr (&event_data[i]), ep_event_data_get_size (&event_data[i]));
 				offset += ep_event_data_get_size (&event_data[i]);
 			}

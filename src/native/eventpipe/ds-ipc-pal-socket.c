@@ -648,6 +648,20 @@ ipc_socket_recv (
 	DS_EXIT_BLOCKING_PAL_SECTION;
 
 	*bytes_read = total_bytes_read;
+
+	FILE *fp = fopen("/home/lakshanf/currentwork/lin_named_pipe_in.txt", "a");
+	if (fp != NULL) {
+		fprintf(fp, "----------\n");
+		fprintf(fp, "bytes_to_read: %d\n", (int)*bytes_read);
+		fprintf(fp, "----------\n");
+		for (uint32_t i = 0; i < *bytes_read; i++) {
+			fprintf(fp, "%x ", buffer[i]);
+		}
+		fprintf(fp, "----------\n");
+		fclose(fp);
+	}
+
+
 	return continue_recv;
 }
 
@@ -663,6 +677,18 @@ ipc_socket_send (
 	ssize_t current_bytes_written = 0;
 	ssize_t total_bytes_written = 0;
 	bool continue_send = true;
+
+	FILE *fp = fopen("/home/lakshanf/currentwork/lin_named_pipe_out.txt", "a");
+	if (fp != NULL) {
+		fprintf(fp, "----------\n");
+		fprintf(fp, "bytes_to_write: %d\n", (int)bytes_to_write);
+		fprintf(fp, "\n----------\n");
+		for (uint32_t i = 0; i < bytes_to_write; i++) {
+			fprintf(fp, "%x ", buffer[i]);
+		}
+		fprintf(fp, "----------\n");
+		fclose(fp);
+	}
 
 	DS_ENTER_BLOCKING_PAL_SECTION;
 	while (continue_send && bytes_to_write - total_bytes_written > 0) {

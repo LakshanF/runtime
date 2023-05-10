@@ -12,6 +12,12 @@ namespace Tracing.Tests.Simple2
         private LaksDemoEventSource() {}
         public static LaksDemoEventSource Log = new LaksDemoEventSource();
         public void MyEvent() { WriteEvent(1, "MyEvent"); }
+        protected override void OnEventCommand(EventCommandEventArgs command)
+        {
+            Console.WriteLine($"On LaksDemoEventSource.OnEventCommand:{command.Command}");
+            base.OnEventCommand(command);
+        }
+
     }
 
     public class ProviderValidation2
@@ -23,14 +29,12 @@ namespace Tracing.Tests.Simple2
             Console.WriteLine("Waiting 10 seconds to client to get the PID");
             Thread.Sleep(10*1000);
 
-            // GC.Collect();
-            // for (int i = 0; i < 100; i++)
-            // {                
-            //     if (i % 10 == 0)
-            //         Console.WriteLine($"Fired MyEvent {i:N0}/100,000 times...");
-                LaksDemoEventSource.Log.MyEvent();
-            // }
-            // GC.Collect();
+            LaksDemoEventSource.Log.MyEvent();
+
+            Console.WriteLine("Waiting 10 seconds to EventPipe to write the data");
+            Thread.Sleep(10*1000);
+
+            Console.WriteLine("Completed");
 
             return 100;
         }

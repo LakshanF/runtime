@@ -1,6 +1,5 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
 // Implementation of ep-rt.h targeting NativeAOT runtime.
 #ifndef __EVENTPIPE_RT_AOT_H__
 #define __EVENTPIPE_RT_AOT_H__
@@ -419,7 +418,10 @@ ep_rt_config_value_get_enable (void)
     // If EventPipe environment variables are specified, parse them and start a session.
     // TODO: Not start a session for now
     return false;
+    // extern bool ep_rt_aot_config_value_get_enable (void);
+    // return ep_rt_aot_config_value_get_enable ();
 }
+
 
 static
 inline
@@ -431,8 +433,17 @@ ep_rt_config_value_get_config (void)
     // TODO: EventPipe Configuration values - RhConfig?
     // (CLRConfig::INTERNAL_EventPipeConfig)
     // PalDebugBreak();
+
     return nullptr;
-//	return ep_rt_utf16_to_utf8_string (reinterpret_cast<ep_char16_t *>(value.GetValue ()), -1);
+
+    // Hack
+
+    // size_t len = strlen("LaksDemoEventSource:F00000000000:5");
+    // ep_char8_t *provider_config = (ep_char8_t *)malloc (len + 1);
+    // if (provider_config)
+    //     memcpy (provider_config, "LaksDemoEventSource:F00000000000:5", len + 1);
+    // return provider_config;
+
 }
 
 static
@@ -919,6 +930,7 @@ ep_rt_system_time_get (EventPipeSystemTime *system_time)
     // TODO: Get System time
     // PalDebugBreak();
     // @TODO Copying from mono but doesn't have their full implementation
+    // gmt and milliseconds
 	time_t tt;
 	tt = time (NULL);
 	struct tm *ut_ptr;
@@ -935,7 +947,6 @@ ep_rt_system_time_get (EventPipeSystemTime *system_time)
 		(uint16_t)ut_ptr->tm_min,
 		(uint16_t)ut_ptr->tm_sec,
 		milliseconds);
-
 #endif
 
 }

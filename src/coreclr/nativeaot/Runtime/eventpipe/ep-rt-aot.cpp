@@ -19,6 +19,7 @@
 #include "thread.h"
 #include "holder.h"
 #include "SpinLock.h"
+#include "RhConfig.h"
 
 #ifdef TARGET_UNIX
 // Per module (1 for NativeAOT), key that will be used to implement TLS in Unix
@@ -32,6 +33,7 @@ thread_local EventPipeAotThreadHolderTLS EventPipeAotThreadHolderTLS::g_threadHo
 ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
 CrstStatic _ep_rt_aot_config_lock;
 
+extern RhConfig * g_pRhConfig;
 
 ep_char8_t *volatile _ep_rt_aot_diagnostics_cmd_line;
 
@@ -384,7 +386,15 @@ ep_rt_aot_utf16_string_len (const ep_char16_t *str)
     STATIC_CONTRACT_NOTHROW;
     EP_ASSERT (str != NULL);
 
-    return wcslen (reinterpret_cast<LPCWSTR>(str));
+    #ifdef TARGET_UNIX
+        const uint16_t *a = (const uint16_t *)str;
+        size_t length = 0;
+        while (a [length])
+            ++length;
+        return length;
+    #else
+        return wcslen (reinterpret_cast<LPCWSTR>(str));
+    #endif
 }
 
 uint32_t
@@ -528,6 +538,17 @@ void unix_tls_callback_fn(void *value)
 
 void ep_rt_aot_init (void)
 {
+
+    #ifdef TARGET_UNIX
+    remove("/home/lakshanf/currentwork/lin_named_pipe_out.txt");
+    remove("/home/lakshanf/currentwork/lin_named_pipe_in.txt");
+    remove("/home/lakshanf/currentwork/lin_named_event_payload.txt");
+    #else
+    remove("C:\\work\\core\\LakshanF\\CSharp\\src\\aot\\experiments\\Diagnostics\\Logging\\PortEventPipe\\investigate\\linux\\out\\win_named_pipe_out.txt");
+    remove("C:\\work\\core\\LakshanF\\CSharp\\src\\aot\\experiments\\Diagnostics\\Logging\\PortEventPipe\\investigate\\linux\\out\\win_named_pipe_in.txt");
+    remove("C:\\work\\core\\LakshanF\\CSharp\\src\\aot\\experiments\\Diagnostics\\Logging\\PortEventPipe\\investigate\\linux\\out\\win_event_payload.txt");
+    #endif
+
     extern ep_rt_lock_handle_t _ep_rt_aot_config_lock_handle;
     extern CrstStatic _ep_rt_aot_config_lock;
 
@@ -578,6 +599,13 @@ bool ep_rt_aot_spin_lock_release (ep_rt_spin_lock_handle_t *spin_lock)
         return true;
     }
     return false;
+}
+
+bool ep_rt_aot_config_value_get_enable (void)
+{
+    uint32_t configValue;
+    g_pRhConfig->ReadConfigValue(_T("DOTNET_EnableEventPipe"), &configValue, true);
+    return configValue != 0;
 }
 
 #ifdef EP_CHECKED_BUILD
