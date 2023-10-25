@@ -87,6 +87,74 @@ struct EventStructBulkTypeFixedSizedData
     BYTE CorElementType;
 };
 
+struct EventStaticEntry
+{
+    // @TODO: Revisit after getting approval for the proposal on how to implement GCDump in native AOT
+
+    ULONGLONG GCRootID;
+    ULONGLONG ObjectID;
+    ULONGLONG TypeID;
+    ULONG Flags;
+    WCHAR Name[0];
+
+    // Writes one EventStaticEntry to the buffer specified by ptr.  Since we don't actually know how large the event will be,
+    // this write may fail if the remaining buffer is not large enough.  This function returns the number of bytes written
+    // on success (return is >= 0), and -1 on failure.  If we return -1, the caller is expected to flush the current buffer
+    // and try again.
+    static int WriteEntry(BYTE *ptr, int sizeRemaining, ULONGLONG addr, ULONGLONG obj, ULONGLONG typeId, ULONG flags/**, FieldDesc *fieldDesc**/)
+    {
+        WRAPPER_NO_CONTRACT;
+
+        // sizeRemaining must be larger than the structure + 1 wchar for the struct and
+        // null terminator of Name.  We will do a better bounds check when we know the
+        // size of the field name.
+        if (sizeRemaining < (int)(sizeof(EventStaticEntry) + sizeof(WCHAR)))
+            return -1;
+
+        // The location in the structure to write to.  We won't actually write here unless we have sufficient buffer.
+        WCHAR *name = (WCHAR *)(ptr + offsetof(EventStaticEntry, Name));
+        int len = 0;
+
+        // LPCUTF8 utf8Name = 0;
+        // if (SUCCEEDED(fieldDesc->GetName_NoThrow(&utf8Name)))
+        // {
+        //     len = MultiByteToWideChar(CP_ACP, 0, utf8Name, -1, name, sizeRemaining - sizeof(EventStaticEntry));
+        //     if (len <= 0)
+        //     {
+        //         // We will ignore corrupted/bad metadata here and only emit names for fields which are
+        //         // up to 255 characters (and also don't fit in the buffer).
+        //         if (GetLastError() == ERROR_INSUFFICIENT_BUFFER && sizeRemaining < 256)
+        //             return -1; // nothing written, insufficient buffer.  Flush and try again.
+
+        //         // If the name is larger than 255 or we have some other error converting the string,
+        //         // just emit an empty string.
+        //         len = 1;
+        //         name[0] = 0;
+        //     }
+        // }
+        // else
+        // {
+            // Couldn't get the name for some reason, just emit an empty string.
+            len = 1;
+            name[0] = 0;
+        // }
+
+        // At this point we should have written something to the name buffer.
+        _ASSERTE(len > 0);
+
+        // At this point we've written the field name (even if it's just an empty string).
+        // Write the rest of the fields to the buffer and return the total size.
+        EventStaticEntry *entry = (EventStaticEntry*)ptr;
+        entry->GCRootID = addr;
+        entry->ObjectID = obj;
+        entry->TypeID = typeId;
+        entry->Flags = flags;
+
+        return sizeof(EventStaticEntry) + len * sizeof(WCHAR);
+    }
+};
+
+
 #pragma pack(pop)
 
 
@@ -138,6 +206,9 @@ class BulkTypeEventLogger
 {
 private:
 
+    // The maximum event size, and the size of the buffer that we allocate to hold the event contents.
+    static const size_t kSizeOfEventBuffer = 65536;
+
     // Estimate of how many bytes we can squeeze in the event data for the value struct
     // array.  (Intentionally overestimate the size of the non-array parts to keep it safe.)
     static const int kMaxBytesTypeValues = (cbMaxEtwEvent - 0x30);
@@ -178,6 +249,8 @@ private:
     // List of types we've batched.
     BulkTypeValue m_rgBulkTypeValues[kMaxCountTypeValues];
 
+    BYTE *m_pBulkTypeEventBuffer;
+
     int LogSingleType(MethodTable * pEEType);
 
 public:
@@ -186,11 +259,49 @@ public:
         m_nBulkTypeValueByteCount(0)
     {
         LIMITED_METHOD_CONTRACT;
+
+        m_pBulkTypeEventBuffer = new (nothrow) BYTE[kSizeOfEventBuffer];
+    }
+
+    ~BulkTypeEventLogger()
+    {
+        delete[] m_pBulkTypeEventBuffer;
+        m_pBulkTypeEventBuffer = NULL;
     }
 
     void LogTypeAndParameters(ULONGLONG thAsAddr);
     void FireBulkTypeEvent();
     void Cleanup();
 };
+
+// Does bulk static variable ETW logging.
+class BulkStaticsLogger
+{
+public:
+    BulkStaticsLogger(BulkTypeEventLogger *typeLogger);
+    ~BulkStaticsLogger();
+
+    // Walk all static variables in the process and write them to the buffer, firing ETW events
+    // as we reach the max buffer size.
+    void LogAllStatics();
+
+    // Force a flush of the static data, firing an ETW event for any not yet written.
+    void FireBulkStaticsEvent();
+
+private:
+    // Write a single static variable to the log.
+    void WriteEntry(Object **address, Object *obj);
+
+private:
+    // The maximum bytes we can emit in the statics buffer.
+    static const int kMaxBytesValues = (cbMaxEtwEvent - 0x30);
+
+    BYTE *m_buffer;         // Buffer to queue up statics in
+    int m_used;             // The amount of bytes used in m_buffer.
+    int m_count;            // The number of statics currently written to m_buffer.
+//    AppDomain *m_domain;    // The current AppDomain m_buffer contains statics for.
+    BulkTypeEventLogger *m_typeLogger;  // The type logger used to emit type data as we encounter it.
+};
+
 
 #endif // __EVENTTRACEPRIV_H__

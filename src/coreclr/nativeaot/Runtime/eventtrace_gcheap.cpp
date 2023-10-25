@@ -35,21 +35,20 @@
 
 BOOL ETW::GCLog::ShouldWalkHeapObjectsForEtw()
 {
-    // @TODO: until the below issue is fixed correctly
-    // https://github.com/dotnet/runtime/issues/88491
-    return FALSE;
+    return RUNTIME_PROVIDER_CATEGORY_ENABLED(
+            TRACE_LEVEL_INFORMATION,
+            CLR_GCHEAPDUMP_KEYWORD);    
 }
 
 BOOL ETW::GCLog::ShouldWalkHeapRootsForEtw()
 {
-    // @TODO: until the below issue is fixed correctly
-    // https://github.com/dotnet/runtime/issues/88491
-    return FALSE;
+    return RUNTIME_PROVIDER_CATEGORY_ENABLED(
+            TRACE_LEVEL_INFORMATION,
+            CLR_GCHEAPDUMP_KEYWORD);    
 }
 
 BOOL ETW::GCLog::ShouldTrackMovementForEtw()
 {
-    LIMITED_METHOD_CONTRACT;
     return RUNTIME_PROVIDER_CATEGORY_ENABLED(
         TRACE_LEVEL_INFORMATION,
         CLR_GCHEAPSURVIVALANDMOVEMENT_KEYWORD);
@@ -57,13 +56,9 @@ BOOL ETW::GCLog::ShouldTrackMovementForEtw()
 
 BOOL ETW::GCLog::ShouldWalkStaticsAndCOMForEtw()
 {
-    // @TODO:
-    return FALSE;
-}
-
-void ETW::GCLog::WalkStaticsAndCOMForETW()
-{
-    // @TODO:
+    return RUNTIME_PROVIDER_CATEGORY_ENABLED(
+        TRACE_LEVEL_INFORMATION,
+        CLR_GCHEAPDUMP_KEYWORD);
 }
 
 // Batches the list of moved/surviving references for the GCBulkMovedObjectRanges /
@@ -480,6 +475,33 @@ HRESULT ETW::GCLog::ForceGCForDiagnostics()
     pThread->EnablePreemptiveMode();
 
     return hr;
+}
+
+//---------------------------------------------------------------------------------------
+// WalkStaticsAndCOMForETW walks both CCW/RCW objects and static variables.
+//---------------------------------------------------------------------------------------
+
+void ETW::GCLog::WalkStaticsAndCOMForETW()
+{
+    // @TODO: Revisit after getting approval for the proposal on how to implement GCDump in native AOT
+
+    BulkTypeEventLogger typeLogger;
+
+    // Walk RCWs/CCWs
+    // native AOT does not need this
+    // BulkComLogger comLogger(&typeLogger);
+    // comLogger.LogAllComObjects();
+
+    // Walk static variables
+    BulkStaticsLogger staticLogger(&typeLogger);
+    staticLogger.LogAllStatics();
+
+    // // Ensure all loggers have written all events, fire type logger last to batch events
+    // // (FireBulkComEvent or FireBulkStaticsEvent may queue up additional types).
+    // comLogger.FireBulkComEvent();
+    staticLogger.FireBulkStaticsEvent();
+    typeLogger.FireBulkTypeEvent();
+
 }
 
 // Holds state that batches of roots, nodes, edges, and types as the GC walks the heap

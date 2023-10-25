@@ -37,6 +37,7 @@ GCBulkEdge
 GCBulkMovedObjectRanges
 GCBulkNode
 GCBulkRCW
+BulkType
 GCBulkRootCCW
 GCBulkRootConditionalWeakTableElementEdge
 GCBulkRootEdge

@@ -43,7 +43,8 @@ namespace Tracing.Tests.EventSourceError
                 new EventPipeProvider("Microsoft-Windows-DotNETRuntime", eventLevel: EventLevel.Verbose, keywords: (long)ClrTraceEventParser.Keywords.GCHeapSnapshot)
             };
 
-            return IpcTraceTest.RunAndValidateEventCounts(_expectedEventCounts, _eventGeneratingAction, providers, 1024, _DoesRundownContainMethodEvents);
+            bool enableRundown = TestLibrary.Utilities.IsNativeAot? false: true;
+            return IpcTraceTest.RunAndValidateEventCounts(_expectedEventCounts, _eventGeneratingAction, providers, 1024, _DoesRundownContainMethodEvents, enableRundownProvider: enableRundown);
         }
 
         private static Dictionary<string, ExpectedEventCount> _expectedEventCounts = new Dictionary<string, ExpectedEventCount>()
