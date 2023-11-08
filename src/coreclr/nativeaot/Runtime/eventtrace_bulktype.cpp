@@ -231,64 +231,53 @@ void BulkTypeEventLogger::FireBulkTypeEvent()
         // No types were batched up, so nothing to send
         return;
     }
-
-    // Normally, we'd use the MC-generated FireEtwBulkType for all this gunk, but
-    // it's insufficient as the bulk type event is too complex (arrays of structs of
-    // varying size). So we directly log the event via EventDataDescCreate and
-    // EventWrite
-
-    // We use one descriptor for the count + one for the ClrInstanceID + 4
-    // per batched type (to include fixed-size data + name + param count + param
-    // array).  But the system limit of 128 descriptors per event kicks in way
-    // before the 64K event size limit, and we already limit our batch size
-    // (m_nBulkTypeValueCount) to stay within the 128 descriptor limit.
-    EVENT_DATA_DESCRIPTOR EventData[128];
     UINT16 nClrInstanceID = GetClrInstanceId();
 
-    UINT iDesc = 0;
+    if(m_pBulkTypeEventBuffer == NULL)
+    {
+        // The buffer could not be allocated when this object was created, so bail.
+        return;
+    }
 
-    _ASSERTE(iDesc < _countof(EventData));
-    EventDataDescCreate(&EventData[iDesc++], &m_nBulkTypeValueCount, sizeof(m_nBulkTypeValueCount));
-
-    _ASSERTE(iDesc < _countof(EventData));
-    EventDataDescCreate(&EventData[iDesc++], &nClrInstanceID, sizeof(nClrInstanceID));
+    UINT iSize = 0;
 
     for (int iTypeData = 0; iTypeData < m_nBulkTypeValueCount; iTypeData++)
     {
+        BulkTypeValue& target = m_rgBulkTypeValues[iTypeData];
+
         // Do fixed-size data as one bulk copy
-        _ASSERTE(iDesc < _countof(EventData));
-        EventDataDescCreate(
-            &EventData[iDesc++],
-            &(m_rgBulkTypeValues[iTypeData].fixedSizedData),
-            sizeof(m_rgBulkTypeValues[iTypeData].fixedSizedData));
+        memcpy(
+                m_pBulkTypeEventBuffer + iSize,
+                &(target.fixedSizedData),
+                sizeof(target.fixedSizedData));
+        iSize += sizeof(target.fixedSizedData);
 
         // Do var-sized data individually per field
-
-        // Type name (nonexistent and thus empty on nativeaot)
-        _ASSERTE(iDesc < _countof(EventData));
-        EventDataDescCreate(&EventData[iDesc++], L"", sizeof(WCHAR));
+        // No name in event, so just the null terminator
+        LPCWSTR wszName = NULL;
+        m_pBulkTypeEventBuffer[iSize++] = 0;
+        m_pBulkTypeEventBuffer[iSize++] = 0;
 
         // Type parameter count
-        _ASSERTE(iDesc < _countof(EventData));
-        EventDataDescCreate(
-            &EventData[iDesc++],
-            &(m_rgBulkTypeValues[iTypeData].cTypeParameters),
-            sizeof(m_rgBulkTypeValues[iTypeData].cTypeParameters));
+        DWORD cTypeParams = target.cTypeParameters;
+        ULONG *ptrInt = (ULONG*)(m_pBulkTypeEventBuffer + iSize);
+        *ptrInt = cTypeParams;
+        iSize += 4;
 
         // Type parameter array
-        if (m_rgBulkTypeValues[iTypeData].cTypeParameters > 0)
+        if (cTypeParams == 1)
         {
-            _ASSERTE(iDesc < _countof(EventData));
-            EventDataDescCreate(
-                &EventData[iDesc++],
-                ((m_rgBulkTypeValues[iTypeData].cTypeParameters == 1) ?
-                    &(m_rgBulkTypeValues[iTypeData].ullSingleTypeParameter) :
-                    (ULONGLONG*)(m_rgBulkTypeValues[iTypeData].rgTypeParameters)),
-                sizeof(ULONGLONG) * m_rgBulkTypeValues[iTypeData].cTypeParameters);
+            memcpy(m_pBulkTypeEventBuffer + iSize, &target.ullSingleTypeParameter, sizeof(ULONGLONG) * cTypeParams);
+            iSize += sizeof(ULONGLONG) * cTypeParams;
+        }
+        else
+        {
+            memcpy(m_pBulkTypeEventBuffer + iSize, target.rgTypeParameters.GetValue(), sizeof(ULONGLONG) * cTypeParams);
+            iSize += sizeof(ULONGLONG) * cTypeParams;
         }
     }
 
-    EventWrite(Microsoft_Windows_DotNETRuntimeHandle, &BulkType, iDesc, EventData);
+    FireEtwBulkType(m_nBulkTypeValueCount, GetClrInstanceId(), iSize, m_pBulkTypeEventBuffer);
 
     // Reset state
     m_nBulkTypeValueCount = 0;
@@ -457,7 +446,12 @@ int BulkTypeEventLogger::LogSingleType(MethodTable * pEEType)
     // Determine this MethodTable's module.
     RuntimeInstance * pRuntimeInstance = GetRuntimeInstance();
 
-    ULONGLONG osModuleHandle = (ULONGLONG) pEEType->GetTypeManagerPtr()->AsTypeManager()->GetOsModuleHandle();
+    // @TODO: TypeManagerHandle is a struct with a void *_value that holds the TypeManager
+    // For some cases of pEEType, _value is not iniitalized and can cause problems with AsTypeManager()
+    // This is temperarily worked around by returning null in MethodTable::GetTypeManagerPtr()
+    ULONGLONG osModuleHandle = 0;
+    if (pEEType->GetTypeManagerPtr() != NULL)
+        osModuleHandle = (ULONGLONG) pEEType->GetTypeManagerPtr()->AsTypeManager()->GetOsModuleHandle();
 
     pVal->fixedSizedData.ModuleID = osModuleHandle;
 
@@ -533,14 +527,15 @@ int BulkTypeEventLogger::LogSingleType(MethodTable * pEEType)
 
 void BulkTypeEventLogger::LogTypeAndParameters(uint64_t thAsAddr)
 {
+    // @TODO CoreCLR doesn't have this guard here
     // BulkTypeEventLogger currently fires ETW events only
-    if (!ETW_TRACING_CATEGORY_ENABLED(
-        MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-        TRACE_LEVEL_INFORMATION,
-        CLR_TYPE_KEYWORD))
-    {
-        return;
-    }
+    // if (!ETW_TRACING_CATEGORY_ENABLED(
+    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
+    //     TRACE_LEVEL_INFORMATION,
+    //     CLR_TYPE_KEYWORD))
+    // {
+    //     return;
+    // }
 
     MethodTable * pEEType = (MethodTable *) thAsAddr;
 

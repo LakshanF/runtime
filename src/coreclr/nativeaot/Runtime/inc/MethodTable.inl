@@ -73,6 +73,10 @@ inline TypeManagerHandle* MethodTable::GetTypeManagerPtr()
 {
     uint32_t cbOffset = GetFieldOffset(ETF_TypeManagerIndirection);
 
+    // @TODO - hack, its hard to set TypeManagerHandle _value to be null. This offset check allows to workaround that.
+    if(cbOffset>0xF50)
+        return nullptr;
+
 #if !defined(USE_PORTABLE_HELPERS)
     if (!IsDynamicType())
     {

@@ -257,6 +257,7 @@ public:
     BulkTypeEventLogger() :
         m_nBulkTypeValueCount(0),
         m_nBulkTypeValueByteCount(0)
+        , m_pBulkTypeEventBuffer(NULL)
     {
         LIMITED_METHOD_CONTRACT;
 

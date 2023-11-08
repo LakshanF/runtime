@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -24,8 +25,12 @@ namespace Tracing.Tests.EventSourceError
         private static bool _seenGCStart = false;
         private static bool _seenGCStop = false;
         private static int _bulkTypeCount = 0;
+
+        private static bool _bulkNodeSeen = false;
         private static int _bulkNodeCount = 0;
-        private static int _bulkEdgeCount = 0;
+        private static bool _bulkEdgeSeen = false;
+        private static int _bulkEdgeCount = 0;        
+        private static bool _bulkRootEdgeSeen = false;
         private static int _bulkRootEdgeCount = 0;
         private static int _bulkRootStaticVarCount = 0;
 
@@ -67,26 +72,62 @@ namespace Tracing.Tests.EventSourceError
 
             source.Clr.TypeBulkType += (GCBulkTypeTraceData data) =>
             {
+                Console.WriteLine("At GCBulkTypeTraceData");
+                StringBuilder sb = new StringBuilder();
+                Console.WriteLine(data.ToXml(sb).ToString());
                 _bulkTypeCount += data.Count;
             };
 
             source.Clr.GCBulkNode += delegate (GCBulkNodeTraceData data)
             {
+                Console.WriteLine("At GCBulkNodeTraceData");
+                // Console.WriteLine($"{data.Index}, {data.Count}, {data.ClrInstanceID}");
+                // if(!_bulkNodeSeen)
+                // {
+                //     _bulkNodeSeen=true;
+                //     Console.WriteLine("At GCBulkNodeTraceData, Values");
+                //     Console.WriteLine($"Address:<{data.Values(0).Address}>, Size:<{data.Values(0).Size}>, TypeID:<{data.Values(0).TypeID}>, EdgeCount:<{data.Values(0).EdgeCount}>");
+                // }
+                StringBuilder sb = new StringBuilder();
+                Console.WriteLine(data.ToXml(sb).ToString());
                 _bulkNodeCount += data.Count;
             };
 
             source.Clr.GCBulkEdge += (GCBulkEdgeTraceData data) =>
             {
+                Console.WriteLine("At GCBulkEdgeTraceData");
+                // Console.WriteLine($"{data.Index}, {data.Count}, {data.ClrInstanceID}");
+                // if(!_bulkEdgeSeen)
+                // {
+                //     _bulkEdgeSeen=true;
+                //     Console.WriteLine("At GCBulkEdgeTraceData, Values");
+                //     Console.WriteLine($"Target:<{data.Values(0).Target}>, ReferencingField:<{data.Values(0).ReferencingField}>");
+                // }
+                StringBuilder sb = new StringBuilder();
+                Console.WriteLine(data.ToXml(sb).ToString());
                 _bulkEdgeCount += data.Count;
             };
 
             source.Clr.GCBulkRootEdge += (GCBulkRootEdgeTraceData data) =>
             {
+                Console.WriteLine("At GCBulkRootEdgeTraceData");
+                // Console.WriteLine($"{data.Index}, {data.Count}, {data.ClrInstanceID}");
+                // if(!_bulkRootEdgeSeen)
+                // {
+                //     _bulkRootEdgeSeen=true;
+                //     Console.WriteLine("At GCBulkRootEdgeTraceData, Values");
+                //     Console.WriteLine($"RootedNodeAddress:<{data.Values(0).RootedNodeAddress}>, GCRootKind:<{data.Values(0).GCRootKind}>, GCRootFlag:<{data.Values(0).GCRootFlag}>, GCRootID:<{data.Values(0).GCRootID}>");
+                // }
+                StringBuilder sb = new StringBuilder();
+                Console.WriteLine(data.ToXml(sb).ToString());
                 _bulkRootEdgeCount += data.Count;
             };
 
             source.Clr.GCBulkRootStaticVar += (GCBulkRootStaticVarTraceData data) =>
             {
+                Console.WriteLine("At GCBulkRootStaticVarTraceData");
+                StringBuilder sb = new StringBuilder();
+                Console.WriteLine(data.ToXml(sb).ToString());
                 _bulkRootStaticVarCount += data.Count;
             };
 
@@ -102,6 +143,14 @@ namespace Tracing.Tests.EventSourceError
                 // and high enough to catch issues. There should be between hundreds and thousands
                 // for each, but the number is variable and the point of the test is to verify
                 // that we get any events at all.
+                Console.WriteLine($"_seenGCStart =            {_seenGCStart}");
+                Console.WriteLine($"_seenGCStop =             {_seenGCStop}");
+                Console.WriteLine($"_bulkTypeCount =          {_bulkTypeCount}");
+                Console.WriteLine($"_bulkNodeCount =          {_bulkNodeCount}");
+                Console.WriteLine($"_bulkEdgeCount =          {_bulkEdgeCount}");
+                Console.WriteLine($"_bulkRootEdgeCount =      {_bulkRootEdgeCount}");
+                Console.WriteLine($"_bulkRootStaticVarCount = {_bulkRootStaticVarCount}");
+
                 if (_seenGCStart
                      && _seenGCStop
                      && _bulkTypeCount > 50
@@ -115,13 +164,6 @@ namespace Tracing.Tests.EventSourceError
 
 
                 Console.WriteLine($"Test failed due to missing GC heap events.");
-                Console.WriteLine($"_seenGCStart =            {_seenGCStart}");
-                Console.WriteLine($"_seenGCStop =             {_seenGCStop}");
-                Console.WriteLine($"_bulkTypeCount =          {_bulkTypeCount}");
-                Console.WriteLine($"_bulkNodeCount =          {_bulkNodeCount}");
-                Console.WriteLine($"_bulkEdgeCount =          {_bulkEdgeCount}");
-                Console.WriteLine($"_bulkRootEdgeCount =      {_bulkRootEdgeCount}");
-                Console.WriteLine($"_bulkRootStaticVarCount = {_bulkRootStaticVarCount}");
                 return -1;
             };
         };
