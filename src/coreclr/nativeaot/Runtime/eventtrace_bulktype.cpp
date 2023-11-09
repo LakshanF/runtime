@@ -409,6 +409,14 @@ int BulkTypeEventLogger::LogSingleType(MethodTable * pEEType)
     // We need to add a lock to protect the types hash for Server GC.
     ASSERT_UNCONDITIONALLY("Add a lock to protect s_loggedTypesHash access!");
 #endif
+
+    // There can be invalid pEETypes where EETypeElementType is ElementType_Unknown and accessing the TypeManager can cause problems (Specifically, the TypeManagerHandle _value)
+    // We will not log these types.
+    if(pEEType->GetElementType()==ElementType_Unknown)
+    {
+        return -1;
+    }
+
     //Avoid logging the same type twice, but using the hash of loggged types.
     if (s_loggedTypesHash == NULL)
         s_loggedTypesHash = new SHash<LoggedTypesTraits>();
@@ -445,13 +453,7 @@ int BulkTypeEventLogger::LogSingleType(MethodTable * pEEType)
 
     // Determine this MethodTable's module.
     RuntimeInstance * pRuntimeInstance = GetRuntimeInstance();
-
-    // @TODO: TypeManagerHandle is a struct with a void *_value that holds the TypeManager
-    // For some cases of pEEType, _value is not iniitalized and can cause problems with AsTypeManager()
-    // This is temperarily worked around by returning null in MethodTable::GetTypeManagerPtr()
-    ULONGLONG osModuleHandle = 0;
-    if (pEEType->GetTypeManagerPtr() != NULL)
-        osModuleHandle = (ULONGLONG) pEEType->GetTypeManagerPtr()->AsTypeManager()->GetOsModuleHandle();
+    ULONGLONG osModuleHandle = (ULONGLONG) pEEType->GetTypeManagerPtr()->AsTypeManager()->GetOsModuleHandle();
 
     pVal->fixedSizedData.ModuleID = osModuleHandle;
 
