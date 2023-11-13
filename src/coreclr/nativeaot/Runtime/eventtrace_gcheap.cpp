@@ -56,9 +56,8 @@ BOOL ETW::GCLog::ShouldTrackMovementForEtw()
 
 BOOL ETW::GCLog::ShouldWalkStaticsAndCOMForEtw()
 {
-    return RUNTIME_PROVIDER_CATEGORY_ENABLED(
-        TRACE_LEVEL_INFORMATION,
-        CLR_GCHEAPDUMP_KEYWORD);
+    // @TODO
+    return false;
 }
 
 // Batches the list of moved/surviving references for the GCBulkMovedObjectRanges /
@@ -483,25 +482,6 @@ HRESULT ETW::GCLog::ForceGCForDiagnostics()
 
 void ETW::GCLog::WalkStaticsAndCOMForETW()
 {
-    // @TODO: Revisit after getting approval for the proposal on how to implement GCDump in native AOT
-
-    BulkTypeEventLogger typeLogger;
-
-    // Walk RCWs/CCWs
-    // native AOT does not need this
-    // BulkComLogger comLogger(&typeLogger);
-    // comLogger.LogAllComObjects();
-
-    // Walk static variables
-    BulkStaticsLogger staticLogger(&typeLogger);
-    staticLogger.LogAllStatics();
-
-    // // Ensure all loggers have written all events, fire type logger last to batch events
-    // // (FireBulkComEvent or FireBulkStaticsEvent may queue up additional types).
-    // comLogger.FireBulkComEvent();
-    staticLogger.FireBulkStaticsEvent();
-    typeLogger.FireBulkTypeEvent();
-
 }
 
 // Holds state that batches of roots, nodes, edges, and types as the GC walks the heap

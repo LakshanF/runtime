@@ -141,9 +141,6 @@ internal class ConcurrentRepro
 
     public static int Main(string[] args)
     {
-        Console.WriteLine("Waiting 10 seconds to client to get the PID");
-        Thread.Sleep(10*1000);
-
         // parse arguments
         int[] parameters = ParseArgs(args);
         if (parameters == null)

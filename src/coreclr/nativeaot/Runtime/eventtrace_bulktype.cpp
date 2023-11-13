@@ -16,168 +16,6 @@
 #if defined(FEATURE_EVENT_TRACE)
 
 //---------------------------------------------------------------------------------------
-// BulkStaticsLogger: Batches up and logs static variable roots
-// @TODO! Native AOT doesn't have m_domain
-//---------------------------------------------------------------------------------------
-
-
-BulkStaticsLogger::BulkStaticsLogger(BulkTypeEventLogger *typeLogger)
-    : m_buffer(0), m_used(0), m_count(0), m_typeLogger(typeLogger)
-{
-    m_buffer = new BYTE[kMaxBytesValues];
-}
-
-BulkStaticsLogger::~BulkStaticsLogger()
-{
-    if (m_used > 0)
-        FireBulkStaticsEvent();
-
-    if (m_buffer)
-        delete[] m_buffer;
-}
-
-void BulkStaticsLogger::FireBulkStaticsEvent()
-{
-    if (m_used <= 0 || m_count <= 0)
-        return;
-
-    unsigned short instance = GetClrInstanceId();
-    unsigned __int64 appDomain = (unsigned __int64)1;
-
-#if !defined(HOST_UNIX)
-    EVENT_DATA_DESCRIPTOR eventData[4];
-    EventDataDescCreate(&eventData[0], &m_count, sizeof(const unsigned int)  );
-    EventDataDescCreate(&eventData[1], &appDomain, sizeof(unsigned __int64)  );
-    EventDataDescCreate(&eventData[2], &instance, sizeof(const unsigned short)  );
-    EventDataDescCreate(&eventData[3], m_buffer, m_used);
-
-    ULONG result = EventWrite(Microsoft_Windows_DotNETRuntimeHandle, &GCBulkRootStaticVar, ARRAY_SIZE(eventData), eventData);
-#endif    
-    FireEtwGCBulkRootStaticVar(m_count, appDomain, instance, m_used, m_buffer);
-
-    _ASSERTE(result == ERROR_SUCCESS);
-
-    m_used = 0;
-    m_count = 0;
-}
-
-// @TODO
-
-void BulkStaticsLogger::WriteEntry(Object **address, Object *obj)
-{
-
-    // @TODO - Change to using MethodTable since Typehandle is not present in native AOT
-    // TypeHandle typeHandle = obj->GetGCSafeTypeHandleIfPossible();
-    // if (typeHandle == NULL)
-    // {
-    //     return;
-    // }
-    // ULONGLONG th = (ULONGLONG)typeHandle.AsTAddr();
-    // ETW::TypeSystemLog::LogTypeAndParametersIfNecessary(m_typeLogger, th, ETW::TypeSystemLog::kTypeLogBehaviorTakeLockAndLogIfFirstTime);
-
-    // We should have at least 512 characters remaining in the buffer here.
-    // int remaining = kMaxBytesValues - m_used;
-    // _ASSERTE(kMaxBytesValues - m_used > 512);
-
-    // // @TODO - need th here, passing NULL for now
-    // int len = EventStaticEntry::WriteEntry(m_buffer + m_used, remaining, (ULONGLONG)address,
-    //                                        (ULONGLONG)obj, NULL, 0);
-
-    // // 512 bytes was not enough buffer?  This shouldn't happen, so we'll skip emitting the
-    // // event on error.
-    // if (len > 0)
-    // {
-    //     m_used += len;
-    //     m_count++;
-    // }
-
-    // // When we are close to running out of buffer, emit the event.
-    // if (kMaxBytesValues - m_used < 512)
-    //     FireBulkStaticsEvent();
-}
-
-void BulkStaticsLogger::LogAllStatics()
-{
-    // @TODO
-    // Fields don't have all the metadata in native AOT
-    // We know where the block of static fields start and end but not what's inside
-    // FYI: Below is the CoreCLR implementation
-    {
-    //     AppDomain *domain = ::GetAppDomain(); // There is only 1 AppDomain, so no iterator here.
-
-    //     AppDomain::AssemblyIterator assemblyIter = domain->IterateAssembliesEx((AssemblyIterationFlags)(kIncludeLoaded|kIncludeExecution));
-    //     CollectibleAssemblyHolder<DomainAssembly *> pDomainAssembly;
-    //     while (assemblyIter.Next(pDomainAssembly.This()))
-    //     {
-    //         // Make sure the assembly is loaded.
-    //         if (!pDomainAssembly->IsLoaded())
-    //             continue;
-
-    //         CollectibleAssemblyHolder<Assembly *> pAssembly = pDomainAssembly->GetAssembly();
-    //         // Get the domain module from the module/appdomain pair.
-    //         Module *module = pDomainAssembly->GetModule();
-    //         if (module == NULL)
-    //             continue;
-
-    //         DomainAssembly *domainAssembly = module->GetDomainAssembly();
-    //         if (domainAssembly == NULL)
-    //             continue;
-
-    //         // Ensure the module has fully loaded.
-    //         if (!domainAssembly->IsActive())
-    //             continue;
-
-    //         DomainLocalModule *domainModule = module->GetDomainLocalModule();
-    //         if (domainModule == NULL)
-    //             continue;
-
-    //         // Now iterate all types with
-    //         LookupMap<PTR_MethodTable>::Iterator mtIter = module->EnumerateTypeDefs();
-    //         while (mtIter.Next())
-    //         {
-    //             // I don't think mt can be null here, but the dac does a null check...
-    //             // IsFullyLoaded should be equivalent to 'GetLoadLevel() == CLASS_LOADED'
-    //             MethodTable *mt = mtIter.GetElement();
-    //             if (mt == NULL || !mt->IsFullyLoaded())
-    //                 continue;
-
-    //             EEClass *cls = mt->GetClass();
-    //             _ASSERTE(cls != NULL);
-
-    //             if (cls->GetNumStaticFields() <= 0)
-    //                 continue;
-
-    //             ApproxFieldDescIterator fieldIter(mt, ApproxFieldDescIterator::STATIC_FIELDS);
-    //             for (FieldDesc *field = fieldIter.Next(); field != NULL; field = fieldIter.Next())
-    //             {
-    //                 // Don't want thread local
-    //                 _ASSERTE(field->IsStatic());
-    //                 if (field->IsSpecialStatic() || field->IsEnCNew())
-    //                     continue;
-
-    //                 // Static valuetype values are boxed.
-    //                 CorElementType fieldType = field->GetFieldType();
-    //                 if (fieldType != ELEMENT_TYPE_CLASS && fieldType != ELEMENT_TYPE_VALUETYPE)
-    //                     continue;
-
-    //                 BYTE *base = field->GetBaseInDomainLocalModule(domainModule);
-    //                 if (base == NULL)
-    //                     continue;
-
-    //                 Object **address = (Object**)field->GetStaticAddressHandle(base);
-    //                 Object *obj = NULL;
-    //                 if (address == NULL || ((obj = *address) == NULL))
-    //                     continue;
-
-    //                 WriteEntry(domain, address, *address, field);
-    //             } // foreach static field
-    //         }
-    //     } // foreach domain assembly
-    } // foreach AppDomain
-} // BulkStaticsLogger::LogAllStatics
-
-
-//---------------------------------------------------------------------------------------
 // BulkTypeValue / BulkTypeEventLogger: These take care of batching up types so they can
 // be logged via ETW in bulk
 //---------------------------------------------------------------------------------------
@@ -221,7 +59,6 @@ void BulkTypeValue::Clear()
 // Fire an ETW event for all the types we batched so far, and then reset our state
 // so we can start batching new types at the beginning of the array.
 //
-
 void BulkTypeEventLogger::FireBulkTypeEvent()
 {
     LIMITED_METHOD_CONTRACT;
@@ -402,20 +239,12 @@ SHash<LoggedTypesTraits>* s_loggedTypesHash = NULL;
 //      Index into internal array where the info got batched.  Or -1 if there was a
 //      failure.
 //
-
 int BulkTypeEventLogger::LogSingleType(MethodTable * pEEType)
 {
 #ifdef MULTIPLE_HEAPS
     // We need to add a lock to protect the types hash for Server GC.
     ASSERT_UNCONDITIONALLY("Add a lock to protect s_loggedTypesHash access!");
 #endif
-
-    // There can be invalid pEETypes where EETypeElementType is ElementType_Unknown and accessing the TypeManager can cause problems (Specifically, the TypeManagerHandle _value)
-    // We will not log these types.
-    if(pEEType->GetElementType()==ElementType_Unknown)
-    {
-        return -1;
-    }
 
     //Avoid logging the same type twice, but using the hash of loggged types.
     if (s_loggedTypesHash == NULL)
@@ -453,8 +282,14 @@ int BulkTypeEventLogger::LogSingleType(MethodTable * pEEType)
 
     // Determine this MethodTable's module.
     RuntimeInstance * pRuntimeInstance = GetRuntimeInstance();
-    ULONGLONG osModuleHandle = (ULONGLONG) pEEType->GetTypeManagerPtr()->AsTypeManager()->GetOsModuleHandle();
 
+    // There can be invalid pEETypes where EETypeElementType is ElementType_Unknown and accessing the TypeManager can cause problems
+    // Specifically, the TypeManagerHandle _value). We will not be able to get the osModuleHandle
+    ULONGLONG osModuleHandle = 0;
+    if (pEEType->GetElementType() != ElementType_Unknown)
+    {
+        osModuleHandle = (ULONGLONG) pEEType->GetTypeManagerPtr()->AsTypeManager()->GetOsModuleHandle();
+    }
     pVal->fixedSizedData.ModuleID = osModuleHandle;
 
     if (pEEType->IsParameterizedType())
@@ -529,16 +364,6 @@ int BulkTypeEventLogger::LogSingleType(MethodTable * pEEType)
 
 void BulkTypeEventLogger::LogTypeAndParameters(uint64_t thAsAddr)
 {
-    // @TODO CoreCLR doesn't have this guard here
-    // BulkTypeEventLogger currently fires ETW events only
-    // if (!ETW_TRACING_CATEGORY_ENABLED(
-    //     MICROSOFT_WINDOWS_DOTNETRUNTIME_PROVIDER_Context,
-    //     TRACE_LEVEL_INFORMATION,
-    //     CLR_TYPE_KEYWORD))
-    // {
-    //     return;
-    // }
-
     MethodTable * pEEType = (MethodTable *) thAsAddr;
 
     // Batch up this type.  This grabs useful info about the type, including any

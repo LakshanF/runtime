@@ -275,34 +275,4 @@ public:
     void Cleanup();
 };
 
-// Does bulk static variable ETW logging.
-class BulkStaticsLogger
-{
-public:
-    BulkStaticsLogger(BulkTypeEventLogger *typeLogger);
-    ~BulkStaticsLogger();
-
-    // Walk all static variables in the process and write them to the buffer, firing ETW events
-    // as we reach the max buffer size.
-    void LogAllStatics();
-
-    // Force a flush of the static data, firing an ETW event for any not yet written.
-    void FireBulkStaticsEvent();
-
-private:
-    // Write a single static variable to the log.
-    void WriteEntry(Object **address, Object *obj);
-
-private:
-    // The maximum bytes we can emit in the statics buffer.
-    static const int kMaxBytesValues = (cbMaxEtwEvent - 0x30);
-
-    BYTE *m_buffer;         // Buffer to queue up statics in
-    int m_used;             // The amount of bytes used in m_buffer.
-    int m_count;            // The number of statics currently written to m_buffer.
-//    AppDomain *m_domain;    // The current AppDomain m_buffer contains statics for.
-    BulkTypeEventLogger *m_typeLogger;  // The type logger used to emit type data as we encounter it.
-};
-
-
 #endif // __EVENTTRACEPRIV_H__
