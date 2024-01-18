@@ -140,6 +140,24 @@
     <Right>right</Right>
   </Suppression>
   <Suppression>
+    <DiagnosticId>CP0006</DiagnosticId>
+    <Target>M:System.ComponentModel.ICustomTypeDescriptor.GetConverterSafe</Target>
+    <Left>netstandard2.0/netstandard.dll</Left>
+    <Right>net9.0/netstandard.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0006</DiagnosticId>
+    <Target>M:System.ComponentModel.ICustomTypeDescriptor.GetConverterSafe</Target>
+    <Left>netstandard2.0/System.ComponentModel.TypeConverter.dll</Left>
+    <Right>net9.0/System.ComponentModel.TypeConverter.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0006</DiagnosticId>
+    <Target>M:System.ComponentModel.ICustomTypeDescriptor.GetConverterSafe</Target>
+    <Left>netstandard2.0/System.dll</Left>
+    <Right>net9.0/System.dll</Right>
+  </Suppression>
+  <Suppression>
     <DiagnosticId>CP0009</DiagnosticId>
     <Target>T:System.ComponentModel.BaseNumberConverter</Target>
     <Left>netstandard2.0/netstandard.dll</Left>

@@ -618,6 +618,7 @@ namespace System.Data.Common
         {
             return TypeDescriptor.GetConverter(this, true);
         }
+        TypeConverter? ICustomTypeDescriptor.GetConverterSafe() => null;
         [RequiresUnreferencedCode("PropertyDescriptor's PropertyType cannot be statically discovered.")]
         PropertyDescriptor? ICustomTypeDescriptor.GetDefaultProperty()
         {
